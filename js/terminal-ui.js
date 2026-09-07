@@ -88,10 +88,11 @@ function mountTerminal(termId, term) {
   term.xterm.open(term.element);
   patchXtermImeComposition(term.xterm);
   // WebGL renderer: GPU 글리프 래스터라이즈로 한글 폴백 폰트의 셀 폭 어긋남(글자 겹침/씹힘)과
-  // 대량 출력 시 DOM 렌더링 병목(opencode TUI 스크롤 끊김)을 해결.
-  // 캔버스보드(줌 transform)에서는 텍스처가 깨져 DOM 렌더러 유지 — 기존 제약 그대로.
+  // 대량 출력 시 DOM 렌더링 병목을 해결. 다만 GPU 여유가 없는 머신에서 컨텍스트 손실이
+  // 반복되며 오히려 전체가 느려지는 사례가 있어 opt-in: localStorage 'dl-term-webgl'='1'일 때만.
+  // 캔버스보드(줌 transform)에서는 텍스처가 깨져 항상 DOM 렌더러 유지.
   term.renderer = 'dom';
-  if (!canvas.enabled && window.WebglAddon) {
+  if (!canvas.enabled && window.WebglAddon && localStorage.getItem('dl-term-webgl') === '1') {
     try {
       const webgl = new WebglAddon.WebglAddon();
       webgl.onContextLoss(() => {
@@ -159,7 +160,14 @@ export function renderLayout() {
   app._headCache.clear();
   updateTermHeaders();
   requestAnimationFrame(() => {
-    for (const [termId, term] of app.termMap) mountTerminal(termId, term);
+    // 마운트를 80ms 간격으로 분산 — 새로고침 시 7개+ 터미널의 리플레이 버퍼가
+    // 같은 프레임에 몰려 저사양 머신을 수십 초 얼리던 것을 방지.
+    let index = 0;
+    for (const [termId, term] of app.termMap) {
+      const delay = index++ * 80;
+      if (delay === 0) mountTerminal(termId, term);
+      else setTimeout(() => { if (app.termMap.get(termId) === term) mountTerminal(termId, term); }, delay);
+    }
     setTimeout(() => _core.fitAllTerminals(), 120);
   });
   _core.saveLayout();
@@ -760,16 +768,10 @@ export function isCanvasMode() {
 export function routeCanvasTerminalWheel(e, xterm) {
   if (!isCanvasMode()) return false;
   if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-    if (!xterm || !e.deltaY) return false;
-    // Full-screen TUIs own wheel input in the alternate buffer (Codex/Claude menus,
-    // history, etc). Let xterm translate the native event for the application.
-    if (xterm.buffer.active.type === 'alternate') return false;
-    const unit = e.deltaMode === 1 ? 1 : e.deltaMode === 2 ? xterm.rows : 1 / 40;
-    const lines = Math.min(xterm.rows, Math.max(1, Math.ceil(Math.abs(e.deltaY) * unit))) * (e.altKey ? 5 : 1);
-    e.preventDefault();
-    e.stopPropagation();
-    xterm.scrollLines(Math.sign(e.deltaY) * lines);
-    return true;
+    // 플레인 휠은 무조건 xterm 자체 처리에 맡긴다 (normal=스크롤백, alternate=앱 전달).
+    // 예전엔 여기서 수동 xterm.scrollLines()를 불렀지만 이 경로가 실환경에서
+    // 죽어 캔버스보드 터미널 스크롤이 안 되는 원인이었다. 캔버스 팬/줌은 바탕 휤·Ctrl+휠 유지.
+    return false;
   }
   e.preventDefault();
   e.stopPropagation();

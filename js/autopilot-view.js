@@ -8,7 +8,12 @@ export function initAutopilotView() {
     document.getElementById('autopilot-view')?.addEventListener('click', onClick);
   }
   load();
-  if (!app._autopilotTimer) app._autopilotTimer = setInterval(load, 5000);
+  if (!app._autopilotTimer) {
+    app._autopilotTimer = setInterval(() => {
+      // Autopilot 뷰를 벗어난 동안엔 API 폴링을 쉰다
+      if (document.getElementById('autopilot-view')?.classList.contains('active')) load();
+    }, 5000);
+  }
 }
 
 export function destroyAutopilotView() {

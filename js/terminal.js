@@ -319,6 +319,10 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
     red: '#dc2626', green: '#16a34a', yellow: '#ca8a04',
     blue: '#2563eb', magenta: '#9333ea', cyan: '#0891b2',
     white: '#f0eff5',
+    brightBlack: '#6b6e80',
+    brightRed: '#b91c1c', brightGreen: '#15803d', brightYellow: '#a16207',
+    brightBlue: '#1d4ed8', brightMagenta: '#7e22ce', brightCyan: '#0e7490',
+    brightWhite: '#ffffff',
   };
   const xterm = new Terminal({
     theme: app.currentTheme === 'light' ? lightTheme : darkTheme,
@@ -412,6 +416,10 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
     const self = app.termMap.get(termId);
     if (self?._replaying) return; // 리플레이 버퍼에 든 과거 벨은 무시
     if (!document.hidden && termId === app.activeTermId) return;
+    // TUI가 벨을 연사하면 알림음(보이스처럼 들림)이 계속 울려 시스템을 잠깐웁게 만든다 — 터미널당 10초 1회로 제한
+    const now = Date.now();
+    if (self && now - (self._lastBellNotifyAt || 0) < 10_000) return;
+    if (self) self._lastBellNotifyAt = now;
     const label = self?.label || 'terminal';
     showToast(`\u{1F514} ${label} — 벨 (완료/입력 대기)`, 'info', 4000);
     if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
@@ -494,6 +502,20 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
         delete term._resizeScrollAnchor;
         delete term._focusBottomUntil;
       }
+      // 일반 버퍼 휠 스크롤을 DOM scrollTop 직접 조작으로 처리한다.
+      // xterm의 scrollLines/네이티브 위임이 캔버스 transform·번들에 따라 죽는 사례가
+      // 확인되어(스크롤 안 됨 보고), 브라우저 표준 scroll 이벤트만을 경유하는 이 경로로 통일.
+      // TUI(alternate buffer)는 xterm이 앱에 전달하게 그대로 둔다.
+      if (e.deltaY && xterm.element && xterm.buffer.active.type !== 'alternate') {
+        const vp = xterm.element.querySelector('.xterm-viewport');
+        if (vp && vp.scrollHeight > vp.clientHeight + 1) {
+          e.preventDefault();
+          const lines = Math.max(1, Math.round(Math.abs(e.deltaY) / 40)) * (e.altKey ? 5 : 1);
+          const cell = vp.scrollHeight / Math.max(1, xterm.buffer.active.length);
+          vp.scrollTop += Math.sign(e.deltaY) * cell * lines;
+          return;
+        }
+      }
     }
     if (routeCanvasTerminalWheel(e, xterm)) return;
     if (!e.ctrlKey) return;
@@ -520,6 +542,10 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
       }
       return;
     }
+    // 사용자 입력 직후 출력(TUI 세션 전환 redraw 등)은 맨 밑으로 따라가게 스냅.
+    // 휠/Alt+K/L로 수동 스크롤하면 아래 wheel·키 핸들러가 이 설정을 해제 — 위로 보는 중엔 유지.
+    const self = app.termMap.get(termId);
+    if (self) self._focusBottomUntil = Date.now() + 800;
     app.ws.send(JSON.stringify({ type: 'input', termId, data, cols: xterm.cols, rows: xterm.rows }));
     // Broadcast to other terminals if broadcast mode is on
     broadcastInput(termId, data);

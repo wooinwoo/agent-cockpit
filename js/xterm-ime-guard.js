@@ -59,10 +59,16 @@ export function patchXtermImeComposition(xterm) {
     this._finalizeComposition(true, committedData.shift() || '');
   };
   const keydown = function (event) {
-    if (this._isComposing || pendingSends.length) {
-      if (event.keyCode === 20 || event.keyCode === 229) return false;
-      if (event.keyCode === 16 || event.keyCode === 17 || event.keyCode === 18) return false;
-      this._finalizeComposition(false);
+    if (this._isComposing) {
+      // 조합 중에는 xterm 전송을 전부 건너뛰고 브라우저 IME에 맡긴다.
+      // (예전엔 229가 아닌 키에서 강제로 _finalizeComposition(false)를 불렀는데,
+      //  WebView2/TSF에서 조합 중 실제 keyCode가 오면 매 키마다 조합이 잘려
+      //  한글 연속 입력이 씹히는 원인이 되었다. 원본 xterm도 조합 중엔 스킵이 표준 동작.)
+      return false;
+    }
+    if (pendingSends.length) {
+      // 조합 직후 유예 중인 전송은 다음 키에서 즉시 flush — 확정된 글자가 유실되지 않게.
+      for (const send of pendingSends.splice(0)) send();
     }
     if (event.keyCode !== 229) return true;
     this._handleAnyTextareaChanges();

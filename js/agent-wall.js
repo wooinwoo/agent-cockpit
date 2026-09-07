@@ -469,6 +469,10 @@ function render() {
 export function updateAgentWall() {
   if (!opsTimer) {
     const refreshOps = async () => {
+      // 관제 벽을 화면에서 안 보는 동안엔 API 폴링·전체 재렌더를 쉰다 —
+      // 터미널 작업 중 상시 CPU·네트워크 부하의 원인이었음.
+      const stage = document.getElementById('agent-wall-stage');
+      if (!stage || stage.offsetParent === null) return;
       const [nextDecisions, nextAgentEvents, nextSummaries] = await Promise.all([
         fetchJson('/api/supervisor/recent?n=30', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/agents', { timeoutMs: 3000 }).catch(() => null),

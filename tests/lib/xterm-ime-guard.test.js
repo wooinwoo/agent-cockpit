@@ -67,17 +67,20 @@ test('keeps every queued Korean composition when the next key arrives', async ()
   assert.equal(handled.join(''), '니다');
 });
 
-test('sends a composition interrupted before its update timer runs', async () => {
-  const { xterm, helper, textarea, handled } = createXterm();
+test('a key pressed mid-composition defers to the IME instead of force-finalizing', async () => {
+  const { xterm, helper, textarea, handled, endComposition } = createXterm();
   patchXtermImeComposition(xterm);
 
   helper.compositionstart();
   helper.compositionupdate({ data: '가' });
   textarea.value = '가';
   textarea.selectionEnd = 1;
-  assert.equal(helper.keydown({ keyCode: 32 }), true);
+  // 조합 중 스페이스 — 강제 확정하면 WebView2/TSF에서 조합이 잘려 한글이 씹힌다.
+  // xterm 처리를 스킵(false)하고 IME에 맡긴 뒤, 확정은 compositionend 경유로만.
+  assert.equal(helper.keydown({ keyCode: 32 }), false);
+  assert.equal(handled.join(''), '');
 
-  assert.equal(handled.join(''), '가');
+  endComposition('가');
   await tick();
   assert.equal(handled.join(''), '가');
 });

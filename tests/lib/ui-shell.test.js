@@ -37,7 +37,7 @@ test('terminal-first shell keeps its Tailwind and focus-mode contract', async ()
   assert.match(terminalUi, /function renderEmptyState/);
   assert.match(html, /data-action="toggle-canvas-view"/);
   assert.match(terminalUi, /function renderCanvasLayout/);
-  assert.match(terminalUi, /if \(!canvas\.enabled && window\.WebglAddon\) \{[\s\S]*?webgl\.onContextLoss\(\(\) => \{[\s\S]*?term\.xterm\.loadAddon\(webgl\);/);
+  assert.match(terminalUi, /if \(!canvas\.enabled && window\.WebglAddon && localStorage\.getItem\('dl-term-webgl'\) === '1'\) \{[\s\S]*?webgl\.onContextLoss\(\(\) => \{[\s\S]*?term\.xterm\.loadAddon\(webgl\);/);
   assert.match(terminalUi, /function toggleCanvasView/);
   assert.match(terminalUi, /if \(canvas\.enabled\) \{\s*fitCanvas\(\)/);
   assert.match(terminalUi, /data-canvas-context/);
@@ -199,7 +199,7 @@ test('terminal-first shell keeps its Tailwind and focus-mode contract', async ()
   assert.match(terminalUi, /applicationCursorKeysMode \? '\\x1bOF' : '\\x1b\[F'/);
   assert.match(terminalUi, /'term-scroll-bottom': \(\) => scrollToBottom\(\)/);
   assert.match(html, /<kbd>Alt<\/kbd> <kbd>End<\/kbd>/);
-  assert.match(terminalUi, /xterm\.scrollLines\(Math\.sign\(e\.deltaY\) \* lines\)/);
+  assert.match(terminalUi, /routeCanvasTerminalWheel[\s\S]*?플레인 휠은 무조건 xterm 자체 처리에 맡긴다[\s\S]*?return false;/);
   assert.match(terminalUi, /xterm\.buffer\.active\.type === 'alternate'/);
   assert.match(terminal, /addTerminal\(t\.termId, t\.projectId, false, t\.command, t\.account, t\.durable\)/);
   assert.match(agentWall, /term\.agentScanKnown && \(!term\.durable \|\| knownKind\)/);

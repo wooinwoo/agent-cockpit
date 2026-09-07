@@ -4,17 +4,21 @@ import { esc, showToast, fetchJson, postJson, preserveScroll } from './utils.js'
 
 // ─── Init ───
 export function initPorts() {
+  const guardedLoad = () => {
+    // Ports 뷰를 벗어난 동안엔 5초 스캔 API를 부르지 않는다
+    if (document.getElementById('ports-view')?.classList.contains('active')) loadPorts();
+  };
   if (app._portsInitialized) {
     if (app.portsData.length) renderPorts();
     // Restart timer if it was cleared by destroyPorts()
     if (!app._portsTimer) {
-      app._portsTimer = setInterval(loadPorts, 5000);
+      app._portsTimer = setInterval(guardedLoad, 5000);
     }
     return;
   }
   app._portsInitialized = true;
   loadPorts();
-  app._portsTimer = setInterval(loadPorts, 5000);
+  app._portsTimer = setInterval(guardedLoad, 5000);
 }
 
 export function destroyPorts() {

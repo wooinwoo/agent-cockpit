@@ -1,511 +1,129 @@
 # Cockpit
 
-> **Claude Code 프로젝트 관제 대시보드 — 터미널·세션·git·CI를 하나의 관제탑에서**
+**여러 프로젝트의 AI 코딩 세션과 터미널 작업을 한 화면에서 이어가는 로컬 개발 도구입니다.**
 
-로컬에서 도는 멀티 프로젝트 Claude Code 운영 대시보드. node-pty 기반 터미널 멀티플렉서, Claude·Codex·OpenCode 에이전트 상태 관제(Agent Wall), 실시간 Git/세션/비용 모니터링, 그리고 Claude의 권한 요청을 룰/LLM이 자동 판단하고 텔레그램으로 원격 승인받는 슈퍼바이저까지. 프레임워크·번들러 없이 순수 Node.js + Vanilla ES Modules로 작성하고 Tauri 2로 데스크톱 패키징.
+Claude Code·Codex·OpenCode로 여러 프로젝트를 작업할 때는 실행 중인 세션, 승인 대기, 수정한 파일과 CI 결과를 따로 확인해야 합니다. Cockpit은 터미널 캔버스, 에이전트 상태와 Git 작업을 연결해 **어디에 개입해야 하고 어떤 작업을 이어가야 하는지** 확인할 수 있게 합니다.
 
-```
-http://localhost:3847
-LAN: http://<PC IP>:3847
-```
+[시연 영상](docs/media/cockpit-demo.webm) · [설계 사례](#설계와-문제-해결) · [실행 방법](#실행) · [전체 기능·운영 가이드](docs/user-guide.md)
 
-<!-- screenshot: Overview 프로젝트 카드 화면 -->
+[![Verify](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml)
 
-## 핵심 하이라이트
+![공개용 샘플 프로젝트의 실제 Cockpit 터미널 화면](docs/media/terminal-workspace.png)
 
-- **터미널 멀티플렉서** — node-pty PTY 풀 + 바이너리 트리 분할 레이아웃(2x2·가로·세로 프리셋), xterm.js WebGL 렌더러, WebSocket I/O. 서버 재시작 시 터미널 그룹·레이아웃·`cd`로 바꾼 경로(cwd)까지 durable 복원.
-- **Agent Wall 관제** — 터미널에서 구동 중인 Claude / Codex / OpenCode 에이전트를 자동 감지하고 busy·waiting·idle 상태와 릴리스 게이트(READY / HOLD / CHECKING)를 한 화면에. 미커밋 변경, CI 결과, PR 상태를 종합해 "지금 내려도 되는가"를 판정.
-- **권한 슈퍼바이저 + Autopilot** — Claude Code `PreToolUse` 훅 → 룰/LLM(Gemini)로 도구 실행을 자동 승인·차단. 모호하면 텔레그램 버튼으로 원격 승인. `attended`/`unattended` 모드로 알림 강도 조절.
-- **빌드 도구 없음, 테스트 있는 엔지니어링** — ES 모듈 직접 서빙, CDN 대신 `vendor/` 로컬 번들. 순수 `node --test`로 439개 단위 테스트, 외부 러너 없음.
+> 2026-09-07 촬영. 격리된 샘플 프로젝트를 실제 Cockpit 서버·PTY·tmux·Chromium에서 실행했습니다. 화면의 테스트 결과는 샘플 프로젝트의 실행 결과이며, 실제 AI 서비스 호출이나 외부 CI 성공을 연출한 자료가 아닙니다. [촬영 조건과 재현](docs/media/README.md)
 
----
+## 해결한 문제
 
-## 주요 기능
+| 작업 중 겪는 문제 | Cockpit의 처리 | 구현 근거 |
+|---|---|---|
+| 여러 터미널과 프로젝트를 오가며 작업 맥락을 놓친다. | 터미널을 캔버스에 배치하고 그룹·분할·순서를 유지한다. | [터미널 UI](js/terminal-ui.js), [그룹 레이아웃](js/terminal-group-layout.js) |
+| 서버를 재시작하면 셸 작업과 화면 배치가 사라진다. | 지원 환경에서 tmux 세션에 재접속하고 화면 상태를 복원한다. | [세션 복원 사례](docs/case-session-restore.md) |
+| 작업 종료와 배포 가능 상태를 구분하기 어렵다. | 현재 커밋의 CI, 미커밋 변경, PR 리뷰·충돌을 조합해 Release Gate를 표시한다. 근거가 없으면 NO EVIDENCE로 남긴다. | [상태 판정](js/agent-wall-state.js) |
 
-### Overview
-- **프로젝트 카드** — 세션 상태(active/idle/none), 브랜치, 모델, uncommitted, 최근 커밋, PR 상태를 SSE로 실시간 표시
-- **Cost & Usage** — 오늘/이번 주/전체 토큰 사용량, 모델별 비용 추정, Chart.js 차트
-- **Dev Server** — 프로젝트별 개발 서버 시작/중지, stdout에서 포트 자동 감지
-- **IDE 연동** — VS Code, Cursor, Windsurf, Antigravity, Zed 원클릭 실행
-- **검색 & 필터** — 이름/스택/상태(All/Active/Idle) 필터링
-- **카드 정렬** — 이름순, 활성도순, 최근활동순, 미커밋순 (드롭다운, localStorage 저장)
-- **프로젝트 핀** — 별표로 즐겨찾기, 핀된 프로젝트 앞 정렬
+Git 변경 관리, PR·CI 조회, 개발 서버 제어, 비용 조회, 승인 정책과 원격 승인도 제공합니다. 프로젝트 범위는 브라우저 UI, 로컬 서버, 셸 세션 관리와 Tauri 패키징입니다. 외부 CLI와 서비스는 사용자의 설치·인증을 사용합니다.
 
-### Terminal
-- **Multi-terminal** — 여러 프로젝트의 터미널을 탭으로 관리, 가로/세로 분할, 2x2 그리드 재배치
-- **WebGL 렌더러** — GPU 글리프 래스터라이즈로 한글 폴백 폰트의 셀 폭 어긋남(글자 겹침/씹힘) 해결. WebGL 불가 환경은 DOM 렌더러로 폴백
-- **durable 세션 복원** — 서버 재시작 시 터미널 그룹·분할 레이아웃을 그대로 복원. `cd`로 바꾼 실제 경로(`/proc/<pid>/cwd`)까지 기억하고, 복원된 터미널엔 `claude`를 미리 입력해 둠
-- **빈 터미널** — 프로젝트에 묶이지 않는 홈 디렉터리 터미널 (`Ctrl+Shift+T`)
-- **Tab Bar** — 빠른 전환, 가운데 클릭으로 닫기, 드래그로 순서 변경
-- **Branch/Worktree Picker** — 터미널 생성 시 브랜치나 worktree 경로 선택
-- **Search / Export / Font Size** — Ctrl+F 터미널 내 검색, TXT 내보내기, 글꼴 크기 조절
-- **모바일 UI** — 탭 바 + 퀵 액션 바(Esc, Tab, ^C, ^D 등) + 스와이프 전환
+## 설계와 문제 해결
 
-### Agent Wall — 에이전트 관제
-터미널에서 구동 중인 에이전트 세션을 자동 감지·분류하는 관제 패널.
+### 1. 새 셸을 여는 것과 기존 작업을 유지하는 것을 구분했습니다
 
-- **멀티 에이전트 감지** — Claude / Codex / OpenCode를 명령어·화면 출력에서 자동 식별
-- **상태 분류** — busy(작업 중) / waiting(승인 대기) / idle / done
-- **Release Gate** — uncommitted 변경, 현재 커밋의 CI 결과, PR draft 여부를 종합해 READY / HOLD / CHECKING / NO EVIDENCE 판정. HOLD 사유와 이동할 탭(Changes·CI/CD·PR)을 함께 표시
-- **그리드/리스트 모드, dock·팝아웃** — Terminal 탭에 도킹하거나 별도 창으로 분리
+cwd와 명령만 저장하면 같은 폴더는 다시 열 수 있지만 실행 중인 셸 변수와 프로세스는 돌아오지 않습니다. Unix에서는 tmux가 셸의 수명을 담당하고, Node 서버는 PTY 연결을 다시 붙입니다. 별도 세션 데몬을 구현하는 대신 tmux의 기존 기능을 사용했습니다.
 
-<!-- screenshot: 터미널 관제 화면 -->
+화면 복원은 별도 문제로 다뤘습니다. 서버가 터미널 목록을 보내기 전의 빈 상태가 기존 그룹을 덮어쓰지 않도록 하고, 서버 체크포인트와 브라우저의 ID·그룹·순서를 다시 연결합니다. 통합 검증은 재시작 후 **같은 셸 변수와 cwd, 터미널 ID·그룹·순서·분할 배치**를 확인합니다.
 
-### Changes
-- **2-Column Diff View** — 파일 사이드바 + 파일별 접기/펼치기, old/new 라인넘버 거터
-- **Syntax Highlighting** — 정규식 기반 구문 하이라이팅 (JS/TS, Python, CSS, HTML, JSON, Rust, Go, Java, Shell 등 15+ 언어)
-- **Stage/Unstage/Discard** — 파일 단위 Git 스테이징 관리 (인디고=staged, 옐로우=unstaged 인디케이터)
-- **수동 커밋** — 메시지 입력 후 직접 커밋 + Push
-- **Git Operations** — Pull, Fetch, Stash, Stash Pop/List, Branch Create/Delete
+[복원 순서·대안·검증 범위](docs/case-session-restore.md)
 
-### AI Auto Commit
-Claude Haiku가 `git status` + `git diff`를 분석해서 관련 파일을 논리적 커밋으로 자동 그룹핑.
+### 2. 한글 입력 손실과 화면·스크롤 문제를 분리했습니다
 
-1. "AI Commit" 버튼 → Haiku가 변경사항 분석 (3~5초)
-2. 커밋 플랜: 커밋별 메시지 + 파일 목록 + 이유
-3. 사용자가 수정: 메시지 편집, 파일 드래그 앤 드롭, 커밋 추가/삭제
-4. "Commit All" → 순차 실행 (프로그레스 바)
-5. "Push" 버튼으로 원격 푸시
+한글 조합 확정 시점, 문자 셀 폭, 일반 셸의 스크롤백과 TUI 입력은 서로 다른 경로입니다. IME 전송 가드는 이벤트 순서와 중복 전송을 검증하고, 실제 xterm 번들에서는 한글 셀 폭과 버퍼 전환을 확인합니다. 브라우저에서는 실제 셸의 출력과 휠 이벤트로 스크롤을 검증합니다.
 
-> AI는 `claude -p --model haiku` CLI로 호출 — 별도 API 키 불필요, OAuth 인증 활용
+IME 가드가 xterm의 비공개 구조에 의존한다는 비용도 남겼습니다. 알려지지 않은 구조에는 패치를 거부하고, 업스트림 수정이 포함된 번들로 교체할 때 제거할 대상으로 관리합니다. 실제 OS 입력기를 자동 검증했다고 주장하지 않습니다.
 
-### PR
-- **GitHub PR 목록** — 프로젝트별 열린 PR, 리뷰 상태, draft 여부
-- Agent Wall의 Release Gate와 연동 (draft PR이면 HOLD)
+[입력·렌더링·스크롤별 원인과 검증](docs/case-terminal-input.md)
 
-### CI/CD
-- **GitHub Actions** — 파이프라인 상태 모니터링
-- **워크플로우 실행/중지** — 직접 트리거
+### 3. 에이전트의 작업 종료와 검증 상태를 분리했습니다
 
-### Workflows
-- **커스텀 자동화** — JSON 기반 워크플로우 정의, LangGraph 기반 실행 엔진
-- **스케줄링** — 예약 실행
-- **실행 이력** — 상세 로그 조회
+에이전트가 멈췄거나 이전 CI가 성공했다는 이유만으로 현재 작업을 완료 처리하지 않습니다. Release Gate는 현재 브랜치·커밋에 해당하는 실행을 골라 워크플로별 최신 결과를 확인합니다. 미커밋 변경, 실행 중·실패한 CI, PR 리뷰·충돌 상태를 함께 표시하고 확인할 화면으로 연결합니다. 현재 커밋의 CI 기록이 없으면 `NO EVIDENCE`로 남깁니다.
 
-### Ports
-- **시스템 포트 스캔** — 리스닝 포트 + 프로세스 정보, 5초 자동 갱신
-- **Dev Server 태깅** — 프로젝트 소유 포트 자동 표시
-- **프로세스 Kill** — PID 기반 프로세스 종료
+이 표시는 조회된 근거를 요약하는 보조 판단입니다. GitHub의 필수 검사 정책 전체를 재현하거나 자동으로 병합·배포하는 기능은 아닙니다.
 
-### Jira
-- **이슈 목록/보드/타임라인** — Jira REST API 연동
-- **드래그 앤 드롭** — 이슈 상태 전환
-- **스프린트 관리** — 보드별 스프린트 조회
+[상태 판정 코드](js/agent-wall-state.js) · [현재 커밋 일치·변경 파일·리뷰 대기 회귀 검증](tests/lib/agent-wall.test.js)
 
-### Notes
-- **마크다운 뷰어/에디터** — 프로젝트별 노트 관리
-- **사이드바 트리 + 목차(TOC)** — 계층적 노트 탐색, 자동 목차 생성
+## 구조와 기술 선택
 
-### AI 계정
-- **Claude / Codex 계정 프로필 관리** — 멀티 프로필 감지·전환, WSL과 Windows 프로필 동시 지원
-
-### Autopilot — 무인 운전 제어
-- **attended / unattended 모드** — 기본은 `attended`(안전 모드), `unattended`로 전환하면 무인 운전 정책 적용
-- **결정적 정책 분류기** (`lib/autopilot-policy.js`) — 안전 자동 실행 / 승격 / 거부를 룰로 분류. 과거 모든 결정 이력에 대해 회귀 검증
-- **텔레그램 승격** — 판단이 모호하면 폰으로 승격 요청, 실패·타임아웃 시 안전하게 거부(deny)
-- **브리핑** — 현재 상태 요약 조회
-
-### Supervisor — 권한 자동 결정 + 원격 승인
-Claude Code의 `PreToolUse` 훅을 받아 **도구 실행을 자동으로 승인·차단**하고, 모호한 건 사람에게 묻는 시스템.
-
-- **3단 판단** — ① 안전/위험 룰(safelist·blacklist) 즉시 결정 → ② 모호하면 LLM(Gemini)이 평가 → ③ LLM도 모호하면 사용자에게 질문
-- **텔레그램 원격 승인** — `away` 모드에서 위험 도구는 텔레그램으로 승인 / 거부 / 더 묻기 버튼 발송, 답하면 그대로 실행/차단
-- **here / away 모드** — `here`(자리에 있음)면 알림 끄고 화면 프롬프트로, `away`면 폰으로 적극 질문
-- **결정 이력 뷰** — 승인/차단/질문 타임라인 (도구·명령·프로젝트·LLM 판단 근거·신뢰도)
-- **위험 패턴 차단** — `rm -rf /`, `mkfs`, fork bomb, 시스템 경로/`.ssh`/`.env` 직접 수정 등은 룰에서 즉시 차단
-
-> Claude Code 훅(`~/.claude/settings.json` PreToolUse/Notification 등)에 `/api/supervisor/*`로 POST하는 셸 스크립트를 걸어 연동.
-
-### AI Agent (Gemini)
-- **Gemini 채팅** — Gemini 2.0 Flash / 2.5 Pro 모델 선택
-- **9-Tool 에이전트** — BASH, READ, WRITE, EDIT, GLOB, GREP, GIT_DIFF, GIT_LOG, OPEN 도구 자동 실행
-- **Agentic Loop** — 도구 호출 → 결과 피드백 → 다음 도구 자동 실행 (최대 25회)
-- **음성 입력 / TTS** — 웨이크워드 감지 + Web Speech API, Edge TTS 음성 합성 (볼륨/속도/피치 조절)
-- **대화 이력** — 멀티턴 대화, 이력 저장/로드
-- **Arena** — 열려 있는 세션 2~3개를 골라 주제 하나로 턴제 토론시키는 관전 모드
-
-### System Monitor
-- **CPU 사용률** — 300ms 샘플링
-- **메모리 / 디스크** — 전체/사용/여유, 드라이브별 사용량
-- **Top 프로세스** — 메모리 상위 15개
-
-### API Tester
-- **HTTP 요청 프록시** — GET/POST/PUT/DELETE 등 모든 메서드
-- **요청 저장** — 재사용 가능한 요청 CRUD, 헤더/JSON 바디 편집
-
----
-
-## 아키텍처
-
-```
-Tauri Shell (cockpit.exe / Cockpit.app)
-  └─ WebView (index.html + ES Modules)
-       ↕ HTTP / WS
-  └─ Node.js Server (server.js, port 3847)
-       ├─ node-pty (터미널 멀티플렉서)
-       ├─ SSE (프로젝트 상태 폴링)
-       ├─ WebSocket (터미널 I/O)
-       ├─ routes/ (API 라우트 모듈, 170+ 라우트)
-       └─ lib/ (서비스 모듈들)
+```mermaid
+flowchart LR
+    UI[Browser / Tauri WebView] <-->|HTTP · SSE: 프로젝트 상태| Server[Node.js 서버]
+    UI <-->|WebSocket: 터미널 입출력| Server
+    Server --> PTY[node-pty]
+    PTY --> Tmux[tmux · 지원 환경의 세션 유지]
+    Tmux --> Shell[프로젝트 셸]
+    Server --> Tools[Git · GitHub CLI · 로컬 세션 데이터]
 ```
 
-- **프론트엔드**: Vanilla JS ES Modules, 프레임워크 없음. `<script type="module" src="js/main.js">`
-- **백엔드**: Node.js 순수 `http` 모듈, 자체 라우터 (`addRoute(method, pattern, handler)`)
-- **실시간 이원화**: SSE(프로젝트·Git·세션 상태 push) + WebSocket(터미널 I/O)
-- **크로스 플랫폼 추상화**: Windows·macOS·Linux·WSL의 셸·경로·프로세스·포트 차이를 `lib/platform.js` 한 곳으로 격리
+- **Vanilla JavaScript ES Modules:** 기존 터미널 동작 모듈을 직접 서빙한다. 프레임워크 없이 DOM·상태·이벤트 수명을 관리한다.
+- **Node.js HTTP + SSE + WebSocket:** 상태 알림과 양방향 터미널 입출력을 분리한다. 구독자가 없으면 캐시가 있는 폴링 작업을 쉰다.
+- **node-pty + xterm.js + tmux:** 실제 셸 입출력, 브라우저 터미널, 서버와 독립적인 세션 수명을 각각 담당한다.
+- **Tauri 2:** 데스크톱 앱 패키징 구성. Tailwind는 CSS 빌드에, ncc는 서버 배포 번들에 사용한다.
 
----
+## 실행
 
-## 빠른 시작
+Node.js 22, Git이 필요하다. Linux에서는 node-pty 네이티브 빌드 도구와 tmux를 준비하면 세션 유지 기능도 사용할 수 있다.
 
 ```bash
 git clone https://github.com/wooinwoo/claude-code-cockpit.git
 cd claude-code-cockpit
-npm install
-npm start          # = node server.js  →  http://localhost:3847
+npm ci
+npm start
 ```
 
-**모바일 접속** — 같은 WiFi에서 `http://<PC의 IP>:3847` 접속. 헤더의 **Mobile Connect** 버튼으로 QR 코드 확인.
+기본 주소는 `http://localhost:3847`이다. 기본 바인딩은 모든 네트워크 인터페이스이며, localhost 외 접근에는 토큰 인증이 필요하다. 로컬에서만 사용할 경우 `COCKPIT_BIND=127.0.0.1 npm start`로 실행한다.
 
-**데스크톱 앱 빌드 (Tauri)**:
+첫 실행 후 Overview의 설정에서 프로젝트를 등록하고 터미널을 엽니다. 일반 셸은 AI 계정 없이 사용할 수 있습니다. AI CLI·GitHub·Jira 연동은 해당 도구의 설치와 인증이 필요합니다. [OS별 설치와 설정](docs/user-guide.md#설치-가이드)을 참고하세요.
+
+## 검증
+
+2026-09-08, Node.js 22.19.0·Linux·Chromium에서 다시 실행했습니다. [실행 기록](docs/portfolio-checks.json)
+
+| 확인 항목 | 결과와 범위 |
+|---|---|
+| `npm test` | 31개 테스트 파일 실행 통과 |
+| `npm run ui:build` | Tailwind CSS 빌드 통과 |
+| 서버 재시작 | 동일 셸 변수·cwd·터미널 ID·그룹·순서·분할 배치 유지 |
+| 일반 셸 스크롤 | 실제 PTY에서 300줄 출력 후 브라우저 휠로 이전 출력 탐색 |
+| 브라우저 오류 | 통합 시나리오에서 미처리 실행 오류 0건 |
 
 ```bash
-npm run build      # Tailwind 빌드 → ncc 번들 → 인스톨러 생성
+npm test
+npm run ui:build
+npx playwright-core install chromium
+npm run test:integration
 ```
 
-- Windows: `Cockpit_x.x.x_x64-setup.exe` (NSIS 인스톨러)
-- macOS: `Cockpit_x.x.x_aarch64.dmg`
+- **단위·회귀 검증:** Git 경계 입력, 상태 판정, 그룹 레이아웃, IME 조합 전송, 실제 xterm 번들의 문자 폭과 버퍼 전환.
+- **실제 동작 검증:** 격리된 서버를 재시작한 후 동일한 셸 변수·cwd·터미널 ID·그룹·순서·분할 배치를 확인한다. tmux를 끈 별도의 일반 셸에서 300줄을 출력하고 브라우저 휠 동작을 확인한다.
+- **CI:** push와 PR에서 단위 테스트·CSS 빌드·Linux 통합 검증을 실행하도록 구성했다. Windows·macOS 설치 파일 빌드도 같은 Linux 검증 워크플로우를 먼저 통과해야 한다.
 
-> 런타임은 빌드 도구 없이 ES 모듈을 직접 서빙합니다. Tailwind/ncc는 배포 인스톨러 빌드에만 사용됩니다.
+통합 검증은 Linux의 `/usr/bin/tmux`, `/bin/bash`, Chromium을 사용한다. 기존 Chromium을 사용할 때는 `CHROME_BIN`에 실행 파일 경로를 지정한다. 실행 중인 Cockpit 대신 임시 프로젝트·데이터·서버·tmux 소켓을 만들고 종료 시 정리한다.
 
----
+[촬영 시 검증 기록](docs/media/verification.json) · [검증 스크립트](scripts/verify-portfolio.mjs) · [CI 구성](.github/workflows/ci.yml)
 
-## 기술 스택
+촬영 재현: `npm run demo:capture`. 저장 위치와 영상 범위는 [촬영 안내](docs/media/README.md)를 참고한다. 기록된 시간은 단일 로컬 실행 결과이며 성능 개선율을 의미하지 않는다.
 
-| 영역 | 기술 |
-|------|------|
-| 프론트엔드 | Vanilla JS ES Modules — 프레임워크·번들러·트랜스파일러 없음 |
-| 서버 | Node.js (순수 `http` 모듈, 자체 라우터) |
-| 런타임 의존성 | `ws`, `node-pty`, `msedge-tts`, `@langchain/*` (Gemini/Workflows) 최소 구성 |
-| 터미널 | `node-pty` (서버 PTY) + `xterm.js` WebGL 렌더러 (클라이언트) |
-| 실시간 | Server-Sent Events (SSE) + WebSocket |
-| 데스크톱 | Tauri 2 (Rust, Windows + macOS) |
-| 차트 | Chart.js 4.4.7 (`vendor/` 로컬 번들) |
-| AI (커밋) | Claude CLI (`claude -p --model haiku`) via OAuth |
-| AI (에이전트) | Gemini 2.0 Flash / 2.5 Pro (Google AI API) |
-| TTS | Edge TTS (`msedge-tts`) |
-| 이슈트래커 | Jira REST API |
-| CI/CD | GitHub Actions API |
+## 현재 경계와 개선 방향
 
----
+- **복원 범위:** tmux가 있는 Unix에서 서버 재시작을 견딘다. PC 재부팅이나 tmux 자체 종료를 복구하는 기능은 아니다. Windows 네이티브는 같은 프로세스 유지와 구분해야 한다.
+- **입력 검증:** Chromium 스크롤과 IME 로직을 자동 검증한다. Windows WebView2·macOS의 실제 입력기와 TUI별 동작은 수동 검증 범위다.
+- **코드 구조:** 서버 진입점과 터미널 UI에 여러 책임이 모여 있다. 현재의 큰 유지보수 경계다. 변경이 필요한 기능부터 동작 검증을 확보하고 분리할 예정이다.
+- **근거의 한계:** 외부 사용자 수, 생산성 향상률, 수정 전후 FPS를 측정한 자료는 없다. 기능과 검증 결과를 중심으로 설명한다.
 
-## 테스트
+## 코드 탐색
 
-```bash
-npm test          # node --test tests/lib/*.test.js tests/routes/*.test.js
+```text
+server.js       HTTP·SSE·WebSocket 연결과 터미널 수명 관리
+js/             터미널 캔버스·세션 상태·Git·CI 화면
+lib/ · routes/  프로세스·Git·연동 서비스와 API
+vendor/         브라우저에서 사용하는 로컬 라이브러리 번들
+src-tauri/      데스크톱 셸과 패키징 설정
+tests/          단위·회귀 테스트와 격리된 통합 검증 환경
+docs/           설계 사례·운영 가이드·시연 자료
 ```
-
-- **439개 단위 테스트** (`node:test`), 외부 러너 없음
-- 커버 영역: Autopilot 정책(과거 결정 이력 회귀 검증), Agent Wall 상태 분류, durable 터미널, 라우트 검증, UI 셸 정합성 등
-- `npm run test:watch` — lib/routes/tests 변경 감지 자동 재실행
-
----
-
-## Desktop App (Tauri)
-
-Tauri 2로 패키징된 네이티브 데스크탑 앱.
-
-| 플랫폼 | 인스톨러 | 비고 |
-|--------|----------|------|
-| Windows | NSIS `.exe` | WebView2 사용 |
-| macOS | `.dmg` | 최소 macOS 11.0 |
-
-- **자동 서버 관리** — 앱 시작 시 Node.js 서버 자동 기동, 종료 시 정리
-- **네이티브 알림** — Windows 토스트 / macOS 알림 센터
-- **인스톨러 빌드** — `npm run build`
-
-## Mobile / PWA
-
-- **LAN 접근** — `0.0.0.0:3847` 바인딩, 같은 네트워크에서 접근 가능
-- **QR 코드** — Mobile Connect 버튼 → QR + URL (토큰 기반 인증)
-- **PWA** — manifest.json + Service Worker, 홈 화면 설치 가능
-- **반응형** — 카드/터미널/diff 모바일 최적화
-- **Tailscale** — 외부 네트워크에서도 WireGuard E2E 암호화로 안전 접근
-
----
-
-# 상세 가이드
-
-## 설치 가이드
-
-### Windows
-
-```powershell
-# 필수
-winget install OpenJS.NodeJS.LTS
-winget install Git.Git
-winget install Microsoft.VisualStudio.2022.BuildTools
-
-# 권장
-winget install Microsoft.PowerShell
-winget install GitHub.cli
-winget install Tailscale.Tailscale
-
-# Claude Code CLI
-npm install -g @anthropic-ai/claude-code
-claude  # OAuth 로그인
-```
-
-### macOS
-
-```bash
-# 필수
-brew install node git
-
-# 권장
-brew install gh
-brew install --cask tailscale
-
-# Claude Code CLI
-npm install -g @anthropic-ai/claude-code
-claude  # OAuth 로그인
-```
-
-> macOS는 Xcode Command Line Tools 필요: `xcode-select --install`
-
-### Windows 자동 시작 (선택)
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\setup-autostart.ps1
-```
-
-해제: `schtasks /delete /tn ClaudeCodeDashboard /f`
-
----
-
-## 아키텍처 상세
-
-```
-Browser / Tauri WebView        Node.js Server (port 3847)
-┌──────────────────┐   HTTP   ┌─────────────────────────────┐
-│ index.html       │◄────────►│ server.js (라우터, WS, SSE)  │
-│ style.css        │   SSE    │   ├─ routes/                 │
-│ js/              │◄─────────│   │  ├─ system.js            │
-│  main.js         │   WS     │   │  ├─ git.js               │
-│  dashboard.js    │◄────────►│   │  ├─ projects.js          │
-│  terminal.js     │          │   │  ├─ sessions.js          │
-│  terminal-ui.js  │          │   │  ├─ agent.js             │
-│  agent-wall.js   │          │   │  ├─ supervisor.js        │
-│  diff.js         │          │   │  ├─ autopilot.js         │
-│  pr.js           │          │   │  ├─ ai-accounts.js       │
-│  cicd.js         │          │   │  ├─ board.js             │
-│  workflows.js    │          │   │  ├─ telegram.js          │
-│  ports.js        │          │   │  ├─ pr.js                │
-│  modals.js       │          │   │  └─ ...                  │
-│  state.js        │          │   └─ lib/                    │
-│  highlight.js    │          │      ├─ platform.js          │
-│  utils.js        │          │      ├─ config.js            │
-│ vendor/          │          │      ├─ claude-data.js       │
-│  xterm.js        │          │      ├─ git-service.js       │
-│  chart.js        │          │      ├─ github-service.js    │
-└──────────────────┘          │      ├─ cost-service.js      │
-                              │      ├─ agent-service.js     │
-                              │      ├─ supervisor-*.js      │
-                              │      ├─ autopilot*.js        │
-                              │      ├─ ai-accounts-service  │
-                              │      ├─ durable-terminal.js  │
-                              │      ├─ process-agent.js     │
-                              │      ├─ jira-service.js      │
-                              │      ├─ cicd-service.js      │
-                              │      ├─ workflows-service.js │
-                              │      ├─ monitor-service.js   │
-                              │      ├─ ports-service.js     │
-                              │      ├─ session-control.js   │
-                              │      ├─ telegram-bridge.js   │
-                              │      └─ ...                  │
-                              └──────────┬──────────────────┘
-                                         │
-                     ┌────────────────────┬┴──────────────────┐
-                 ~/.claude/           git CLI          claude CLI
-                 (세션/비용)        (status/diff)     (AI commit)
-                 opencode.db         gh CLI           Gemini API
-                 (opencode 세션)     (PR/Actions)     (Agent/Autopilot)
-```
-
-### Frontend Modules (주요)
-
-| Module | 역할 |
-|--------|------|
-| main.js | 엔트리포인트, 초기화, 이벤트 위임, 키보드 단축키 |
-| state.js | 전역 상태 (`app` 객체), pub/sub, localStorage |
-| utils.js | XSS 방지(`esc`), 토스트, 시간 포맷, 마크다운 |
-| dashboard.js (+ cards/charts) | 프로젝트 카드, SSE 연결, 비용 차트, 알림 |
-| terminal.js / terminal-ui.js | 터미널 생성/분할/탭 관리, WS I/O, 모바일 UI |
-| terminal-group-layout.js | 터미널 그룹·분할 레이아웃 복원 |
-| agent-wall.js / agent-wall-state.js | Agent Wall 관제 패널, 상태·릴리스 게이트 분류 |
-| xterm-ime-guard.js | IME(한글 등) 입력 보정 |
-| diff.js | Git diff 렌더링, 스테이징, 커밋, stash, 브랜치 |
-| highlight.js | 정규식 기반 구문 하이라이팅 |
-| pr.js | PR 목록 뷰 |
-| cicd.js | GitHub Actions 파이프라인 뷰 |
-| workflows.js | 워크플로우 정의/실행/스케줄링 |
-| ports.js | 포트 스캔 UI, 프로세스 kill |
-| arena.js | 멀티세션 턴제 토론 관전 |
-| ai-accounts.js | Claude/Codex 계정 프로필 UI |
-| autopilot-view.js | Autopilot 제어 뷰 |
-| modals.js | 다이얼로그, 커맨드 팔레트, 설정 패널 |
-
-### Server Lib Modules (주요)
-
-| Module | 역할 |
-|--------|------|
-| platform.js | 크로스 플랫폼 헬퍼 (셸, 프로세스 kill, URL/폴더 열기, IDE 경로) |
-| config.js | 설정 관리 (projects.json, API keys, 포트) |
-| claude-data.js | Claude 세션(jsonl) + opencode 세션(SQLite) 파서, 상태 병합 |
-| git-service.js | git 명령어 래퍼 (WSL 투명 지원) |
-| github-service.js | GitHub API (PR) |
-| cost-service.js | 토큰 사용량/비용 추적 |
-| agent-service.js (+ tools/orchestrator) | Gemini API 클라이언트, 9-Tool 에이전트 시스템 |
-| supervisor-service.js (+ llm) | PreToolUse 권한 판단, 결정 이력 |
-| autopilot.js (+ policy) | 무인 운전 엔진, 결정적 정책 분류기 |
-| telegram-bridge.js | 텔레그램 원격 승인 버튼 |
-| ai-accounts-service.js | Claude/Codex 멀티 프로필 감지·전환 |
-| durable-terminal.js | durable 터미널 ID·cwd 복원 |
-| process-agent.js | 프로세스에서 claude/codex/opencode 감지 |
-| jira-service.js | Jira REST API 클라이언트 |
-| cicd-service.js | GitHub Actions API |
-| workflows-service.js (+ scheduler) | 워크플로우 엔진, 예약 실행 |
-| monitor-service.js | CPU/메모리/디스크/프로세스 모니터링 |
-| ports-service.js | 포트 스캔 + 프로세스 관리 |
-| session-control.js | Claude 세션 시작/재개 (터미널 앱 실행) |
-| batch-service.js | 배치 명령 실행 (다중 프로젝트 동시) |
-| briefing-service.js | 일일 브리핑/알림 생성 |
-| notify.js | 네이티브 알림 (Windows/macOS/Linux) |
-| poller.js | 주기적 데이터 폴링 + SSE 브로드캐스트 |
-| wsl-utils.js | WSL 경로 변환, WSL 프로젝트 지원 |
-| qr.js | QR 코드 SVG 생성 |
-
----
-
-## 크로스 플랫폼
-
-`lib/platform.js`에서 OS별 분기를 중앙 관리:
-
-| 기능 | Windows | macOS | Linux |
-|------|---------|-------|-------|
-| 기본 셸 | pwsh / powershell | zsh / bash | bash |
-| 알림 | PowerShell WinRT Toast | osascript | notify-send |
-| URL 열기 | `cmd /c start` | `open` | `xdg-open` |
-| 폴더 열기 | `explorer /select` | `open -R` | `xdg-open` |
-| 프로세스 kill | `taskkill /T /F` | `kill -SIGTERM` | `kill -SIGTERM` |
-| 포트 스캔 | `netstat -ano` | `lsof -iTCP` | `lsof` / `ss` |
-| 디스크 정보 | `wmic` | `df -k` | `df -k` |
-| 프로세스 목록 | PowerShell `Get-Process` | `ps -eo` | `ps -eo` |
-| Claude 세션 | Windows Terminal | Terminal.app (AppleScript) | gnome-terminal / konsole |
-| IDE (Zed) | `%LOCALAPPDATA%/Programs/Zed/bin/zed.exe` | `/Applications/Zed.app/Contents/MacOS/cli` | `zed` |
-| Firefox Dev | `%ProgramFiles%/Firefox Developer Edition/firefox.exe` | `/Applications/Firefox Developer Edition.app/.../firefox` | `firefox-developer-edition` |
-
----
-
-## 알림
-
-3단계 알림 시스템:
-1. **네이티브 알림** — Windows 토스트 / macOS 알림 센터 / Linux notify-send
-2. **Audio Chime** (브라우저) — Web Audio API 2-tone 차임
-3. **Title Flash** (백그라운드 탭) — 탭 제목 깜빡임
-
-프로젝트별 알림 ON/OFF 설정 가능 (알림 버튼 우클릭)
-
----
-
-## 키보드 단축키
-
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+1 | Overview 탭 |
-| Ctrl+2 | Terminal 탭 |
-| Ctrl+3 | Changes 탭 |
-| Ctrl+4 | PR 탭 |
-| Ctrl+5 | Jira 탭 |
-| Ctrl+6 | CI/CD 탭 |
-| Ctrl+7 | Notes 탭 |
-| Ctrl+8 | Workflows 탭 |
-| Ctrl+9 | README 탭 |
-| Ctrl+K | Command Palette |
-| Ctrl+T | 새 터미널 |
-| Ctrl+Shift+T | 빈 터미널 (홈) |
-| Ctrl+W | 터미널 닫기 |
-| Ctrl+F | 터미널 내 검색 |
-| Ctrl+Tab | 다음 터미널 |
-| Ctrl+Shift+Tab | 이전 터미널 |
-| E | Diff 전체 펼치기 |
-| C | Diff 전체 접기 |
-| R | Diff 새로고침 |
-| ? | 단축키 도움말 |
-| Escape | 오버레이 / 검색 닫기 |
-
----
-
-## 프로젝트 등록
-
-### UI에서 등록
-Overview 탭 설정(톱니바퀴) → "Add Project" 또는 "Discover"로 자동 검색
-
-### 직접 편집
-`projects.json`:
-
-```json
-{
-  "projects": [
-    {
-      "id": "my-project",
-      "name": "My Project",
-      "path": "/home/you/projects/my-project",
-      "stack": "react-next",
-      "color": "#3B82F6",
-      "devCmd": "npm run dev"
-    }
-  ]
-}
-```
-
-| 필드 | 필수 | 설명 |
-|------|------|------|
-| `id` | 자동 | 프로젝트 고유 ID |
-| `name` | O | 표시 이름 |
-| `path` | O | 프로젝트 루트 경로 |
-| `stack` | X | `react-next` \| `nestjs` 등 |
-| `color` | 자동 | 카드 색상 |
-| `devCmd` | X | 개발 서버 명령어 |
-| `github` | X | GitHub 레포 (`owner/repo`) — PR/CI 연동 |
-
----
-
-## 데이터 저장소
-
-| 파일 | 내용 | 암호화 |
-|------|------|--------|
-| `projects.json` | 프로젝트 목록 (id, name, path, color, devCmd, github, stack) | - |
-| `jira-config.json` | Jira 연결 설정 (url, email, token) | token AES-256-GCM |
-| `ai-config.json` | Gemini API key | key AES-256-GCM |
-| `.encryption-key` | 토큰 암호화 마스터 키 (랜덤 32B) | - |
-| `cost-cache.json` | API 비용 캐시 | - |
-| `session-state.json` | 세션 상태 | - |
-| `agent-history.json` | 에이전트 대화 이력 | - |
-| `workflow-runs.json` | 워크플로우 실행 기록 | - |
-| `workflow-schedules.json` | 워크플로우 스케줄 설정 | - |
-| `notes/*.md` | 마크다운 노트 | - |
-| `workflows/*.json` | 워크플로우 정의 | - |
-
----
-
-## 보안
-
-- **LAN 토큰 인증** — localhost 외 접근 시 토큰 필요 (자동 생성, 쿠키 저장)
-- **localhost 무인증** — 로컬 접근은 토큰 불필요
-- **경로 검증** — 등록된 프로젝트 내부 경로만 파일 접근 허용 (`isInsideAnyProject()`)
-- **IDE 화이트리스트** — code, cursor, windsurf, antigravity, zed만 허용
-- **API Tester** — localhost에서만 실행 가능
-- **포트 킬** — 보호 PID (0, 4, 자기 자신) 거부
-- **환경 변수 불필요** — Claude OAuth는 CLI가 자체 관리
-- **Autopilot 안전 기본값** — `attended` 모드가 기본. 승격 실패·타임아웃은 거부(deny) 처리

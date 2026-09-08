@@ -67,3 +67,6 @@ test-*
 src-tauri/icons/android/
 src-tauri/icons/ios/
 !src-tauri/installer/*.png
+
+# Public demo assets captured from the isolated sample project
+!docs/media/*.png

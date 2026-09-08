@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-09-07T04:30:49.966Z",
+  "node": "v26.7.0",
+  "browser": "149.0.7827.55",
+  "terminals": 2,
+  "sameShellAndCwd": true,
+  "groupOrderAndLayout": true,
+  "restartMs": 2501,
+  "scrollMode": "ordinary PTY (tmux disabled)",
+  "scrollBefore": 8265,
+  "scrollAfter": 7230,
+  "browserErrors": 0,
+  "note": "Isolated sample project; one local run, not a performance benchmark. Native OS IME input is not exercised."
+}

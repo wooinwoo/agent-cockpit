@@ -11,7 +11,9 @@
     "bundle": "ncc build server.js -o dist --minify",
     "build": "npm run ui:build && npm run bundle && node scripts/build-installer.js",
     "tauri": "tauri",
-    "test:e2e": "node scripts/e2e-wheel-test.mjs"
+    "test:e2e": "node scripts/e2e-wheel-test.mjs",
+    "test:integration": "node scripts/verify-portfolio.mjs",
+    "demo:capture": "node scripts/verify-portfolio.mjs --capture"
   },
   "dependencies": {
     "@langchain/core": "^1.1.26",

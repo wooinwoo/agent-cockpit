@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-09-08T06:48:58.565Z",
+  "implementationCommit": "3af0f4a",
+  "environment": "Git 공개 대상 파일만 복사한 Linux 임시 트리에서 실행했습니다. node_modules는 기존 설치를 연결했고, 로컬 assets와 사용자 데이터는 포함하지 않았습니다. 통합 검증은 실제 Cockpit 서버, PTY, tmux, Chromium을 사용합니다.",
+  "node": "v22.19.0",
+  "unitTests": {
+    "command": "npm test",
+    "exitCode": 0,
+    "passedFiles": 31,
+    "failedFiles": 0,
+    "note": "이 환경의 Node 테스트 러너가 보고한 파일 실행 수입니다. 파일 내부의 개별 assertion 수와 구분합니다."
+  },
+  "cssBuild": {
+    "command": "npm run ui:build",
+    "exitCode": 0
+  },
+  "integration": {
+    "command": "npm run test:integration",
+    "exitCode": 0,
+    "browser": "149.0.7827.55",
+    "terminals": 2,
+    "sameShellAndCwd": true,
+    "groupOrderAndLayout": true,
+    "restartMs": 3337,
+    "scrollMode": "ordinary PTY (tmux disabled)",
+    "scrollBefore": 8294,
+    "scrollAfter": 7259,
+    "browserErrors": 0
+  },
+  "limitations": [
+    "서버 정상 종료 후 복원을 검사했습니다. OS 재부팅이나 tmux 종료를 복구한 결과는 아닙니다.",
+    "복원 시간은 한 번의 로컬 실행 결과이며 수정 전후 성능 개선율이나 다른 장비의 응답 속도를 뜻하지 않습니다.",
+    "일반 버퍼의 휠 스크롤만 검사했습니다. 실제 Windows·macOS 입력기와 모든 TUI의 마우스 처리는 별도 검증 대상입니다.",
+    "공개 화면과 영상은 2026-09-07 촬영 자료이며, 해당 촬영 시점의 결과는 docs/media/verification.json에 있습니다."
+  ]
+}

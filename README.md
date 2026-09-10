@@ -8,9 +8,9 @@ Claude Code·Codex·OpenCode로 여러 프로젝트를 작업할 때는 실행 �
 
 [![Verify](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml)
 
-![공개용 샘플 프로젝트의 실제 Cockpit 터미널 화면](docs/media/terminal-workspace.png)
+![Codex·Claude Code·OpenCode 터미널과 세션 상태를 함께 보는 Cockpit 화면](docs/media/cockpit-session-status.png)
 
-> 2026-09-07 촬영. 격리된 샘플 프로젝트를 실제 Cockpit 서버·PTY·tmux·Chromium에서 실행했습니다. 화면의 테스트 결과는 샘플 프로젝트의 실행 결과이며, 실제 AI 서비스 호출이나 외부 CI 성공을 연출한 자료가 아닙니다. [촬영 조건과 재현](docs/media/README.md)
+> Codex·Claude Code·OpenCode 터미널을 나란히 배치하고, 오른쪽 Session Status에서 세션 상태를 확인하는 화면입니다.
 
 ## 해결한 문제
 

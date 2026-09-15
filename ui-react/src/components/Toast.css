@@ -1,35 +1,86 @@
-.toast-host {
+/* Toast — vanilla css/dialogs.css (.toast-container/.toast) parity.
+ * React host class .toast-host is kept as an alias of .toast-container;
+ * item tone class is vanilla-style (.info/.success/.error). */
+
+.toast-host,
+.toast-container {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  bottom: 20px;
+  right: 20px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 8px;
-  z-index: 100;
-  max-width: min(360px, calc(100vw - 32px));
+  z-index: 10000;
+  pointer-events: none;
+  max-width: min(380px, calc(100vw - 32px));
 }
 
-.toast {
+.toast-host .toast,
+.toast-container .toast {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm, 7px);
+  font-size: 0.86rem;
+  font-weight: 500;
+  font-family: var(--font, system-ui, sans-serif);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.4));
+  pointer-events: auto;
+  animation: toastIn 0.3s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--bg-2);
-  color: var(--text-1);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.85rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  animation: toast-in 160ms ease-out;
+  gap: 8px;
+  max-width: 380px;
+  border: 1px solid transparent;
 }
 
-.toast-success {
-  border-left-color: var(--green);
+/* 바닐라 톤 — 구형 .toast-info/.toast-success/.toast-error 별칭도 유지 */
+.toast-host .toast.info,
+.toast-host .toast.toast-info,
+.toast-container .toast.info,
+.toast-container .toast.toast-info {
+  background: rgba(99, 102, 241, 0.92);
+  color: #fff;
+  border-color: rgba(129, 140, 248, 0.3);
+}
+.toast-host .toast.success,
+.toast-host .toast.toast-success,
+.toast-container .toast.success,
+.toast-container .toast.toast-success {
+  background: rgba(16, 185, 129, 0.92);
+  color: #fff;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+.toast-host .toast.error,
+.toast-host .toast.toast-error,
+.toast-container .toast.error,
+.toast-container .toast.toast-error {
+  background: rgba(239, 68, 68, 0.92);
+  color: #fff;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+.toast-host .toast.exiting,
+.toast-container .toast.exiting {
+  animation: toastOut 0.3s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
 }
 
-.toast-error {
-  border-left-color: var(--red);
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
 }
 
 .toast-msg {
@@ -41,21 +92,22 @@
   flex: 0 0 auto;
   padding: 2px 8px;
   line-height: 1.2;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-xs, 4px);
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.8rem;
 }
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
 }
 
 @media (max-width: 600px) {
-  .toast-host {
+  .toast-host,
+  .toast-container {
     left: 12px;
     right: 12px;
     bottom: 76px;

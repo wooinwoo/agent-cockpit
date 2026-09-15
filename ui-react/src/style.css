@@ -1,104 +1,1528 @@
+/* Cockpit React — vanilla visual parity layer.
+ * Tokens + shell chrome adopted from vanilla css/base.css · css/dialogs.css
+ * (settings/toast) · css/ports.css · css/cicd.css · css/mobile.css.
+ * View-specific polish lives in each view's own css file; Ports/Cicd have
+ * no dedicated file so their vanilla class names are styled here.
+ * Logic-free: class names and visuals only. Korean text untouched. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
-  --bg-0: #0d1117;
-  --bg-1: #161b22;
-  --bg-2: #21262d;
-  --text-1: #e6edf3;
-  --text-2: #8b949e;
-  --border: #30363d;
-  --accent: #6366f1;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg-0: #0a0b10;
+  --bg-1: #0f1118;
+  --bg-2: #151721;
+  --bg-3: #1c1e2a;
+  --bg-4: #252734;
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --bg-surface-hover: rgba(255, 255, 255, 0.09);
+  --bg-glass: rgba(15, 17, 24, 0.65);
+  --text-0: #f0f1f5;
+  --text-1: #d4d5e0;
+  --text-2: #9a9cb0;
+  --text-3: #6e7088;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --border-active: rgba(129, 140, 248, 0.45);
+  --accent: #818cf8;
+  --accent-bright: #a5b4fc;
+  --accent-dim: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.12);
+  --accent-glow-strong: rgba(99, 102, 241, 0.22);
   --green: #34d399;
-  --green-dim: rgba(52, 211, 153, 0.08);
+  --green-dim: rgba(52, 211, 153, 0.1);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251, 191, 36, 0.1);
   --red: #f87171;
-  --red-dim: rgba(248, 113, 113, 0.08);
+  --red-dim: rgba(248, 113, 113, 0.1);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96, 165, 250, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-xs: 4px;
+  --radius-full: 9999px;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 120ms;
+  --dur-md: 200ms;
   color-scheme: dark;
 }
 
-/* 라이트 테마 — App.jsx가 documentElement에 data-theme을 설정. */
-[data-theme="light"] {
-  --bg-0: #ffffff;
-  --bg-1: #f6f8fa;
-  --bg-2: #eaeef2;
-  --text-1: #1f2328;
-  --text-2: #59636e;
-  --border: #d0d7de;
-  --accent: #4f46e5;
-  --green: #0a7a55;
-  --green-dim: rgba(10, 122, 85, 0.08);
-  --red: #cf222e;
-  --red-dim: rgba(207, 34, 46, 0.08);
+/* 라이트 테마 — App.jsx는 documentElement에 data-theme을 설정하고,
+   바닐라는 body.light-theme을 토글하므로 둘 다 지원. */
+[data-theme="light"],
+body.light-theme {
+  --bg-0: #eef0f4;
+  --bg-1: #f7f8fa;
+  --bg-2: #ffffff;
+  --bg-3: #f1f2f6;
+  --bg-4: #e6e8ee;
+  --bg-surface: rgba(0, 0, 0, 0.03);
+  --bg-surface-hover: rgba(0, 0, 0, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --text-0: #171923;
+  --text-1: #2d3038;
+  --text-2: #5a5e6e;
+  --text-3: #8b8fa1;
+  --border: rgba(0, 0, 0, 0.10);
+  --border-hover: rgba(0, 0, 0, 0.18);
+  --border-active: rgba(99, 102, 241, 0.55);
+  --accent: #6366f1;
+  --accent-bright: #4f46e5;
+  --accent-dim: #818cf8;
+  --accent-glow: rgba(99, 102, 241, 0.10);
+  --accent-glow-strong: rgba(99, 102, 241, 0.18);
+  --green: #059669;
+  --green-dim: rgba(5, 150, 105, 0.10);
+  --yellow: #d97706;
+  --yellow-dim: rgba(217, 119, 6, 0.12);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.08);
+  --blue: #2563eb;
+  --blue-dim: rgba(37, 99, 235, 0.10);
+  --shadow-sm: 0 1px 2px rgba(23, 25, 35, 0.08);
+  --shadow-md: 0 4px 12px rgba(23, 25, 35, 0.10), 0 1px 3px rgba(23, 25, 35, 0.06);
+  --shadow-lg: 0 12px 32px rgba(23, 25, 35, 0.14), 0 4px 8px rgba(23, 25, 35, 0.08);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.16);
   color-scheme: light;
 }
 
-body { background: var(--bg-0); color: var(--text-1); font-family: system-ui, sans-serif; }
-.app-header { display: flex; gap: 8px; align-items: center; padding: 12px 16px; flex-wrap: wrap; background: var(--bg-0); }
-.app-logo { white-space: nowrap; }
-.tab-bar { display: flex; gap: 4px; flex-wrap: wrap; }
-.settings-btn { margin-left: auto; }
-.app-main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
-.row { border: 1px solid var(--border); background: var(--bg-1); border-radius: 8px; padding: 12px 14px; margin: 10px 0; display: grid; gap: 8px; }
-.id { display: flex; gap: 10px; align-items: center; }
-.id h2 { margin: 0; font-size: 1rem; }
-.id p { margin: 0; color: var(--text-2); font-size: 0.75rem; }
-.mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-content: center; font-weight: 700; background: var(--bg-2); }
-.hint { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-2); }
-.hint code { background: var(--bg-1); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; color: var(--text-1); }
-.test { font-family: monospace; font-size: 0.75rem; display: grid; gap: 2px; padding: 8px; border-radius: 6px; }
-.test.pass { color: var(--green); background: var(--green-dim); }
-.test.fail { color: var(--red); background: var(--red-dim); }
-.actions { display: flex; gap: 8px; align-items: center; }
-.st { display: inline-flex; gap: 5px; align-items: center; font-size: 0.75rem; }
-.st i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-2); }
-.st-ready i { background: var(--green); }
-.st-warning i { background: #fbbf24; }
-.st-login i { background: var(--red); }
-button { background: var(--bg-2); color: var(--text-1); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
-button:disabled { opacity: 0.5; cursor: default; }
-code { font-family: var(--mono); }
+html {
+  font-size: 15px;
+}
 
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--font);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 바닐라 ambient glow — 앱 뒤에 깔리는 은은한 그라데이션 */
+body::before {
+  content: "";
+  position: fixed;
+  top: -40%;
+  left: -20%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(ellipse, rgba(99, 102, 241, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -30%;
+  right: -15%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(52, 211, 153, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+[data-theme="light"] *,
+body.light-theme * {
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb,
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover,
+body.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* ─── App shell ─── */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── Header (vanilla body > header chrome) ─── */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  height: 48px;
+  flex-shrink: 0;
+  background: rgba(15, 17, 24, 0.82);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 100;
+}
+[data-theme="light"] .app-header,
+body.light-theme .app-header {
+  background: rgba(255, 255, 255, 0.82);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+.app-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
+  pointer-events: none;
+}
+
+/* 바닐라 .logo — React의 .app-logo와 병기 */
+.logo,
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-0);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.logo svg,
+.app-logo svg {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+}
+.logo-word {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-0);
+}
+
+/* 바닐라 .nav-tabs — React의 .tab-bar와 병기 */
+.nav-tabs,
+.tab-bar {
+  display: flex;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+[data-theme="light"] .nav-tabs,
+[data-theme="light"] .tab-bar,
+body.light-theme .nav-tabs,
+body.light-theme .tab-bar {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+.nav-tab,
+.tab-bar button {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--text-3);
+  border: none;
+  background: transparent;
+  transition: all var(--dur) var(--ease);
+  font-weight: 500;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-tab:hover,
+.tab-bar button:hover {
+  color: var(--text-1);
+}
+.nav-tab.active,
+.nav-tab[aria-selected="true"],
+.tab-bar button[aria-selected="true"] {
+  color: var(--text-0);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .nav-tab.active,
+[data-theme="light"] .nav-tab[aria-selected="true"],
+[data-theme="light"] .tab-bar button[aria-selected="true"],
+body.light-theme .nav-tab.active,
+body.light-theme .tab-bar button[aria-selected="true"] {
+  background: rgba(0, 0, 0, 0.06);
+}
+.nav-tab svg,
+.tab-bar button svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+/* 바닐라 .header-right — React 설정 버튼 영역 */
+.header-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.header-clock {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-3);
+  min-width: 56px;
+}
+.header-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--dur);
+  flex-shrink: 0;
+}
+.header-btn:hover {
+  color: var(--text-1);
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+}
+.header-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* React 텍스트형 설정 버튼 — 바닐라 톤의 pill 버튼 */
+.settings-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font);
+  transition: all var(--dur);
+  flex-shrink: 0;
+}
+.settings-btn:hover {
+  color: var(--text-1);
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+}
+.header-right .settings-btn {
+  margin-left: 0;
+}
+
+/* ─── Main ─── */
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 16px 24px;
+}
+.app-main > main {
+  min-height: 0;
+}
+.app-main h1 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-0);
+  margin: 2px 0 10px;
+}
+
+/* ─── Shared controls (vanilla dialogs.css tone) ─── */
+button {
+  background: var(--bg-surface);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all var(--dur);
+}
+button:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+  color: var(--text-0);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all var(--dur);
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-hover);
+  color: var(--text-0);
+}
+.btn.primary {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: #fff;
+}
+.btn.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  color: #fff;
+}
+.btn-sm {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all var(--dur);
+  padding: 0;
+}
+.modal-close:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-1);
+}
+
+select,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input:not([type]),
+textarea {
+  background: var(--bg-0);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+select::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-3);
+}
+input[type="checkbox"] {
+  accent-color: var(--accent-dim);
+}
+code {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  color: var(--accent-bright);
+}
+[data-theme="light"] code,
+body.light-theme code {
+  color: var(--accent);
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* 바닐라 공용 아이콘 버튼 */
+.dt-icon-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--dur);
+  padding: 0;
+  flex-shrink: 0;
+}
+.dt-icon-btn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-1);
+  border-color: var(--border);
+}
+.dt-icon-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ─── Legacy React card primitives — 토큰으로 폴리시 ─── */
+.row {
+  border: 1px solid var(--border);
+  background: var(--bg-1);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 10px 0;
+  display: grid;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--dur);
+}
+.id {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.id h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-0);
+}
+.id p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+.mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  font-weight: 700;
+  background: var(--bg-3);
+  color: var(--text-1);
+  flex-shrink: 0;
+}
+.hint {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+.hint code {
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  padding: 2px 8px;
+  color: var(--text-1);
+}
+.test {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+.test.pass {
+  color: var(--green);
+  background: var(--green-dim);
+}
+.test.fail {
+  color: var(--red);
+  background: var(--red-dim);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.st {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.st i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-3);
+  flex-shrink: 0;
+}
+.st-ready {
+  color: var(--green);
+}
+.st-ready i {
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-dim);
+}
+.st-warning {
+  color: var(--yellow);
+}
+.st-warning i {
+  background: var(--yellow);
+}
+.st-login {
+  color: var(--red);
+}
+.st-login i {
+  background: var(--red);
+}
+
+/* ─── Settings slide-over (vanilla dialogs.css) ─── */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--dur-md);
+}
+.settings-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 90vw;
+  background: var(--bg-1);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  z-index: 501;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--dur-md) var(--ease);
+}
+.settings-panel.open {
+  transform: translateX(0);
+}
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.settings-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-0);
+  margin: 0;
+}
+.settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+}
+.settings-footer button {
+  flex: 1;
+}
+.settings-theme-row,
+.settings-server-rowbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.settings-theme-row > span:first-child,
+.settings-server-rowbox > span:first-child {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-1);
+  min-width: 38px;
+}
+.settings-theme-row button[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  color: var(--text-0);
+}
+.settings-origin {
+  font-size: 0.8rem;
+  color: var(--text-2);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.settings-origin code {
+  font-family: var(--mono);
+}
+.settings-shortcuts {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.settings-section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+.settings-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-2);
+  margin: 0;
+}
+
+/* ─── Zoom chip — 바닐라 stat-badge 톤 ─── */
 .zoom-indicator {
   position: fixed;
   right: 16px;
-  bottom: 64px;
+  bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-2);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-1);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 4px 8px 4px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: 5px 6px 5px 12px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-family: var(--mono);
+  box-shadow: var(--shadow-md);
   z-index: 90;
 }
-
 .zoom-indicator button {
   padding: 2px 8px;
   line-height: 1.2;
+  border-radius: var(--radius-full);
 }
 
+/* ─── Ports view (vanilla css/ports.css — React는 전역 style.css에서 제공) ─── */
+.ports-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.port-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.port-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.port-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.port-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-0);
+  margin: 0;
+}
+.port-search {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  width: 200px;
+  max-width: 100%;
+}
+.port-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.port-dev-filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--text-2);
+  cursor: pointer;
+  user-select: none;
+}
+.port-dev-filter input {
+  accent-color: var(--accent-dim);
+}
+.port-content {
+  min-height: 0;
+}
+.port-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+}
+.port-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.port-table thead th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--text-3);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  white-space: nowrap;
+}
+.port-table tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+}
+.port-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.port-table tbody tr:hover {
+  background: var(--bg-surface-hover);
+}
+.port-row-dev {
+  background: var(--green-dim);
+}
+.port-row-dev:hover {
+  background: var(--green-dim) !important;
+  filter: brightness(1.4);
+}
+.port-num {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--accent-bright);
+  font-size: 0.82rem;
+}
+.port-pname {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.port-pid {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-3);
+}
+.port-addr {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-3);
+}
+.port-badge-dev {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--green-dim);
+  color: var(--green);
+  white-space: nowrap;
+}
+.port-actions {
+  display: flex;
+  gap: 4px;
+}
+.port-action-btn {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+}
+.port-kill-btn:hover:not(:disabled) {
+  color: var(--red) !important;
+  background: var(--red-dim) !important;
+  border-color: var(--red);
+}
+.port-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.port-sortable:hover {
+  color: var(--accent-bright);
+}
+button.port-sort-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+button.port-sort-btn:hover {
+  background: transparent;
+  color: var(--accent-bright);
+}
+.port-summary {
+  padding: 10px 4px;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+.port-empty {
+  text-align: center;
+  color: var(--text-3);
+  padding: 40px 0;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+  font-size: 0.85rem;
+}
+.port-alert {
+  font-size: 0.82rem;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+.port-alert-error {
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+}
+.port-alert-paused {
+  color: var(--yellow);
+  background: var(--yellow-dim);
+  border: 1px solid var(--yellow);
+}
+.monitor-paused {
+  background: var(--yellow-dim) !important;
+  color: var(--yellow) !important;
+  border-color: var(--yellow) !important;
+}
+
+/* ─── CI/CD view (vanilla css/cicd.css) ─── */
+.cicd-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.cicd-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.cicd-toolbar select {
+  padding: 4px 8px;
+  background: var(--bg-2);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  max-width: 100%;
+}
+.cicd-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--text-2);
+  flex-wrap: wrap;
+}
+.cs-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cs-num {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-1);
+  font-family: var(--mono);
+}
+.cs-success .cs-num {
+  color: var(--green);
+}
+.cs-fail .cs-num {
+  color: var(--red);
+}
+.cs-running .cs-num {
+  color: var(--yellow);
+}
+.cs-dim {
+  opacity: 0.4;
+}
+.cs-progress {
+  flex: 0 0 100%;
+  height: 3px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  margin-top: 2px;
+}
+.cs-bar {
+  height: 100%;
+  transition: width 0.3s;
+}
+.cs-bar-pass {
+  background: var(--green);
+}
+.cs-bar-fail {
+  background: var(--red);
+}
+.cicd-content {
+  min-height: 0;
+}
+.cicd-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+}
+.cicd-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.cicd-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  white-space: nowrap;
+}
+.cicd-table td {
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.cicd-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.cicd-run-row {
+  cursor: pointer;
+  transition: background var(--dur);
+}
+.cicd-run-row:hover {
+  background: var(--bg-surface-hover);
+}
+.cicd-run-row.row-failure {
+  border-left: 3px solid var(--red);
+}
+.cicd-run-row.row-success {
+  border-left: 3px solid var(--green);
+}
+.cicd-icon {
+  width: 28px;
+  text-align: center;
+}
+.ci-icon {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.ci-success {
+  color: var(--green);
+}
+.ci-failure {
+  color: var(--red);
+}
+.ci-running {
+  color: var(--yellow);
+  animation: pulse-due 1.5s ease-in-out infinite;
+}
+.ci-cancelled,
+.ci-queued,
+.ci-skipped,
+.ci-unknown {
+  color: var(--text-3);
+}
+@keyframes pulse-due {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.cr-title {
+  font-weight: 600;
+  color: var(--text-0);
+  font-size: 0.8rem;
+}
+.cr-workflow {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+.cr-branch {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--accent-bright);
+  background: var(--accent-glow);
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+.cr-duration {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.cr-updated {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.cr-actions {
+  display: flex;
+  gap: 4px;
+}
+.cr-act-btn {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+}
+.cicd-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cicd-status.st-success {
+  background: var(--green-dim);
+  color: var(--green);
+}
+.cicd-status.st-failure {
+  background: var(--red-dim);
+  color: var(--red);
+}
+.cicd-status.st-running {
+  background: var(--yellow-dim);
+  color: var(--yellow);
+}
+.cicd-status.st-queued,
+.cicd-status.st-cancelled {
+  background: var(--bg-3);
+  color: var(--text-2);
+}
+.cicd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  color: var(--text-3);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+  font-size: 0.85rem;
+}
+.cicd-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: var(--text-3);
+  font-size: 0.85rem;
+  gap: 8px;
+}
+.cicd-loading::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.cicd-poll-indicator {
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  color: var(--green);
+  background: var(--green-dim);
+  border: 1px solid var(--green);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  animation: pulse-due 2s ease-in-out infinite;
+}
+.cicd-notice {
+  font-size: 0.82rem;
+  color: var(--yellow);
+  background: var(--yellow-dim);
+  border: 1px solid var(--yellow);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+.cicd-error {
+  font-size: 0.82rem;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+/* CI/CD detail — 바닐라 slide-over를 인플로우 카드로 폴리시 */
+.cicd-detail {
+  margin-top: 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.cd-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.cd-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.cd-status-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.cd-title {
+  font-weight: 700;
+  color: var(--text-0);
+  font-size: 0.92rem;
+}
+.cd-sub {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.cd-close {
+  flex-shrink: 0;
+}
+.cd-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cd-meta {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 6px 12px;
+  font-size: 0.82rem;
+  background: var(--bg-surface);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.cd-meta-label {
+  color: var(--text-3);
+  font-weight: 600;
+  font-size: 0.76rem;
+}
+.cd-meta-value {
+  color: var(--text-1);
+  font-size: 0.82rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cd-mono {
+  font-family: var(--mono);
+}
+.cd-jobs-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cd-job {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-0);
+}
+.cd-job + .cd-job {
+  margin-top: 6px;
+}
+.cd-job-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-1);
+  cursor: pointer;
+  list-style: none;
+}
+.cd-job-head::-webkit-details-marker {
+  display: none;
+}
+.cd-job-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cd-job-dur {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.cd-job-steps {
+  padding: 4px 12px 8px;
+}
+.cd-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 0.78rem;
+  color: var(--text-2);
+}
+.cd-step-icon {
+  width: 14px;
+  text-align: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.step-ok .cd-step-icon {
+  color: var(--green);
+}
+.step-fail .cd-step-icon {
+  color: var(--red);
+}
+.step-skip .cd-step-icon {
+  color: var(--text-3);
+}
+.cd-step-name {
+  flex: 1;
+  min-width: 0;
+}
+.cd-step-dur {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+}
+.cd-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.cd-logs {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--text-1);
+  background: var(--bg-0);
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 400px;
+  overflow: auto;
+  margin: 0;
+}
+.cd-no-steps {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  padding: 4px 0;
+}
+
+/* ─── Responsive: 기존 600px 규칙 유지 + 바닐라 패턴 확장 ─── */
 @media (max-width: 600px) {
   /* 탭 바: 하단 고정 가로 스크롤 바. 로고는 숨기고 카드 여백을 확보한다. */
   .app-header {
     position: fixed;
     inset: auto 0 0 0;
     flex-wrap: nowrap;
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    height: 52px;
+    padding: 0 4px calc(0px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
+    border-bottom: none;
     background: var(--bg-1);
     z-index: 40;
+    gap: 0;
+    justify-content: space-between;
   }
-  .app-logo { display: none; }
-  .tab-bar {
+  .app-header::after {
+    display: none;
+  }
+  .app-logo,
+  .logo {
+    display: none;
+  }
+  .header-right {
+    display: none;
+  }
+  .tab-bar,
+  .nav-tabs {
     flex: 1;
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    justify-content: flex-start;
+    gap: 0;
   }
-  .tab-bar button { flex: 0 0 auto; white-space: nowrap; }
-  .settings-btn { margin-left: 0; flex: 0 0 auto; }
+  .tab-bar::-webkit-scrollbar,
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab-bar button,
+  .nav-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 8px;
+    font-size: 0.62rem;
+  }
+  .tab-bar button svg,
+  .nav-tab svg {
+    width: 18px;
+    height: 18px;
+  }
+  .settings-btn {
+    margin-left: 0;
+    flex: 0 0 auto;
+  }
+  .app-shell {
+    padding-bottom: 52px;
+  }
   .app-main {
     max-width: none;
     margin: 12px auto 0;
@@ -108,4 +1532,80 @@ code { font-family: var(--mono); }
   .row { padding: 10px 12px; }
   .id { flex-wrap: wrap; }
   .actions { flex-wrap: wrap; }
+
+  /* ─── 바닐라 mobile.css 패턴 ─── */
+  .settings-panel {
+    width: 100vw;
+    max-width: 100vw;
+  }
+  .zoom-indicator {
+    bottom: 64px;
+    right: 12px;
+  }
+  /* CI/CD: 좁은 화면에서 소요·업데이트 열 숨기기 */
+  .cicd-toolbar {
+    padding: 8px;
+  }
+  .cicd-toolbar select {
+    flex: 1;
+    min-width: 0;
+  }
+  .cicd-summary {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+  .cicd-table th:nth-child(4),
+  .cicd-table td:nth-child(4),
+  .cicd-table th:nth-child(5),
+  .cicd-table td:nth-child(5) {
+    display: none;
+  }
+  .cicd-table th {
+    font-size: 0.65rem;
+    padding: 6px;
+  }
+  .cicd-table td {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+  .cd-meta {
+    grid-template-columns: 64px 1fr;
+  }
+  /* Ports: 툴바 줄바꿈 + 테이블 터치 스크롤 */
+  .port-toolbar {
+    padding: 8px;
+  }
+  .port-search {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+  .port-table thead th {
+    font-size: 0.65rem;
+    padding: 6px;
+  }
+  .port-table tbody td {
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+}
+
+/* 터치 디바이스 — 바닐라 mobile.css 터치 타깃 */
+@media (hover: none) and (pointer: coarse) {
+  .nav-tab,
+  .tab-bar button,
+  .settings-btn {
+    min-height: 36px;
+  }
+  .cr-act-btn,
+  .port-action-btn {
+    min-height: 32px;
+    min-width: 32px;
+  }
+  .header-btn,
+  .dt-icon-btn {
+    min-width: 32px;
+    min-height: 32px;
+  }
 }

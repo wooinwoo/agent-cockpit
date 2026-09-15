@@ -59,9 +59,9 @@ export function Toasts() {
   const ctx = useContext(ToastContext);
   if (!ctx) return null;
   return (
-    <div className="toast-host" role="status" aria-live="polite">
+    <div className="toast-host toast-container" role="status" aria-live="polite">
       {ctx.toasts.map((t) => (
-        <div key={t.id} className={`toast toast-${t.type}`}>
+        <div key={t.id} className={`toast ${t.type}`}>
           <span className="toast-msg">{t.message}</span>
           <button
             type="button"

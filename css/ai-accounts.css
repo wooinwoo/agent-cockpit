@@ -33,31 +33,64 @@
 .ai-accounts-tools {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.ai-tools-group {
+  flex: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
   gap: 8px;
+  padding: 5px 8px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
 .ai-accounts-tools label {
-  color: var(--text-3);
-  font: .58rem/1 var(--mono);
+  flex: none;
+  color: var(--text-2);
+  font: .6rem/1 var(--mono);
   letter-spacing: .08em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .ai-accounts-tools select {
-  min-width: 180px;
-  height: 31px;
+  min-width: 0;
+  height: 28px;
   padding: 0 8px;
   color: var(--text-1);
-  background: var(--bg-1);
+  background: var(--bg-0);
   border: 1px solid var(--border);
+}
+
+.ai-tools-group #ai-account-name {
+  width: 120px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--text-1);
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+}
+
+.ai-accounts-tools #ai-account-name:focus,
+.ai-accounts-tools #ai-account-provider:focus,
+.ai-accounts-tools #ai-account-project:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .ai-accounts-status {
   min-height: 38px;
   display: flex;
   align-items: center;
-  color: var(--text-3);
-  font: .58rem/1 var(--mono);
+  color: var(--text-2);
+  font: .64rem/1.4 var(--mono);
 }
 
 .ai-account-list {
@@ -70,9 +103,11 @@
   align-items: center;
   gap: 18px;
   min-height: 112px;
-  padding: 14px 12px;
+  padding: 16px 12px;
   border-bottom: 1px solid var(--border);
 }
+
+.ai-account-row + .ai-account-row { border-top: 1px solid rgba(218, 226, 230, 0.07); }
 
 .ai-account-row:hover {
   background: var(--bg-surface);
@@ -106,16 +141,16 @@
 .ai-account-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 4px 6px;
 }
 
 .ai-account-meta span,
 .term-account-tag {
-  padding: 2px 5px;
-  color: var(--text-2);
+  padding: 2px 6px;
+  color: var(--text-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-xs);
-  font: .58rem/1.25 var(--mono);
+  font: .6rem/1.25 var(--mono);
 }
 
 .ai-account-limits {
@@ -137,6 +172,36 @@
 .ai-account-meter span { display: block; height: 100%; background: var(--green); }
 .ai-account-meter span.session { background: var(--accent); }
 .ai-account-metric small { color: var(--text-3); font-size: .58rem; }
+.ai-account-metric small .abs { opacity: .72; font-style: normal; }
+
+.ai-account-usage {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: var(--text-1);
+  font: .66rem/1.5 var(--mono);
+}
+
+.ai-account-budget {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 26px;
+  padding: 0 10px;
+  color: var(--text-2);
+}
+
+.ai-account-usage small {
+  padding: 1px 5px;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: .54rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
 .ai-account-action {
   display: flex;
@@ -150,7 +215,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  color: var(--text-2);
+  color: var(--text-1);
   font-size: .58rem;
 }
 
@@ -159,9 +224,73 @@
 .ai-account-state.warning i { background: var(--yellow); }
 .ai-account-state.login i { background: var(--red); }
 .ai-account-action .btn { min-height: 32px; }
-.ai-account-action .btn.primary { color: #08110d; background: var(--green); border-color: var(--green); }
+.ai-account-action .btn.primary {
+  color: #0b1418;
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+}
+.ai-account-action .btn.primary:hover { background: var(--accent); border-color: var(--accent); }
 .ai-account-action .btn:disabled { color: var(--text-3); background: transparent; border-color: var(--border); cursor: not-allowed; }
 .ai-accounts-footnote { padding: 12px 2px; }
+
+/* 로그인 안내 — 미로그인 카드에 명령어와 복사 버튼 */
+.ai-account-login-hint {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 8px 10px;
+  color: var(--text-2);
+  font-size: .68rem;
+  background: var(--bg-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-s);
+}
+.ai-account-login-hint code {
+  padding: 2px 8px;
+  color: var(--text-0);
+  font: .72rem/1.6 var(--mono);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  user-select: all;
+}
+.ai-account-login-hint small { flex-basis: 100%; color: var(--text-3); font-size: .62rem; }
+
+/* 연결 테스트 결과 체크리스트 */
+.ai-account-test {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  font: .66rem/1.5 var(--mono);
+  border-radius: var(--radius-s);
+}
+.ai-account-test.pass { color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); }
+.ai-account-test.fail { color: var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
+.ai-account-test b { margin-right: 4px; }
+
+/* 인라인 예산 편집 */
+.ai-account-budget-edit {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: .7rem;
+}
+.ai-account-budget-edit input { width: 70px; }
+
+/* 예산 미설정 안내 — "정보 없음" 대신 행동 유도 */
+.ai-account-nobudget {
+  display: grid;
+  gap: 2px;
+  color: var(--text-2);
+  font-size: .7rem;
+}
+.ai-account-nobudget strong { color: var(--text-1); }
+.ai-account-nobudget small { color: var(--text-3); font-size: .62rem; }
 
 .term-account-tag { flex: none; color: var(--accent-bright); }
 .term-account-tag.claude, .th-account.claude { color: var(--yellow); }
@@ -185,10 +314,11 @@
 
 @media (max-width: 600px) {
   .ai-accounts-head { align-items: stretch; flex-direction: column; }
-  .ai-accounts-tools { align-items: stretch; flex-wrap: wrap; }
-  .ai-accounts-tools label { width: 100%; }
-  .ai-accounts-tools select { min-width: 0; flex: 1; }
-  .ai-accounts-tools select,
+  .ai-accounts-tools { align-items: stretch; flex-direction: column; }
+  .ai-tools-group { flex-wrap: wrap; }
+  .ai-tools-group select { flex: 1; min-width: 0; }
+  .ai-tools-group #ai-account-name { width: auto; flex: 1; }
+  .ai-tools-group #ai-account-email { width: auto; flex: 1; }
   .ai-accounts-tools .btn,
   .ai-account-action .btn { min-height: 44px; }
   .ai-account-row { grid-template-columns: 1fr; gap: 12px; }

@@ -36,6 +36,7 @@ test('returns safe summaries and resolves launch environment by server-side id',
   writeFileSync(join(root, 'profiles.json'), JSON.stringify([{
     provider: 'claude', name: '업무용', accountEmail: 'dev@example.com',
     claudeConfigDir: claudeHome, weeklyLimitUsedPercent: 28, shortLimitUsedPercent: 7,
+    lastLimitsRefreshUtc: new Date().toISOString(), // 신선 — 퍼센트 표시
   }]));
 
   const options = { env: { AI_HUB_LAUNCHER_ROOT: root }, home: '/missing', isWsl: false, targetWsl: false };
@@ -54,8 +55,10 @@ test('returns safe summaries and resolves launch environment by server-side id',
   writeFileSync(join(root, 'profiles.json'), JSON.stringify([{
     provider: 'claude', name: '업무용', accountEmail: 'dev@example.com',
     claudeConfigDir: claudeHome, lastLimitsError: 'Wrong Claude account is logged in for this profile.',
+    lastLimitsRefreshUtc: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // 낡음
   }]));
   const warning = listAiAccounts(options).accounts[0];
   assert.equal(warning.state, 'warning');
+  assert.equal(warning.weeklyRemaining, null); // 낡은 퍼센트는 미표시
   assert.throws(() => resolveAiAccountLaunch(warning.id, options), /status check required/);
 });

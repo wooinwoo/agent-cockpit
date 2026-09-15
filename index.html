@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="/css/ports.css" />
     <link rel="stylesheet" href="/css/autopilot.css" />
     <link rel="stylesheet" href="/css/ai-accounts.css" />
+    <link rel="stylesheet" href="/css/notes.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
     <link rel="stylesheet" href="/css/workflows.css" />
     <link rel="stylesheet" href="/css/xterm-skin.css" />
@@ -167,6 +168,10 @@
             <path d="M3 19c.6-3.4 2.3-5 5-5s4.4 1.6 5 5M14 13c2.7-.5 5 .9 6 4"/>
           </svg>
           <span class="tab-label">AI 계정</span>
+        </button>
+        <button class="nav-tab" role="tab" aria-selected="false" aria-controls="notes-view" title="Notes (Ctrl+7)" data-action="switch-view" data-view="notes">
+          <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          <span class="tab-label">Notes</span>
         </button>
         <div class="nav-more-wrap" id="nav-more-wrap">
           <button class="nav-tab nav-more-btn" id="nav-more-btn" data-action="toggle-nav-more" title="More tabs">
@@ -606,9 +611,21 @@
               <p>계정과 작업 위치를 선택해 독립된 Claude·Codex 터미널을 엽니다.</p>
             </div>
             <div class="ai-accounts-tools">
-              <label for="ai-account-project">작업 위치</label>
-              <select id="ai-account-project" aria-label="AI 계정 터미널 작업 위치"></select>
-              <button class="btn" data-action="refresh-ai-accounts" type="button">새로고침</button>
+              <div class="ai-tools-group">
+                <label for="ai-account-project">작업 위치</label>
+                <select id="ai-account-project" aria-label="AI 계정 터미널 작업 위치"></select>
+                <button class="btn" data-action="refresh-ai-accounts" type="button">새로고침</button>
+              </div>
+              <div class="ai-tools-group">
+                <label for="ai-account-provider">새 계정</label>
+                <select id="ai-account-provider" aria-label="AI 계정 공급자">
+                  <option value="claude">Claude</option>
+                  <option value="codex">Codex</option>
+                </select>
+                <input type="text" id="ai-account-name" placeholder="계정 이름" maxlength="40" aria-label="새 AI 계정 이름">
+                <input type="text" id="ai-account-email" placeholder="이메일(선택)" maxlength="120" aria-label="새 AI 계정 이메일">
+                <button class="btn primary" data-action="add-ai-account" type="button">추가</button>
+              </div>
             </div>
           </header>
           <div class="ai-accounts-status" id="ai-accounts-status" role="status">계정 정보를 불러오는 중…</div>

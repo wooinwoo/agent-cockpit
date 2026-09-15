@@ -1,0 +1,55 @@
+/* Notes 뷰 — ui-react/src/style.css 다크 테마에 맞춤 */
+.nt-layout { display: grid; grid-template-columns: 260px 1fr 200px; gap: 12px; align-items: start; }
+.nt-sidebar { border: 1px solid #30363d; border-radius: 8px; padding: 10px; display: grid; gap: 8px; max-height: 70vh; overflow: auto; }
+.nt-side-head { display: grid; gap: 8px; }
+.nt-search { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 6px 10px; color: #e6edf3; width: 100%; box-sizing: border-box; }
+.nt-count { color: #8b949e; font-size: 0.75rem; }
+.nt-list { display: grid; gap: 6px; }
+.nt-item { border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; cursor: pointer; display: grid; gap: 2px; }
+.nt-item strong { font-size: 0.85rem; }
+.nt-item small { color: #8b949e; font-size: 0.72rem; }
+.nt-item .nt-preview-line { color: #8b949e; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nt-item.active { border-color: #6366f1; background: rgba(99, 102, 241, 0.08); }
+.nt-empty { color: #8b949e; font-size: 0.8rem; }
+.nt-main { border: 1px solid #30363d; border-radius: 8px; padding: 12px 14px; display: grid; gap: 10px; min-height: 40vh; }
+.nt-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.nt-title { flex: 1; min-width: 180px; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 10px; color: #e6edf3; font-size: 1rem; }
+.nt-status { font-size: 0.75rem; color: #8b949e; }
+.nt-status.tone-saving, .nt-status.tone-pending { color: #fbbf24; }
+.nt-status.tone-saved { color: #34d399; }
+.nt-status.tone-error { color: #f87171; }
+.nt-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.nt-tools button.primary { border-color: #6366f1; background: rgba(99, 102, 241, 0.15); }
+.nt-textarea { min-height: 50vh; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px; color: #e6edf3; font-family: ui-monospace, monospace; font-size: 0.85rem; line-height: 1.6; resize: vertical; }
+.nt-preview { min-height: 50vh; }
+.nt-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.nt-tag { font-size: 0.72rem; color: #8b949e; background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 2px 8px; }
+.nt-toc { border: 1px solid #30363d; border-radius: 8px; padding: 10px; display: grid; gap: 4px; align-content: start; max-height: 70vh; overflow: auto; }
+.nt-toc-title { font-size: 0.75rem; color: #8b949e; margin-bottom: 4px; }
+.nt-toc-item { font-size: 0.78rem; color: #8b949e; cursor: pointer; padding: 2px 0; }
+.nt-toc-item:hover { color: #e6edf3; }
+.nt-toc-item.lv2 { padding-left: 10px; }
+.nt-toc-item.lv3 { padding-left: 20px; }
+.nt-empty-box { display: grid; gap: 8px; justify-items: center; padding: 48px 0; color: #8b949e; }
+.nt-empty-box .nt-empty-title { font-size: 1.2rem; color: #e6edf3; }
+.nt-empty-box .nt-empty-sub { font-size: 0.85rem; }
+
+/* 마크다운 공용 */
+.markdown-body { font-size: 0.88rem; line-height: 1.7; word-break: break-word; }
+.markdown-body h1 { font-size: 1.4rem; border-bottom: 1px solid #30363d; padding-bottom: 6px; }
+.markdown-body h2 { font-size: 1.2rem; border-bottom: 1px solid #30363d; padding-bottom: 6px; }
+.markdown-body h3 { font-size: 1rem; }
+.markdown-body pre { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px 12px; overflow: auto; }
+.markdown-body code { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 1px 5px; font-size: 0.8rem; }
+.markdown-body pre code { background: none; border: none; padding: 0; }
+.markdown-body table { border-collapse: collapse; width: 100%; font-size: 0.8rem; }
+.markdown-body th, .markdown-body td { border: 1px solid #30363d; padding: 6px 8px; text-align: left; }
+.markdown-body th { background: #161b22; }
+.markdown-body blockquote { border-left: 3px solid #6366f1; margin: 8px 0; padding: 4px 12px; color: #8b949e; }
+.markdown-body a { color: #79c0ff; }
+.markdown-body hr { border: none; border-top: 1px solid #30363d; }
+
+@media (max-width: 900px) {
+  .nt-layout { grid-template-columns: 1fr; }
+  .nt-toc { display: none; }
+}

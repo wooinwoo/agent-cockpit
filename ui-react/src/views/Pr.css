@@ -1,0 +1,128 @@
+.pr-view .pr-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.pr-view select,
+.pr-view input,
+.pr-view textarea {
+  background: var(--bg-1, #161b22);
+  color: var(--text-1, #e6edf3);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: inherit;
+}
+.pr-row {
+  cursor: pointer;
+}
+.pr-row:hover {
+  border-color: var(--accent, #6366f1);
+}
+.pr-proj-tag {
+  color: var(--accent, #a5b4fc);
+  font-weight: 600;
+  margin-right: 6px;
+}
+.pr-badge {
+  font-size: 0.7rem;
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.pr-rv-approved,
+.pr-rv-merged {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green, #34d399);
+}
+.pr-rv-changes,
+.pr-rv-closed {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red, #f87171);
+}
+.pr-rv-pending {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--yellow, #fbbf24);
+}
+.pr-rv-draft {
+  background: rgba(139, 148, 158, 0.15);
+  color: var(--text-1, #8b949e);
+}
+.pr-meta {
+  font-size: 0.8rem;
+  color: var(--text-1, #8b949e);
+}
+.pr-error {
+  color: var(--red, #f87171);
+  font-size: 0.85rem;
+}
+.pr-detail-head {
+  flex-wrap: wrap;
+}
+.pr-file {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  font-family: var(--mono, monospace);
+  padding: 4px 0;
+  border-top: 1px solid var(--border, #30363d);
+}
+.pr-review,
+.pr-comment {
+  font-size: 0.85rem;
+  padding: 6px 0;
+  border-top: 1px solid var(--border, #30363d);
+}
+.pr-review p,
+.pr-comment p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+.pr-comment-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.pr-comment-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.ps-add {
+  color: var(--green, #34d399);
+}
+.ps-del {
+  color: var(--red, #f87171);
+}
+.pr-diff {
+  margin: 8px 0;
+  padding: 8px 0;
+  overflow-x: auto;
+  font-family: var(--mono, monospace);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  background: var(--bg-1, #0d1117);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.pr-diff span {
+  display: block;
+  padding: 0 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.dl-add {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--green, #34d399);
+}
+.dl-del {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--red, #f87171);
+}
+.dl-hunk {
+  color: var(--accent, #a5b4fc);
+}

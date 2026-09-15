@@ -1,0 +1,118 @@
+.term-tab {
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: calc(100vh - 90px);
+  min-height: 400px;
+}
+
+.term-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.term-toolbar h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.term-status {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.term-body {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.term-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 220px;
+  min-width: 160px;
+  overflow-y: auto;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  background: #0d1117;
+}
+
+.term-empty {
+  padding: 12px;
+  color: #8b949e;
+  font-size: 0.8rem;
+}
+
+.term-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: 1px solid #21262d;
+}
+
+.term-item:hover {
+  background: #161b22;
+}
+
+.term-item.active {
+  background: #1c2128;
+  border-left: 2px solid #7ee8fb;
+}
+
+.term-item.exited .term-name {
+  color: #8b949e;
+  text-decoration: line-through;
+}
+
+.term-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.term-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7ee8fb;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.term-meta {
+  color: #8b949e;
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70px;
+}
+
+.term-kill {
+  padding: 2px 7px;
+  font-size: 0.7rem;
+}
+
+.term-screen {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  background: #0d1117;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.term-screen .xterm {
+  height: 100%;
+}

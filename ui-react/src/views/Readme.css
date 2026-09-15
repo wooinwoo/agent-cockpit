@@ -1,0 +1,24 @@
+/* Readme 뷰 — 바닐라 rm-* 레이아웃의 React 이식 */
+.rm-layout { display: grid; grid-template-columns: 220px 1fr 200px; gap: 12px; align-items: start; }
+.rm-sidebar { border: 1px solid #30363d; border-radius: 8px; padding: 10px; max-height: 70vh; overflow: auto; }
+.rm-sidebar-title { font-weight: 700; margin-bottom: 8px; }
+.rm-nav { display: grid; gap: 2px; }
+.rm-nav-item { display: block; padding: 6px 8px; border-radius: 6px; color: #8b949e; font-size: 0.82rem; text-decoration: none; cursor: pointer; }
+.rm-nav-item:hover { color: #e6edf3; background: #161b22; }
+.rm-nav-item.active { color: #e6edf3; background: rgba(99, 102, 241, 0.12); }
+.rm-article { border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; min-height: 40vh; }
+.rm-toc { border: 1px solid #30363d; border-radius: 8px; padding: 10px; display: grid; gap: 4px; align-content: start; max-height: 70vh; overflow: auto; }
+.rm-toc-title { font-size: 0.75rem; color: #8b949e; margin-bottom: 4px; }
+.rm-toc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rm-toc-item a { color: #8b949e; font-size: 0.78rem; text-decoration: none; }
+.rm-toc-item a:hover { color: #e6edf3; }
+.rm-toc-l4 { padding-left: 12px; }
+.rm-page-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+.rm-page-link { display: grid; gap: 2px; text-align: left; }
+.rm-page-dir { font-size: 0.72rem; color: #8b949e; }
+.rm-page-label { font-size: 0.85rem; }
+
+@media (max-width: 900px) {
+  .rm-layout { grid-template-columns: 1fr; }
+  .rm-toc { display: none; }
+}

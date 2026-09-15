@@ -9,15 +9,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3848',
+        target: 'http://127.0.0.1:3847',
         changeOrigin: true,
       },
       // 터미널 WS — 서버가 Origin==Host를 강제하므로 dev에서만 Origin을 맞춘다
       '/ws-term': {
-        target: 'ws://127.0.0.1:3848',
+        target: 'ws://127.0.0.1:3847',
         ws: true,
         rewrite: () => '/',
-        headers: { origin: 'http://127.0.0.1:3848' },
+        headers: { origin: 'http://127.0.0.1:3847' },
       },
     },
   },

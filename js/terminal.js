@@ -198,6 +198,7 @@ export function connectWS() {
             added = true;
             if (t.buffer) { const tm = app.termMap.get(t.termId); if (tm) tm.pendingBuffer = t.buffer; }
           }
+          if (t.alias) { const tm = app.termMap.get(t.termId); if (tm) tm.alias = t.alias; }
           if ('agentCommand' in t) {
             app.termMap.get(t.termId).agentCommand = t.agentCommand || '';
             app.termMap.get(t.termId).agentScanKnown = true;
@@ -214,10 +215,21 @@ export function connectWS() {
         updateAgentWall();
         break;
       }
-      case 'created':
+      case 'created': {
         if (!app.termMap.has(msg.termId)) addTerminal(msg.termId, msg.projectId, true, msg.command, msg.account, msg.durable);
+        const created = app.termMap.get(msg.termId);
+        if (created && msg.alias) created.alias = msg.alias;
+        // 계정 전환: 새 터미널 확보되면 이전 계정 터미널 종료
+        if (app._pendingAccountSwitch && msg.termId !== app._pendingAccountSwitch.oldTermId) {
+          const { oldTermId } = app._pendingAccountSwitch;
+          app._pendingAccountSwitch = null;
+          setTimeout(() => {
+            if (app.termMap.has(oldTermId)) requestCloseTerminal(oldTermId);
+          }, 600);
+        }
         updateAgentWall();
         break;
+      }
       case 'error':
         showToast(msg.message || '터미널을 열지 못했습니다.', 'error');
         break;
@@ -502,19 +514,42 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
         delete term._resizeScrollAnchor;
         delete term._focusBottomUntil;
       }
-      // 일반 버퍼 휠 스크롤을 DOM scrollTop 직접 조작으로 처리한다.
-      // xterm의 scrollLines/네이티브 위임이 캔버스 transform·번들에 따라 죽는 사례가
-      // 확인되어(스크롤 안 됨 보고), 브라우저 표준 scroll 이벤트만을 경유하는 이 경로로 통일.
-      // TUI(alternate buffer)는 xterm이 앱에 전달하게 그대로 둔다.
-      if (e.deltaY && xterm.element && xterm.buffer.active.type !== 'alternate') {
+      if (e.deltaY && xterm.element) {
+        // 터미널 위 플레인 휠은 무조건 여기서 기본 동작을 끊는다 — 스크롤백이 없거나
+        // TUI가 휠을 안 쓸 때 이벤트가 새어 나가 뒷 페이지/캔버스가 굴러가는 누수 방지.
+        // (xterm 자체 휠 핸들러는 defaultPrevented를 검사하지 않으므로 전달에는 영향 없음)
+        e.preventDefault();
+        // TUI(alternate buffer)는 줄 계산이 무의미 — xterm이 앱에 ↑/↓·마우스 시퀀스로
+        // 전달하도록 여기서 소비만 하고 스크롤은 하지 않는다.
+        if (xterm.buffer.active.type === 'alternate') return;
         const vp = xterm.element.querySelector('.xterm-viewport');
-        if (vp && vp.scrollHeight > vp.clientHeight + 1) {
-          e.preventDefault();
-          const lines = Math.max(1, Math.round(Math.abs(e.deltaY) / 40)) * (e.altKey ? 5 : 1);
-          const cell = vp.scrollHeight / Math.max(1, xterm.buffer.active.length);
-          vp.scrollTop += Math.sign(e.deltaY) * cell * lines;
-          return;
+        if (!vp || vp.scrollHeight <= vp.clientHeight + 1) return; // 아직 스크롤백 없음
+        // deltaMode 정규화 — 1=줄, 2=페이지 (Linux 일부 입력기·Firefox가 줄 단위로 줌)
+        const dy = e.deltaMode === 1 ? e.deltaY * 40
+          : e.deltaMode === 2 ? e.deltaY * vp.clientHeight
+          : e.deltaY;
+        const lines = Math.min(500, Math.max(1, Math.round(Math.abs(dy) / 40))) * (e.altKey ? 5 : 1);
+        const dir = Math.sign(e.deltaY);
+        try { xterm.scrollLines(dir * lines); } catch { /* terminal was disposed */ }
+        // scrollLines이 뷰포트 일시정지(IntersectionObserver PAUSE 등)로 죽는 환경 폴백.
+        // 틱마다 타이머를 쌓으면 렌더 지연 시 여러 보상이 겹쳐 튀므로, 터미널당 하나로 합치고
+        // 120ms 뒤에도 buffer와 DOM scrollTop 둘 다 그대로일 때만 최신 스냅샷으로 1회 보상.
+        const t = term;
+        if (t) {
+          if (t._wheelFallbackTimer) clearTimeout(t._wheelFallbackTimer);
+          t._wheelPending = { beforeY: xterm.buffer.active.viewportY, beforeTop: vp.scrollTop, dir, lines };
+          t._wheelFallbackTimer = setTimeout(() => {
+            t._wheelFallbackTimer = null;
+            const p = t._wheelPending;
+            t._wheelPending = null;
+            try {
+              if (!p || xterm.buffer.active.viewportY !== p.beforeY || vp.scrollTop !== p.beforeTop) return;
+              const cell = vp.scrollHeight / Math.max(1, xterm.buffer.active.length);
+              vp.scrollTop = p.beforeTop + p.dir * cell * p.lines;
+            } catch { /* terminal was disposed */ }
+          }, 120);
         }
+        return;
       }
     }
     if (routeCanvasTerminalWheel(e, xterm)) return;
@@ -663,6 +698,7 @@ function discardLocalTerminal(id, preserveLayout = false, preserveSessionMetadat
   if (t) {
     if (!preserveSessionMetadata) unpairTerminal(id);
     if (app.pairSourceTermId === id) app.pairSourceTermId = '';
+    if (t._wheelFallbackTimer) clearTimeout(t._wheelFallbackTimer);
     t.xterm.dispose(); t.element.remove(); app.termMap.delete(id);
   }
   const wb = app.writeBuffers.get(id);
@@ -682,10 +718,9 @@ export function fitAllTerminals(forcePtyResize = false) {
 }
 
 function restoreTerminalViewport(t) {
-  if (t?._focusBottomUntil > Date.now()) {
-    try { t.xterm.scrollToBottom(); } catch { /* terminal was disposed */ }
-    return;
-  }
+  // _focusBottomUntil 무시: 키보드 입력 직후 800ms 창에 리사이즈가 겹치면 위에서 읽던
+  // 사용자를 밑으로 끌어내리던 튕김의 원인. fit 시작 시점의 anchor가 이미 의도를 담는다
+  // (직전 입력으로 바닥 추종 중이면 distance=0으로 캡처됨).
   const anchor = t?._resizeScrollAnchor;
   if (!anchor) return;
   if (Date.now() > anchor.expiresAt) {
@@ -722,9 +757,20 @@ export function fitTerminal(termId, preservedDistanceFromBottom, forcePtyResize 
     return;
   }
   restoreTerminalViewport(t);
+  // fit()/리플로우는 비동기로 끝나므로 rAF에서 1회 재적용. 그 뒤엔 맹목적 재시도
+  // 대신 어긋났을 때만 보상한다 — 4연속 복원이 서로 덮어씌워 덜컹거리던 원인 제거.
+  // 앵커는 현재 것으로 재계산하므로 fit 사이 새 출력이 와도(스트리밍 중) 따라간다.
   requestAnimationFrame(() => restoreTerminalViewport(t));
-  setTimeout(() => restoreTerminalViewport(t), 180);
-  setTimeout(() => restoreTerminalViewport(t), 600);
+  setTimeout(() => {
+    try {
+      const anchor = t._resizeScrollAnchor;
+      if (!anchor || Date.now() > anchor.expiresAt) return;
+      const target = Math.max(0, t.xterm.buffer.active.baseY - anchor.distanceFromBottom);
+      if (Math.abs(t.xterm.buffer.active.viewportY - target) > 1) {
+        t.xterm.scrollToLine(target);
+      }
+    } catch { /* terminal was disposed */ }
+  }, 300);
   if (app.ws?.readyState === 1) {
     app.ws.send(JSON.stringify({ type: 'resize', termId, cols: t.xterm.cols, rows: t.xterm.rows }));
     t._ptySizeSent = true;

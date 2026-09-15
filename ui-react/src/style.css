@@ -1,0 +1,20 @@
+body { background: #0d1117; color: #e6edf3; font-family: system-ui, sans-serif; }
+main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
+.row { border: 1px solid #30363d; border-radius: 8px; padding: 12px 14px; margin: 10px 0; display: grid; gap: 8px; }
+.id { display: flex; gap: 10px; align-items: center; }
+.id h2 { margin: 0; font-size: 1rem; }
+.id p { margin: 0; color: #8b949e; font-size: 0.75rem; }
+.mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-content: center; font-weight: 700; background: #21262d; }
+.hint { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: #8b949e; }
+.hint code { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 2px 8px; color: #e6edf3; }
+.test { font-family: monospace; font-size: 0.75rem; display: grid; gap: 2px; padding: 8px; border-radius: 6px; }
+.test.pass { color: #34d399; background: rgba(52, 211, 153, 0.08); }
+.test.fail { color: #f87171; background: rgba(248, 113, 113, 0.08); }
+.actions { display: flex; gap: 8px; align-items: center; }
+.st { display: inline-flex; gap: 5px; align-items: center; font-size: 0.75rem; }
+.st i { width: 6px; height: 6px; border-radius: 50%; background: #8b949e; }
+.st-ready i { background: #34d399; }
+.st-warning i { background: #fbbf24; }
+.st-login i { background: #f87171; }
+button { background: #21262d; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: default; }

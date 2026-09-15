@@ -440,10 +440,10 @@ export default function Agent() {
         </header>
 
         {keyConfigured === false && (
-          <div className="ag-keywarn" role="alert">
-            <strong>Gemini API 키 필요</strong>
-            <p>AI 에이전트를 쓰려면 Gemini API 키를 먼저 등록해야 합니다. 키는 설정 화면 또는 아래 입력란에서 저장할 수 있습니다.</p>
-            <div className="ag-keyrow">
+          <div className="ag-keywarn agent-key-error" role="alert">
+            <strong className="agent-key-error-title">Gemini API 키 필요</strong>
+            <p className="agent-key-error-desc">AI 에이전트를 쓰려면 Gemini API 키를 먼저 등록해야 합니다. 키는 설정 화면 또는 아래 입력란에서 저장할 수 있습니다.</p>
+            <div className="ag-keyrow agent-key-error-actions">
               <input
                 type="password"
                 placeholder="Gemini API 키 입력"
@@ -464,35 +464,39 @@ export default function Agent() {
 
         <div className="ag-msgs" aria-live="polite">
           {!convId && !messages.length ? (
-            <div className="ag-empty-box">
-              <div className="ag-empty-title">무엇을 도와드릴까요?</div>
-              <div className="ag-empty-sub">아래에 메시지를 입력하면 에이전트가 실행됩니다 (Enter 전송 · Shift+Enter 줄바꿈)</div>
-              <button onClick={newConv}>＋ 새 대화 시작</button>
+            <div className="ag-empty-box agent-setup-prompt">
+              <div className="ag-empty-title agent-setup-title">무엇을 도와드릴까요?</div>
+              <div className="ag-empty-sub agent-setup-desc">아래에 메시지를 입력하면 에이전트가 실행됩니다 (Enter 전송 · Shift+Enter 줄바꿈)</div>
+              <div className="agent-setup-actions"><button onClick={newConv}>＋ 새 대화 시작</button></div>
             </div>
           ) : messages.map((m, i) => (
-            <div key={i} className={`ag-msg ${m.role === 'user' ? 'user' : 'assistant'}`}>
+            <div key={i} className={`ag-msg msg ${m.role === 'user' ? 'user msg-user' : 'assistant msg-assistant'}`}>
+              <div className="msg-body">
               <div
-                className="ag-bubble markdown-body"
+                className="ag-bubble msg-content markdown-body"
                 dangerouslySetInnerHTML={{ __html: m.role === 'user' ? esc(m.content).replace(/\n/g, '<br>') : renderChatMd(m.content) }}
               />
-              <div className="ag-meta">
+              <div className="ag-meta msg-ts">
                 {m.agentName ? `${m.agentName} · ` : ''}{m.ts ? new Date(m.ts).toLocaleTimeString('ko-KR') : ''}
               </div>
               {Array.isArray(m.toolSummary) && m.toolSummary.length > 0 && (
-                <details className="ag-tools-detail">
+                <details className="ag-tools-detail msg-thinking">
                   <summary>도구 {m.toolSummary.length}개</summary>
                   <pre>{JSON.stringify(m.toolSummary, null, 2)}</pre>
                 </details>
               )}
+              </div>
             </div>
           ))}
           {busy && (
-            <div className="ag-msg assistant">
-              <div className="ag-bubble ag-progress">
-                <span className="ag-dot" />
+            <div className="ag-msg msg assistant msg-assistant">
+              <div className="msg-body">
+              <div className="ag-bubble ag-progress msg-thinking-card">
+                <span className="ag-dot thinking-dots"><span /><span /><span /></span>
                 {progress ? (
-                  <span className="markdown-body" dangerouslySetInnerHTML={{ __html: renderChatMd(progress) }} />
+                  <span className="markdown-body msg-text" dangerouslySetInnerHTML={{ __html: renderChatMd(progress) }} />
                 ) : '처리 중…'}
+              </div>
               </div>
             </div>
           )}

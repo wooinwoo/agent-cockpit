@@ -1,24 +1,220 @@
-/* Readme 뷰 — 바닐라 rm-* 레이아웃의 React 이식 */
-.rm-layout { display: grid; grid-template-columns: 220px 1fr 200px; gap: 12px; align-items: start; }
-.rm-sidebar { border: 1px solid #30363d; border-radius: 8px; padding: 10px; max-height: 70vh; overflow: auto; }
-.rm-sidebar-title { font-weight: 700; margin-bottom: 8px; }
-.rm-nav { display: grid; gap: 2px; }
-.rm-nav-item { display: block; padding: 6px 8px; border-radius: 6px; color: #8b949e; font-size: 0.82rem; text-decoration: none; cursor: pointer; }
-.rm-nav-item:hover { color: #e6edf3; background: #161b22; }
-.rm-nav-item.active { color: #e6edf3; background: rgba(99, 102, 241, 0.12); }
-.rm-article { border: 1px solid #30363d; border-radius: 8px; padding: 16px 20px; min-height: 40vh; }
-.rm-toc { border: 1px solid #30363d; border-radius: 8px; padding: 10px; display: grid; gap: 4px; align-content: start; max-height: 70vh; overflow: auto; }
-.rm-toc-title { font-size: 0.75rem; color: #8b949e; margin-bottom: 4px; }
-.rm-toc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.rm-toc-item a { color: #8b949e; font-size: 0.78rem; text-decoration: none; }
-.rm-toc-item a:hover { color: #e6edf3; }
-.rm-toc-l4 { padding-left: 12px; }
-.rm-page-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
-.rm-page-link { display: grid; gap: 2px; text-align: left; }
-.rm-page-dir { font-size: 0.72rem; color: #8b949e; }
-.rm-page-label { font-size: 0.85rem; }
+/* Readme 뷰 — 바닐라 css/dialogs.css README 섹션의 React 이식 (VISUAL PARITY only) */
+.rm-layout {
+  --bg-0: #0a0b10;
+  --bg-1: #0f1118;
+  --bg-2: #151721;
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --bg-surface-hover: rgba(255, 255, 255, 0.09);
+  --text-0: #f0f1f5;
+  --text-1: #d4d5e0;
+  --text-2: #9a9cb0;
+  --text-3: #6e7088;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --accent: #818cf8;
+  --accent-bright: #a5b4fc;
+  --accent-dim: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.12);
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", monospace;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-xs: 4px;
+  --dur: 120ms;
+  display: flex;
+  flex: 1;
+  min-height: 60vh;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-0);
+}
+[data-theme="light"] .rm-layout {
+  --bg-0: #eef0f4;
+  --bg-1: #f7f8fa;
+  --bg-2: #ffffff;
+  --bg-surface: rgba(0, 0, 0, 0.03);
+  --bg-surface-hover: rgba(0, 0, 0, 0.06);
+  --text-0: #171923;
+  --text-1: #2d3038;
+  --text-2: #5a5e6e;
+  --text-3: #8b8fa1;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 0, 0, 0.18);
+  --accent: #6366f1;
+  --accent-bright: #4f46e5;
+  --accent-glow: rgba(99, 102, 241, 0.1);
+}
+
+/* ─── Sidebar (바닐라 .rm-sidebar) ─── */
+.rm-layout .rm-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-surface);
+  overflow-y: auto;
+  padding: 0;
+  border-radius: 0;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  max-height: none;
+}
+.rm-layout .rm-sidebar-title {
+  padding: 16px 20px 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-0);
+  letter-spacing: -0.02em;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+}
+.rm-layout .rm-nav { padding: 8px 0; display: grid; gap: 2px; }
+.rm-layout .rm-nav-section { margin-bottom: 2px; }
+.rm-layout .rm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  transition: all var(--dur);
+  cursor: pointer;
+}
+.rm-layout .rm-nav-item:hover { color: var(--text-0); background: var(--bg-surface-hover); }
+.rm-layout .rm-nav-item.active { color: var(--accent); background: var(--accent-glow); border-left-color: var(--accent); }
+
+/* ─── Main (바닐라 .rm-main) ─── */
+.rm-layout .rm-main { flex: 1; overflow-y: auto; min-width: 0; scroll-behavior: smooth; }
+.rm-layout .rm-article {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 32px 48px 80px;
+  line-height: 1.75;
+  color: var(--text-1);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  min-height: 0;
+  font-size: 0.86rem;
+}
+
+/* ─── Article typography (바닐라 .rm-article) ─── */
+.rm-layout .rm-article h1 {
+  font-size: 1.7rem; font-weight: 800; color: var(--text-0);
+  margin: 0 0 16px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--accent); letter-spacing: -0.03em;
+}
+.rm-layout .rm-article h2 {
+  font-size: 1.2rem; font-weight: 700; color: var(--text-0);
+  margin: 36px 0 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border); scroll-margin-top: 20px;
+}
+.rm-layout .rm-article h3 {
+  font-size: 0.98rem; font-weight: 600; color: var(--text-0);
+  margin: 24px 0 8px; scroll-margin-top: 20px;
+}
+.rm-layout .rm-article h4 { font-size: 0.88rem; font-weight: 600; color: var(--text-1); margin: 16px 0 6px; }
+.rm-layout .rm-article p { margin: 8px 0; font-size: 0.86rem; }
+.rm-layout .rm-article ul, .rm-layout .rm-article ol { margin: 8px 0; padding-left: 24px; font-size: 0.84rem; }
+.rm-layout .rm-article li { margin: 4px 0; }
+.rm-layout .rm-article li::marker { color: var(--accent); }
+.rm-layout .rm-article strong { color: var(--text-0); }
+.rm-layout .rm-article code {
+  font-family: var(--mono); font-size: 0.8rem;
+  background: rgba(99, 102, 241, 0.08); padding: 2px 7px;
+  border-radius: var(--radius-xs); color: var(--accent);
+  border: none;
+}
+.rm-layout .rm-article pre {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 18px;
+  overflow-x: auto; margin: 12px 0;
+}
+.rm-layout .rm-article pre code { background: none; padding: 0; color: var(--text-1); font-size: 0.78rem; border: none; }
+.rm-layout .rm-article table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.82rem; }
+.rm-layout .rm-article th {
+  text-align: left; padding: 8px 12px; background: var(--bg-surface);
+  color: var(--text-0); font-weight: 700; border-bottom: 2px solid var(--border);
+  border-top: none; border-left: none; border-right: none;
+}
+.rm-layout .rm-article td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: var(--text-2); border-top: none; border-left: none; border-right: none; }
+.rm-layout .rm-article tr:hover td { background: var(--bg-surface-hover); }
+.rm-layout .rm-article hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+.rm-layout .rm-article blockquote {
+  border-left: 3px solid var(--accent); padding: 10px 18px; margin: 12px 0;
+  background: var(--accent-glow); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.84rem;
+}
+.rm-layout .rm-article blockquote p { margin: 4px 0; }
+.rm-layout .rm-article a {
+  color: var(--accent); text-decoration: underline;
+  text-decoration-color: rgba(99, 102, 241, 0.3); text-underline-offset: 2px;
+  transition: text-decoration-color var(--dur);
+}
+.rm-layout .rm-article a:hover { text-decoration-color: var(--accent); }
+.rm-layout .rm-article img { max-width: 100%; border-radius: var(--radius-sm); }
+
+/* ─── TOC (바닐라 .rm-toc) ─── */
+.rm-layout .rm-toc {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 20px 12px;
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg-0);
+  border-radius: 0;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  display: block;
+  max-height: none;
+}
+.rm-layout .rm-toc:empty { display: none; }
+.rm-layout .rm-toc-title {
+  font-size: 0.66rem; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 10px; padding-left: 8px;
+}
+.rm-layout .rm-toc-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1px; }
+.rm-layout .rm-toc-item { margin: 1px 0; }
+.rm-layout .rm-toc-link {
+  display: block; padding: 4px 8px; font-size: 0.72rem;
+  color: var(--text-2); text-decoration: none;
+  border-left: 2px solid transparent; border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  transition: all var(--dur); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rm-layout .rm-toc-link:hover { color: var(--text-0); background: var(--bg-surface-hover); }
+.rm-layout .rm-toc-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-glow); }
+.rm-layout .rm-toc-l3 .rm-toc-link { padding-left: 8px; }
+.rm-layout .rm-toc-l4 .rm-toc-link, .rm-layout .rm-toc-l4 { padding-left: 24px; font-size: 0.64rem; color: var(--text-3); }
+
+/* ─── Page nav (바닐라 .rm-page-nav) ─── */
+.rm-layout .rm-page-nav {
+  display: flex; justify-content: space-between; gap: 16px;
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+}
+.rm-layout .rm-page-link {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-1); text-decoration: none;
+  transition: all var(--dur); cursor: pointer; min-width: 0; max-width: 50%;
+  font-family: var(--font); text-align: left;
+}
+.rm-layout .rm-page-link:hover { border-color: var(--accent); background: var(--accent-glow); }
+.rm-layout .rm-page-next { text-align: right; margin-left: auto; align-items: flex-end; }
+.rm-layout .rm-page-dir { font-size: 0.68rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+.rm-layout .rm-page-label {
+  font-size: 0.82rem; font-weight: 600; color: var(--text-0);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
 
 @media (max-width: 900px) {
-  .rm-layout { grid-template-columns: 1fr; }
-  .rm-toc { display: none; }
+  .rm-layout { flex-direction: column; }
+  .rm-layout .rm-sidebar { width: auto; border-right: none; border-bottom: 1px solid var(--border); max-height: 30vh; }
+  .rm-layout .rm-toc { display: none; }
+  .rm-layout .rm-article { padding: 20px 18px 48px; }
 }

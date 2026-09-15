@@ -81,7 +81,7 @@ export default function Autopilot() {
     <main className="ap">
       <div className="ap-head">
         <div>
-          <h1>Autopilot</h1>
+          <h1 className="ap-title">Autopilot</h1>
           <p className="ap-sub">에이전트 도구 호출을 정책으로 게이트 — 안전한 건 자동, 위험한 건 확인.</p>
         </div>
         <div className="ap-mode" role="group" aria-label="운영 모드">
@@ -103,12 +103,12 @@ export default function Autopilot() {
       </div>
 
       <p className="ap-toolbar">
-        <button onClick={() => load()}>새로고침</button>
-        <button onClick={resetSession}>세션 초기화</button>
+        <button className="btn" type="button" onClick={() => load()}>새로고침</button>
+        <button className="btn" type="button" onClick={resetSession}>세션 초기화</button>
         {notice && <span className="ap-notice">{notice}</span>}
       </p>
       {error && <p className="ap-error">{error}</p>}
-      {!status && !error && <p>불러오는 중…</p>}
+      {!status && !error && <p className="ap-loading">불러오는 중…</p>}
 
       {status && (
         <>
@@ -123,7 +123,7 @@ export default function Autopilot() {
 
           <div className="ap-cols">
             <section className="ap-panel">
-              <h2>최근 결정</h2>
+              <div className="ap-panel-h">최근 결정</div>
               <div className="ap-list">
                 {recent.length ? recent.map((r, i) => (
                   <div className="ap-row" key={`${r.ts || ''}-${i}`}>
@@ -137,7 +137,7 @@ export default function Autopilot() {
               </div>
             </section>
             <section className="ap-panel">
-              <h2>브리핑</h2>
+              <div className="ap-panel-h">브리핑</div>
               <pre className="ap-brief">{briefing?.summary || '—'}</pre>
             </section>
           </div>

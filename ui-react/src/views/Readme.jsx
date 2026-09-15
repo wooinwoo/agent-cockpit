@@ -316,10 +316,12 @@ export default function Readme() {
         </div>
       </nav>
 
+      <div className="rm-main">
       <article
         className="rm-article markdown-body"
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      </div>
 
       <aside className="rm-toc" aria-label="이 페이지 목차">
         {toc.length ? (
@@ -348,7 +350,7 @@ export default function Readme() {
             </button>
           ) : <span />}
           {next ? (
-            <button className="rm-page-link" onClick={() => setActive(idx + 1)}>
+            <button className="rm-page-link rm-page-next" onClick={() => setActive(idx + 1)}>
               <span className="rm-page-dir">다음 →</span>
               <span className="rm-page-label">{next.title}</span>
             </button>

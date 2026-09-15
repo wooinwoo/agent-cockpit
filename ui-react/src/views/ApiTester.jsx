@@ -171,11 +171,11 @@ export default function ApiTester() {
   const resHeaders = response?.headers && typeof response.headers === 'object' ? Object.entries(response.headers) : [];
 
   return (
-    <main className="at">
+    <main className="at at-layout">
       <h1>API 테스터</h1>
       <p className="at-sub">백엔드 프록시 경유로 CORS 없이 HTTP 요청을 보냅니다.</p>
 
-      <section className="at-builder">
+      <section className="at-builder at-main">
         <div className="at-request-bar">
           <select
             className="at-method"
@@ -197,7 +197,7 @@ export default function ApiTester() {
             aria-label="요청 URL"
             spellCheck={false}
           />
-          <button className="at-send" onClick={send} disabled={loading}>
+          <button className="at-send btn primary" onClick={send} disabled={loading}>
             {loading ? '전송 중…' : '보내기'}
           </button>
         </div>
@@ -247,10 +247,10 @@ export default function ApiTester() {
         {error && <p className="at-error" role="alert">{error}</p>}
       </section>
 
-      <section className="at-section">
+      <section className="at-section at-config-panel">
         <h2>응답</h2>
         {!response ? (
-          <p className="at-muted">요청을 보내면 응답이 여기에 표시됩니다.</p>
+          <p className="at-muted at-empty">요청을 보내면 응답이 여기에 표시됩니다.</p>
         ) : (
           <div className="at-response">
             <div className="at-res-meta">

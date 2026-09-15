@@ -51,7 +51,7 @@ function FilePanel({ file, chunk, section, busy, onStage, onUnstage, onDiscard }
   const [open, setOpen] = useState(true);
   const staged = section === 'staged';
   return (
-    <section className="diff-panel">
+    <section className={open ? 'diff-panel' : 'diff-panel collapsed'}>
       <header className="diff-panel-head" onClick={() => setOpen((v) => !v)}>
         <span className="dp-chevron">{open ? '▼' : '▶'}</span>
         <span className={`dp-status st-${st}`}>{st}</span>
@@ -71,16 +71,16 @@ function FilePanel({ file, chunk, section, busy, onStage, onUnstage, onDiscard }
         >
           {!staged && (
             <>
-              <button disabled={!!busy} onClick={() => onStage(file.file)} title="스테이징">
+              <button className="dp-action fa-stage" disabled={!!busy} onClick={() => onStage(file.file)} title="스테이징">
                 +
               </button>
-              <button disabled={!!busy} onClick={() => onDiscard(file.file)} title="변경 버리기">
+              <button className="dp-action fa-discard" disabled={!!busy} onClick={() => onDiscard(file.file)} title="변경 버리기">
                 ↺
               </button>
             </>
           )}
           {staged && (
-            <button disabled={!!busy} onClick={() => onUnstage(file.file)} title="언스테이징">
+            <button className="dp-action fa-unstage" disabled={!!busy} onClick={() => onUnstage(file.file)} title="언스테이징">
               −
             </button>
           )}
@@ -295,51 +295,53 @@ export default function Diff() {
           ))}
         </select>
         {gitInfo && (
-          <span className="diff-branch" title="현재 브랜치">
-            ⎇ {gitInfo.branch || 'unknown'}
-            {gitInfo.stashCount > 0 && ` · stash ${gitInfo.stashCount}`}
+          <span className="diff-branch-info" title="현재 브랜치">
+            <span className="dbi-branch">⎇ {gitInfo.branch || 'unknown'}</span>
+            {gitInfo.stashCount > 0 && <span className="dbi-wt"> · stash {gitInfo.stashCount}</span>}
           </span>
         )}
         <span className="diff-summary">
           {staged.files.length + unstaged.files.length > 0 && (
             <>
-              {staged.files.length + unstaged.files.length}개 파일
-              {totalAdd > 0 && <span className="ps-add"> +{totalAdd}</span>}
-              {totalDel > 0 && <span className="ps-del"> −{totalDel}</span>}
+              <span className="ds-files">{staged.files.length + unstaged.files.length}개 파일</span>
+              {totalAdd > 0 && <span className="ds-add"> +{totalAdd}</span>}
+              {totalDel > 0 && <span className="ds-del"> −{totalDel}</span>}
             </>
           )}
         </span>
-        <button disabled={!!busy} onClick={() => { loadDiff(); loadGitInfo(); }}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => { loadDiff(); loadGitInfo(); }}>
           새로고침
         </button>
       </div>
 
       <div className="diff-actions">
-        <button disabled={!!busy} onClick={() => gitAction('전체스테이징', `/api/projects/${projectId}/git/stage`, { files: ['--all'] })}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('전체스테이징', `/api/projects/${projectId}/git/stage`, { files: ['--all'] })}>
           전체 스테이징
         </button>
-        <button disabled={!!busy} onClick={() => gitAction('전체언스테이징', `/api/projects/${projectId}/git/unstage`, { files: ['--all'] })}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('전체언스테이징', `/api/projects/${projectId}/git/unstage`, { files: ['--all'] })}>
           전체 언스테이징
         </button>
-        <button disabled={!!busy} onClick={() => gitAction('푸시', `/api/projects/${projectId}/push`, {})}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('푸시', `/api/projects/${projectId}/push`, {})}>
           {busy === '푸시' ? '푸시 중…' : 'Push'}
         </button>
-        <button disabled={!!busy} onClick={() => gitAction('풀', `/api/projects/${projectId}/pull`, {})}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('풀', `/api/projects/${projectId}/pull`, {})}>
           {busy === '풀' ? '풀 중…' : 'Pull'}
         </button>
-        <button disabled={!!busy} onClick={() => gitAction('페치', `/api/projects/${projectId}/fetch`, {})}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('페치', `/api/projects/${projectId}/fetch`, {})}>
           Fetch
         </button>
         <button
+          className="dt-act-btn"
           disabled={!!busy}
           onClick={() => gitAction('스태시저장', `/api/projects/${projectId}/git/stash`, { includeUntracked: true })}
         >
           Stash 저장
         </button>
-        <button disabled={!!busy} onClick={() => gitAction('스태시팝', `/api/projects/${projectId}/git/stash-pop`, {})}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={() => gitAction('스태시팝', `/api/projects/${projectId}/git/stash-pop`, {})}>
           Stash 팝
         </button>
         <button
+          className="dt-act-btn"
           disabled={!!busy}
           onClick={() => {
             const next = !showStash;
@@ -357,7 +359,7 @@ export default function Diff() {
           onChange={(e) => setNewBranch(e.target.value)}
           placeholder="새 브랜치 이름…"
         />
-        <button disabled={!!busy} onClick={createBranch}>
+        <button className="dt-act-btn" disabled={!!busy} onClick={createBranch}>
           브랜치 생성
         </button>
       </div>
@@ -371,17 +373,19 @@ export default function Diff() {
               <span className="stash-ref">{s.ref}</span>
               <span>{s.message}</span>
               <span className="stash-ago">{s.ago}</span>
-              <span className="actions">
-                <button disabled={!!busy} onClick={() => gitAction('적용', `/api/projects/${projectId}/git/stash-apply`, { ref: s.ref })}>
+              <span className="stash-actions">
+                <button className="btn" disabled={!!busy} onClick={() => gitAction('적용', `/api/projects/${projectId}/git/stash-apply`, { ref: s.ref })}>
                   적용
                 </button>
                 <button
+                  className="btn"
                   disabled={!!busy}
                   onClick={() => gitAction('팝', `/api/projects/${projectId}/git/stash-pop`, { ref: s.ref })}
                 >
                   팝
                 </button>
                 <button
+                  className="btn"
                   disabled={!!busy}
                   onClick={() => {
                     if (!window.confirm(`${s.ref}을(를) 삭제할까요?`)) return;
@@ -396,7 +400,7 @@ export default function Diff() {
         </div>
       )}
 
-      <div className="row commit-box">
+      <div className="row commit-box diff-commit-box">
         <h2>커밋</h2>
         <textarea
           value={commitMsg}
@@ -407,12 +411,12 @@ export default function Diff() {
           placeholder="커밋 메시지 (Ctrl+Enter로 커밋)"
           rows={2}
         />
-        <div className="actions">
-          <span>{staged.files.length > 0 ? `${staged.files.length}개 스테이징됨` : '스테이징된 파일 없음'}</span>
-          <button disabled={!!busy} onClick={genCommitMsg}>
+        <div className="dcb-row">
+          <span className="dcb-staged-count">{staged.files.length > 0 ? `${staged.files.length}개 스테이징됨` : '스테이징된 파일 없음'}</span>
+          <button className="ac-btn" disabled={!!busy} onClick={genCommitMsg}>
             {busy === 'AI생성' ? 'AI 생성 중…' : '✦ AI 메시지 생성'}
           </button>
-          <button disabled={!!busy || staged.files.length === 0} onClick={doCommit}>
+          <button className="dcb-commit-btn" disabled={!!busy || staged.files.length === 0} onClick={doCommit}>
             {busy === '커밋' ? '커밋 중…' : '커밋'}
           </button>
         </div>
@@ -430,7 +434,7 @@ export default function Diff() {
 
       {staged.files.filter(matchFilter).length > 0 && (
         <>
-          <h2>스테이징됨 ({staged.files.filter(matchFilter).length})</h2>
+          <h2 className="diff-section-label">스테이징됨 ({staged.files.filter(matchFilter).length})</h2>
           {staged.files.filter(matchFilter).map((f) => (
             <FilePanel
               key={`staged-${f.file}`}
@@ -448,7 +452,7 @@ export default function Diff() {
 
       {unstaged.files.filter(matchFilter).length > 0 && (
         <>
-          <h2>미스테이징 ({unstaged.files.filter(matchFilter).length})</h2>
+          <h2 className="diff-section-label">미스테이징 ({unstaged.files.filter(matchFilter).length})</h2>
           {unstaged.files.filter(matchFilter).map((f) => (
             <FilePanel
               key={`unstaged-${f.file}`}
@@ -465,8 +469,9 @@ export default function Diff() {
       )}
 
       {staged.files.length === 0 && unstaged.files.length === 0 && (
-        <div className="row">
-          <p>변경 사항이 없습니다. 워킹 트리가 깨끗합니다.</p>
+        <div className="diff-empty">
+          <span className="de-title">변경 사항이 없습니다</span>
+          <span className="de-sub">워킹 트리가 깨끗합니다</span>
         </div>
       )}
     </main>

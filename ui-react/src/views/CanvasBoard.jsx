@@ -395,17 +395,19 @@ function CanvasTermFrame({ frame, zoom, snapOn, active, onActivate, onMove, onRe
 
   const shortId = termId ? termId.slice(0, 8) : '대기 중';
   const dotClass = conn === '연결됨' ? 'ok' : conn === '종료됨' ? 'dead' : 'busy';
+  // 바닐라 canvas-frame-signal 매핑 (표시용 별칭 — 기존 dotClass 로직은 유지).
+  const signalClass = dotClass === 'ok' ? 'busy' : dotClass === 'busy' ? 'waiting' : 'idle';
 
   return (
     <article
-      className={`cb-frame${active ? ' active' : ''}`}
+      className={`cb-frame terminal-canvas-frame${active ? ' active' : ''}`}
       style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h }}
       onPointerDown={() => onActivate(frame.id)}
       aria-label={`${frame.title} 터미널 프레임`}
     >
-      <header className="cb-frame-head" onPointerDown={onHeadPointerDown} title="드래그로 이동">
-        <span className={`cb-dot ${dotClass}`} aria-hidden="true" />
-        <span className="cb-frame-title">{frame.title}</span>
+      <header className="cb-frame-head canvas-frame-head" onPointerDown={onHeadPointerDown} title="드래그로 이동">
+        <span className={`cb-dot canvas-frame-signal ${dotClass} ${signalClass}`} aria-hidden="true" />
+        <span className="cb-frame-title canvas-frame-name">{frame.title}</span>
         <span className="cb-frame-sub" title={termId || ''}>
           {shortId} · {conn}
         </span>
@@ -415,15 +417,15 @@ function CanvasTermFrame({ frame, zoom, snapOn, active, onActivate, onMove, onRe
             ↻ 재시작
           </button>
         )}
-        <button type="button" onClick={() => ctlRef.current?.refit()} title="터미널 크기를 프레임에 맞춤">
+        <button type="button" className="canvas-frame-focus" onClick={() => ctlRef.current?.refit()} title="터미널 크기를 프레임에 맞춤">
           맞춤
         </button>
-        <button type="button" className="cb-kill" onClick={remove} title="프레임 삭제(프로세스 종료)">
+        <button type="button" className="cb-kill canvas-frame-close" onClick={remove} title="프레임 삭제(프로세스 종료)">
           ✕
         </button>
       </header>
-      <div ref={boxRef} className="cb-term" onClick={() => ctlRef.current?.focus()} />
-      <span className="cb-resize" onPointerDown={onResizePointerDown} aria-hidden="true" />
+      <div ref={boxRef} className="cb-term canvas-frame-body xterm-wrap" onClick={() => ctlRef.current?.focus()} />
+      <span className="cb-resize canvas-frame-resize" onPointerDown={onResizePointerDown} aria-hidden="true" />
     </article>
   );
 }
@@ -669,29 +671,29 @@ export default function CanvasBoard() {
           {frames.length}개 프레임 · {Math.round(zoom * 100)}%
         </span>
         <span style={{ flex: 1 }} />
-        <button type="button" onClick={addFrame} disabled={frames.length >= MAX_FRAMES}>
+        <button type="button" className="cb-tool-btn primary" onClick={addFrame} disabled={frames.length >= MAX_FRAMES}>
           ＋ 프레임 추가
         </button>
-        <button type="button" onClick={() => zoomStep(-0.1)} title="축소">
+        <button type="button" className="cb-tool-btn" onClick={() => zoomStep(-0.1)} title="축소">
           －
         </button>
-        <button type="button" onClick={resetZoom} title="100%로 되돌리기">
+        <button type="button" className="cb-tool-btn" onClick={resetZoom} title="100%로 되돌리기">
           100%
         </button>
-        <button type="button" onClick={() => zoomStep(0.1)} title="확대">
+        <button type="button" className="cb-tool-btn" onClick={() => zoomStep(0.1)} title="확대">
           ＋
         </button>
-        <button type="button" onClick={fitAll} disabled={!frames.length} title="모든 프레임이 보이게">
+        <button type="button" className="cb-tool-btn" onClick={fitAll} disabled={!frames.length} title="모든 프레임이 보이게">
           맞춤
         </button>
         <span className="cb-sep" aria-hidden="true" />
-        <button type="button" onClick={() => arrange('cols')} disabled={!frames.length} title="가로로 나란히 배치">
+        <button type="button" className="cb-tool-btn" onClick={() => arrange('cols')} disabled={!frames.length} title="가로로 나란히 배치">
           가로 정렬
         </button>
-        <button type="button" onClick={() => arrange('rows')} disabled={!frames.length} title="세로로 쌓기">
+        <button type="button" className="cb-tool-btn" onClick={() => arrange('rows')} disabled={!frames.length} title="세로로 쌓기">
           세로 정렬
         </button>
-        <button type="button" onClick={() => arrange('grid')} disabled={!frames.length} title="격자로 배치">
+        <button type="button" className="cb-tool-btn" onClick={() => arrange('grid')} disabled={!frames.length} title="격자로 배치">
           격자 정렬
         </button>
         <label className="cb-snap">
@@ -701,7 +703,7 @@ export default function CanvasBoard() {
       </div>
       <div
         ref={viewportRef}
-        className="cb-viewport"
+        className="cb-viewport terminal-canvas"
         role="application"
         aria-label="터미널 캔버스. 배경 드래그로 이동, Ctrl+휠로 확대/축소."
         onPointerDown={onViewportPointerDown}
@@ -709,7 +711,7 @@ export default function CanvasBoard() {
         onPointerUp={onViewportPointerUp}
         onPointerCancel={onViewportPointerUp}
       >
-        <div className="cb-layer" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
+        <div className="cb-layer terminal-canvas-layer" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
           {frames.map((f) => (
             <CanvasTermFrame
               key={f.id}
@@ -726,16 +728,16 @@ export default function CanvasBoard() {
           ))}
         </div>
         {frames.length === 0 && (
-          <div className="cb-empty">
-            <div className="cb-empty-title">프레임 없음</div>
-            <div className="cb-empty-copy">프레임을 추가하면 각자 동작하는 터미널이 열립니다.</div>
-            <button type="button" onClick={addFrame}>
+          <div className="cb-empty term-empty">
+            <div className="cb-empty-title term-empty-title">프레임 없음</div>
+            <div className="cb-empty-copy term-empty-copy">프레임을 추가하면 각자 동작하는 터미널이 열립니다.</div>
+            <button type="button" className="btn primary" onClick={addFrame}>
               ＋ 프레임 추가
             </button>
           </div>
         )}
       </div>
-      <div className="cb-hint">
+      <div className="cb-hint canvas-toolbar-hint">
         배경 드래그·중클릭·Space+드래그: 이동 · Ctrl+휠: 확대/축소 · 헤더 드래그: 프레임 이동 · 우하단 모서리:
         크기 조절 · 위치·줌은 자동 저장
       </div>

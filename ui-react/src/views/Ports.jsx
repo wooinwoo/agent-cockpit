@@ -82,40 +82,45 @@ export default function Ports() {
   const icon = (col) => (sortCol === col ? (sortAsc ? ' ▲' : ' ▼') : '');
 
   return (
-    <main>
+    <main className="ports-view">
       <h1>포트</h1>
-      <p>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="포트 또는 프로세스로 필터…"
-          style={{ marginRight: 8 }}
-        />
-        <label style={{ marginRight: 8 }}>
+      <div className="port-toolbar">
+        <div className="port-toolbar-left">
           <input
-            type="checkbox"
-            checked={devOnly}
-            onChange={(e) => setDevOnly(e.target.checked)}
-          />{' '}
-          Dev만
-        </label>
-        <button onClick={() => setPaused((v) => !v)} style={{ marginRight: 8 }}>
-          {paused ? '계속' : '일시정지'}
-        </button>
-        <button onClick={() => load(false)}>새로고침</button>
-      </p>
-      {error && <p style={{ color: '#f87171' }}>{error}</p>}
-      {paused && <p style={{ color: '#fbbf24' }}>자동 새로고침 일시정지됨</p>}
+            type="text"
+            className="port-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="포트 또는 프로세스로 필터…"
+          />
+          <label className="port-dev-filter">
+            <input
+              type="checkbox"
+              checked={devOnly}
+              onChange={(e) => setDevOnly(e.target.checked)}
+            />{' '}
+            Dev만
+          </label>
+        </div>
+        <div className="port-toolbar-right">
+          <button onClick={() => setPaused((v) => !v)} className={paused ? 'monitor-paused' : undefined}>
+            {paused ? '계속' : '일시정지'}
+          </button>
+          <button onClick={() => load(false)}>새로고침</button>
+        </div>
+      </div>
+      {error && <p className="port-alert port-alert-error">{error}</p>}
+      {paused && <p className="port-alert port-alert-paused">자동 새로고침 일시정지됨</p>}
       {filtered.length === 0 ? (
-        <p>수신 대기 중인 포트가 없습니다</p>
+        <p className="port-empty">수신 대기 중인 포트가 없습니다</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+        <div className="port-table-wrap">
+        <table className="port-table">
           <thead>
             <tr>
-              <th><button onClick={() => toggleSort('port')}>포트{icon('port')}</button></th>
-              <th><button onClick={() => toggleSort('process')}>프로세스{icon('process')}</button></th>
-              <th><button onClick={() => toggleSort('pid')}>PID{icon('pid')}</button></th>
+              <th className="port-sortable"><button className="port-sort-btn" onClick={() => toggleSort('port')}>포트{icon('port')}</button></th>
+              <th className="port-sortable"><button className="port-sort-btn" onClick={() => toggleSort('process')}>프로세스{icon('process')}</button></th>
+              <th className="port-sortable"><button className="port-sort-btn" onClick={() => toggleSort('pid')}>PID{icon('pid')}</button></th>
               <th>주소</th>
               <th>프로젝트</th>
               <th>액션</th>
@@ -123,26 +128,27 @@ export default function Ports() {
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={`${p.port}-${p.pid}`}>
-                <td><b>{p.port}</b></td>
-                <td>{p.processName}</td>
-                <td style={{ fontFamily: 'var(--mono, monospace)' }}>{p.pid}</td>
-                <td>{p.address}</td>
-                <td>{p.isDevServer ? <span className="st st-ready"><i />{p.projectName || p.projectId}</span> : ''}</td>
+              <tr key={`${p.port}-${p.pid}`} className={p.isDevServer ? 'port-row-dev' : undefined}>
+                <td><span className="port-num">{p.port}</span></td>
+                <td><span className="port-pname">{p.processName}</span></td>
+                <td><span className="port-pid">{p.pid}</span></td>
+                <td><span className="port-addr">{p.address}</span></td>
+                <td>{p.isDevServer ? <span className="port-badge-dev">{p.projectName || p.projectId}</span> : ''}</td>
                 <td>
-                  <div className="actions">
+                  <div className="port-actions">
                     {p.port >= 1024 && (
-                      <button onClick={() => openInBrowser(p.port)} title="브라우저에서 열기">열기</button>
+                      <button className="port-action-btn" onClick={() => openInBrowser(p.port)} title="브라우저에서 열기">열기</button>
                     )}
-                    <button onClick={() => killPort(p.pid, p.processName)} title="프로세스 종료">종료</button>
+                    <button className="port-action-btn port-kill-btn" onClick={() => killPort(p.pid, p.processName)} title="프로세스 종료">종료</button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       )}
-      <p style={{ color: '#8b949e', fontSize: '0.8rem' }}>{ports.length}개 포트 · {devCount}개 dev 서버</p>
+      <p className="port-summary">{ports.length}개 포트 · {devCount}개 dev 서버</p>
     </main>
   );
 }

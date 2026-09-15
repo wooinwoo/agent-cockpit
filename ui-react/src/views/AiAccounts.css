@@ -1,0 +1,363 @@
+/* AI Accounts — visual parity with vanilla css/ai-accounts.css.
+   Vanilla tokens scoped to the view root so the global React theme is untouched. */
+.ai-accounts-view {
+  --bg-0: #0a0b10;
+  --bg-1: #0f1118;
+  --bg-2: #151721;
+  --bg-3: #1c1e2a;
+  --bg-4: #252734;
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --bg-surface-hover: rgba(255, 255, 255, 0.09);
+  --bg-glass: rgba(15, 17, 24, 0.65);
+  --text-0: #f0f1f5;
+  --text-1: #d4d5e0;
+  --text-2: #9a9cb0;
+  --text-3: #6e7088;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --border-active: rgba(129, 140, 248, 0.45);
+  --accent: #818cf8;
+  --accent-bright: #a5b4fc;
+  --accent-dim: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.12);
+  --accent-glow-strong: rgba(99, 102, 241, 0.22);
+  --green: #34d399;
+  --green-dim: rgba(52, 211, 153, 0.1);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251, 191, 36, 0.1);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.1);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96, 165, 250, 0.1);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-xs: 4px;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", "Fira Code", monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 120ms;
+  overflow: auto;
+}
+[data-theme="light"] .ai-accounts-view {
+  --bg-0: #eef0f4;
+  --bg-1: #f7f8fa;
+  --bg-2: #ffffff;
+  --bg-3: #f1f2f6;
+  --bg-4: #e6e8ee;
+  --bg-surface: rgba(0, 0, 0, 0.03);
+  --bg-surface-hover: rgba(0, 0, 0, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --text-0: #171923;
+  --text-1: #2d3038;
+  --text-2: #5a5e6e;
+  --text-3: #8b8fa1;
+  --border: rgba(0, 0, 0, 0.10);
+  --border-hover: rgba(0, 0, 0, 0.18);
+  --border-active: rgba(99, 102, 241, 0.55);
+  --accent: #6366f1;
+  --accent-bright: #4f46e5;
+  --accent-dim: #818cf8;
+  --accent-glow: rgba(99, 102, 241, 0.10);
+  --accent-glow-strong: rgba(99, 102, 241, 0.18);
+  --green: #059669;
+  --green-dim: rgba(5, 150, 105, 0.10);
+  --yellow: #d97706;
+  --yellow-dim: rgba(217, 119, 6, 0.12);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.08);
+  --blue: #2563eb;
+  --blue-dim: rgba(37, 99, 235, 0.10);
+}
+
+/* Buttons — same base as vanilla .btn (dashboard.css) */
+.ai-accounts-view .btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  white-space: nowrap;
+  font-family: var(--font);
+}
+.ai-accounts-view .btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text-0);
+  border-color: var(--border-hover);
+}
+.ai-accounts-view .btn:active { transform: scale(0.97); }
+.ai-accounts-view .btn.primary {
+  background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+.ai-accounts-view .btn.primary:hover {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2), 0 1px 2px rgba(0, 0, 0, 0.25);
+  filter: brightness(1.08);
+}
+.ai-accounts-view .btn:disabled {
+  color: var(--text-3);
+  background: transparent;
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+.ai-accounts-shell {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.ai-accounts-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 6px 0 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-accounts-head h1 {
+  margin: 0;
+  color: var(--text-0);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.ai-accounts-head p,
+.ai-accounts-footnote {
+  margin: 3px 0 0;
+  color: var(--text-2);
+  font-size: .8rem;
+}
+
+.ai-accounts-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.ai-tools-group {
+  flex: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 5px 8px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.ai-accounts-status {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  color: var(--text-2);
+  font: .64rem/1.4 var(--mono);
+}
+
+.ai-account-list {
+  border-top: 1px solid var(--border);
+}
+
+.ai-account-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.1fr) minmax(150px, .7fr) minmax(320px, 1.6fr) 128px;
+  align-items: center;
+  gap: 18px;
+  min-height: 112px;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-account-row + .ai-account-row { border-top: 1px solid rgba(218, 226, 230, 0.07); }
+
+.ai-account-row:hover {
+  background: var(--bg-surface);
+}
+
+.ai-account-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-account-mark {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--text-0);
+  background: var(--bg-3);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-sm);
+  font: 700 .74rem/1 var(--mono);
+}
+
+.ai-account-row.claude .ai-account-mark { color: var(--yellow); }
+.ai-account-row.codex .ai-account-mark { color: var(--accent-bright); }
+.ai-account-identity h2 { margin: 0; color: var(--text-0); font-size: .8rem; font-weight: 650; }
+.ai-account-identity p { margin: 2px 0 0; overflow: hidden; color: var(--text-2); font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+
+.ai-account-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+.ai-account-meta span {
+  padding: 2px 6px;
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font: .6rem/1.25 var(--mono);
+}
+
+.ai-account-limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ai-account-metric > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: .58rem;
+}
+
+.ai-account-metric strong { color: var(--text-0); font-family: var(--mono); font-size: .8rem; }
+.ai-account-meter { height: 3px; margin: 7px 0 5px; overflow: hidden; background: var(--bg-4); }
+.ai-account-meter span { display: block; height: 100%; background: var(--green); }
+.ai-account-meter span.session { background: var(--accent); }
+.ai-account-metric small { color: var(--text-3); font-size: .58rem; }
+.ai-account-metric small .abs { opacity: .72; font-style: normal; }
+
+.ai-account-usage {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: var(--text-1);
+  font: .66rem/1.5 var(--mono);
+}
+
+.ai-account-usage small {
+  padding: 1px 5px;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: .54rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ai-account-action {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+}
+
+.ai-account-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--text-1);
+  font-size: .58rem;
+}
+
+.ai-account-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
+.ai-account-state.ready i { background: var(--green); }
+.ai-account-state.warning i { background: var(--yellow); }
+.ai-account-state.login i { background: var(--red); }
+.ai-account-action .btn { min-height: 32px; }
+.ai-accounts-footnote { padding: 12px 2px; }
+
+/* 로그인 안내 — 미로그인 카드에 명령어와 복사 버튼 */
+.ai-account-login-hint {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 8px 10px;
+  color: var(--text-2);
+  font-size: .68rem;
+  background: var(--bg-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+}
+.ai-account-login-hint code {
+  padding: 2px 8px;
+  color: var(--text-0);
+  font: .72rem/1.6 var(--mono);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  user-select: all;
+}
+.ai-account-login-hint small { flex-basis: 100%; color: var(--text-3); font-size: .62rem; }
+
+/* 연결 테스트 결과 체크리스트 */
+.ai-account-test {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  font: .66rem/1.5 var(--mono);
+  border-radius: var(--radius-sm);
+}
+.ai-account-test.pass { color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); }
+.ai-account-test.fail { color: var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
+.ai-account-test b { margin-right: 4px; }
+
+/* 예산 미설정 안내 — "정보 없음" 대신 행동 유도 */
+.ai-account-nobudget {
+  display: grid;
+  gap: 2px;
+  color: var(--text-2);
+  font-size: .7rem;
+}
+.ai-account-nobudget strong { color: var(--text-1); }
+.ai-account-nobudget small { color: var(--text-3); font-size: .62rem; }
+
+.ai-accounts-empty {
+  min-height: 220px;
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  color: var(--text-2);
+  text-align: center;
+}
+.ai-accounts-empty strong { color: var(--text-0); font-size: 1rem; }
+.ai-accounts-empty span { font-size: .8rem; }
+
+@media (max-width: 920px) {
+  .ai-account-row { grid-template-columns: minmax(180px, 1fr) minmax(280px, 1.5fr) 120px; }
+  .ai-account-meta { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .ai-accounts-head { align-items: stretch; flex-direction: column; }
+  .ai-accounts-tools { align-items: stretch; flex-direction: column; }
+  .ai-tools-group { flex-wrap: wrap; }
+  .ai-accounts-tools .btn,
+  .ai-account-action .btn { min-height: 44px; }
+  .ai-account-row { grid-template-columns: 1fr; gap: 12px; }
+  .ai-account-limits { grid-template-columns: 1fr 1fr; }
+  .ai-account-action { align-items: flex-start; flex-direction: row; }
+  .ai-account-action .btn { flex: 1; }
+}

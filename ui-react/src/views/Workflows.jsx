@@ -77,41 +77,54 @@ function FlowViz({ def }) {
   const edges = def.edges || [];
   if (!steps.length) return null;
   return (
-    <div className="wf-flow">
-      <div className="wf-flow-start">START</div>
+    <div className="wf-flow wf-graph-viz">
+      <div className="wf-flow-start wf-gv-start">START</div>
       {steps.map((s, i) => {
         const edge = edges.find((e) => e.from === s.id);
         return (
           <div key={s.id || i}>
-            <div className="wf-flow-conn">▾</div>
-            <div className={`wf-flow-node wf-t-${s.type}`}>
-              <span className="wf-flow-num">{i + 1}</span>
-              <span className="wf-flow-icon">{STEP_ICON[s.type] || '●'}</span>
-              <span className="wf-flow-name">{s.name}</span>
+            <div className="wf-flow-conn wf-gv-connector"><span className="wf-gv-line" /><span className="wf-gv-arrowhead">▾</span></div>
+            <div className={`wf-flow-node wf-gv-node wf-t-${s.type} wf-gvn-${s.type}`}>
+              <span className="wf-flow-num wf-gv-num">{i + 1}</span>
+              <span className={`wf-flow-icon wf-gv-icon wf-gv-${s.type}`}>{STEP_ICON[s.type] || '●'}</span>
+              <span className="wf-flow-name wf-gv-name">{s.name}</span>
               {s.provider && s.model && (
-                <span className="wf-model">{s.provider}:{s.model}</span>
+                <span className={`wf-model wf-model-badge wf-mb-${s.provider}-${s.model}`}>{s.provider}:{s.model}</span>
               )}
-              {s.role && <span className="wf-flow-role">{s.role}</span>}
+              {s.role && <span className="wf-flow-role wf-gv-role">{s.role}</span>}
             </div>
             {edge?.condition && (
-              <div className="wf-flow-branch">
-                <div>조건: <code>{String(edge.condition.pattern || '').slice(0, 40)}</code></div>
-                <div>✓ 일치 → {stepName(steps, edge.condition.true)}</div>
-                <div>✗ 불일치 → {Array.isArray(edge.condition.false)
+              <div className="wf-flow-branch wf-gv-branch">
+                <div className="wf-gv-cond-label">조건: <code>{String(edge.condition.pattern || '').slice(0, 40)}</code></div>
+                <div className="wf-gv-cond-yes">✓ 일치 → {stepName(steps, edge.condition.true)}</div>
+                <div className="wf-gv-cond-no">✗ 불일치 → {Array.isArray(edge.condition.false)
                   ? edge.condition.false.map((t) => stepName(steps, t)).join(', ')
                   : stepName(steps, edge.condition.false)}</div>
               </div>
             )}
             {edge && !edge.condition && edge.to && (
-              <div className="wf-flow-edge">
-                → {Array.isArray(edge.to)
-                  ? `병렬 ∥ ${edge.to.map((t) => stepName(steps, t)).join(', ')}`
-                  : stepName(steps, edge.to)}
-              </div>
+              Array.isArray(edge.to) ? (
+                <div className="wf-flow-edge wf-gv-parallel">
+                  <div className="wf-gv-parallel-label">병렬 ∥</div>
+                  <div className="wf-gv-parallel-nodes">
+                    {edge.to.map((t) => (
+                      <div key={t} className="wf-gv-pnode">
+                        <div className="wf-gv-node"><span className="wf-gv-name">{stepName(steps, t)}</span></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="wf-flow-edge wf-gv-edge">
+                  → {stepName(steps, edge.to)}
+                </div>
+              )
             )}
           </div>
         );
       })}
+      <div className="wf-gv-connector"><span className="wf-gv-line" /></div>
+      <div className="wf-gv-end">END</div>
     </div>
   );
 }
@@ -132,8 +145,8 @@ function Progress({ run }) {
   }
   return (
     <div className="wf-progress">
-      <div className="wf-progress-head"><span>{text}</span></div>
-      <div className="wf-progress-track">
+      <div className="wf-progress-head wf-progress-header"><span className="wf-progress-text">{text}</span></div>
+      <div className="wf-progress-track wf-progress-bar">
         <div className={`wf-progress-fill wf-pf-${run.status}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -188,7 +201,9 @@ function SchedulePanel({ workflowId, workflowName, currentInputs, schedules, onC
   }
 
   return (
-    <div className="wf-sched">
+    <div className="wf-sched wf-schedule-panel">
+      <div className="wf-sched-header">스케줄</div>
+      <div className="wf-sched-body">
       <div className="wf-sched-row">
         <label>반복</label>
         <select value={preset} onChange={(e) => setPreset(e.target.value)}>
@@ -224,20 +239,21 @@ function SchedulePanel({ workflowId, workflowName, currentInputs, schedules, onC
       {existing && (
         <div className="wf-sched-row">
           <label>상태</label>
-          <span>{existing.enabled ? '활성' : '일시정지'}</span>
+          <span className={`wf-sched-status ${existing.enabled ? 'active' : 'paused'}`}>{existing.enabled ? '활성' : '일시정지'}</span>
           {existing.nextRunAt && (
-            <span className="wf-muted">다음: {new Date(existing.nextRunAt).toLocaleString('ko-KR')}</span>
+            <span className="wf-muted wf-sched-next">다음: {new Date(existing.nextRunAt).toLocaleString('ko-KR')}</span>
           )}
         </div>
       )}
-      <div className="actions">
-        <button disabled={busy} onClick={save}>💾 {existing ? '수정' : '저장'}</button>
+      <div className="actions wf-sched-actions">
+        <button className="btn-sm" disabled={busy} onClick={save}>💾 {existing ? '수정' : '저장'}</button>
         {existing && (
           <>
-            <button onClick={toggle}>{existing.enabled ? '⏸ 일시정지' : '▶ 활성화'}</button>
-            <button onClick={remove}>삭제</button>
+            <button className="btn-sm" onClick={toggle}>{existing.enabled ? '⏸ 일시정지' : '▶ 활성화'}</button>
+            <button className="btn-sm btn-danger" onClick={remove}>삭제</button>
           </>
         )}
+      </div>
       </div>
     </div>
   );
@@ -518,66 +534,86 @@ export default function Workflows() {
         {notice && <span className="wf-notice">{notice}</span>}
       </p>
       <div className="wf-layout">
-        <aside className="wf-side">
-          <section>
-            <h2>Workflows {defs.length > 0 && <span className="wf-count">{defs.length}</span>}</h2>
+        <aside className="wf-side wf-sidebar">
+          <section className="wf-section">
+            <h2 className="wf-section-hdr"><span>Workflows {defs.length > 0 && <span className="wf-count wf-count-badge">{defs.length}</span>}</span></h2>
+            <div className="wf-def-list">
             {loading && defs.length === 0 && <p>불러오는 중…</p>}
             {!loading && defs.length === 0 && <p className="wf-muted">워크플로 없음</p>}
             {defs.map((d) => (
               <div
                 key={d.id}
-                className={`wf-item${activeDefId === d.id ? ' active' : ''}`}
+                className={`wf-item wf-def-item${activeDefId === d.id ? ' active' : ''}`}
                 onClick={() => selectDef(d.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter') selectDef(d.id); }}
               >
-                <div className="wf-item-name">
-                  {d.hasCycles ? '⟲' : '⬡'} {d.name}
+                <div className="wf-item-name wf-def-name">
+                  <span className="wf-def-icon">{d.hasCycles ? '⟲' : '⬡'}</span> {d.name}
                   {schedules.some((s) => s.workflowId === d.id && s.enabled) && (
-                    <span title="스케줄 활성"> ⏰</span>
+                    <span className="wf-sched-badge" title="스케줄 활성"> ⏰</span>
                   )}
                 </div>
-                {d.description && <div className="wf-muted">{d.description}</div>}
-                <div className="wf-muted">
+                {d.description && <div className="wf-muted wf-def-desc">{d.description}</div>}
+                <div className="wf-muted wf-def-meta">
                   {d.stepCount || 0} agents
                   {d.maxIterations ? ` · 최대 ${d.maxIterations} cycles` : ''}
                   {d.models?.length ? ` · ${d.models.join(', ')}` : ''}
                 </div>
               </div>
             ))}
+            </div>
           </section>
-          <section>
-            <h2>실행 기록 {runs.length > 0 && <span className="wf-count">{runs.length}</span>}</h2>
+          <section className="wf-section">
+            <h2 className="wf-section-hdr"><span>실행 기록 {runs.length > 0 && <span className="wf-count wf-count-badge">{runs.length}</span>}</span></h2>
+            <div className="wf-run-search">
             <input
               className="wf-filter"
               placeholder="실행 검색…"
               value={runFilter}
               onChange={(e) => setRunFilter(e.target.value)}
             />
-            {filteredRuns.length === 0 && <p className="wf-muted">실행 기록 없음</p>}
+            </div>
+            <div className="wf-run-list">
+            {filteredRuns.length === 0 && <p className="wf-muted wf-empty-msg">실행 기록 없음</p>}
             {filteredRuns.map((r) => (
               <div
                 key={r.runId}
-                className={`wf-item${activeRunId === r.runId ? ' active' : ''}`}
+                className={`wf-item wf-run-item${activeRunId === r.runId ? ' active' : ''}`}
                 onClick={() => selectRun(r.runId)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter') selectRun(r.runId); }}
               >
-                <span className={`wf-st wf-st-${r.status}`}>{RUN_ICON[r.status] || '?'}</span>{' '}
-                {r.workflowName || r.workflowId}
-                <div className="wf-muted">{timeAgo(r.startedAt)}</div>
+                <span className={`wf-st wf-st-${r.status} wf-run-status wf-st-${r.status}`}>{RUN_ICON[r.status] || '?'}</span>{' '}
+                <span className="wf-run-info">
+                  <span className="wf-run-name">{r.workflowName || r.workflowId}</span>
+                  <div className="wf-muted wf-run-time">{timeAgo(r.startedAt)}</div>
+                </span>
               </div>
             ))}
+            </div>
           </section>
         </aside>
 
         <section className="wf-main">
           {!activeDefId && !activeRunId && (
             <div className="wf-empty">
-              <h2>Multi-Agent Workflows</h2>
-              <p>LLM 에이전트·셸 명령·조건 분기로 자동화 파이프라인을 실행합니다. 왼쪽에서 워크플로를 선택하세요.</p>
+              <div className="wf-empty-graph">
+                <div className="wf-empty-node wf-en-1" />
+                <div className="wf-empty-edge" />
+                <div className="wf-empty-node wf-en-2" />
+                <div className="wf-empty-edge" />
+                <div className="wf-empty-node wf-en-3" />
+              </div>
+              <h2 className="wf-empty-title">Multi-Agent Workflows</h2>
+              <p className="wf-empty-desc">LLM 에이전트·셸 명령·조건 분기로 자동화 파이프라인을 실행합니다. 왼쪽에서 워크플로를 선택하세요.</p>
+              <div className="wf-empty-hints">
+                <div className="wf-empty-hint"><span className="wf-eh-icon">⬡</span> LLM 에이전트</div>
+                <div className="wf-empty-hint"><span className="wf-eh-icon">⌘</span> 셸 명령</div>
+                <div className="wf-empty-hint"><span className="wf-eh-icon">◇</span> 조건 분기</div>
+              </div>
             </div>
           )}
 
@@ -585,12 +621,15 @@ export default function Workflows() {
           {activeDefId && fullDef?.error && <p className="wf-error">{fullDef.error}</p>}
           {activeDefId && fullDef && !fullDef.loading && !fullDef.error && (
             <>
-              <h2>{fullDef.name}</h2>
-              {fullDef.description && <p className="wf-muted">{fullDef.description}</p>}
+              <div className="wf-detail-head">
+                <h2 className="wf-detail-title">{fullDef.name}</h2>
+                {fullDef.description && <p className="wf-muted wf-detail-desc">{fullDef.description}</p>}
+              </div>
               <FlowViz def={fullDef} />
-              <h3>입력</h3>
+              <div className="wf-inputs">
+              <h3 className="wf-section-label">입력</h3>
               {hasAutoFill && projects.length > 0 && (
-                <div className="wf-field">
+                <div className="wf-field wf-input-row wf-project-picker">
                   <label>프로젝트 컨텍스트</label>
                   <select value={projectSel} onChange={(e) => onProjectChange(e.target.value)}>
                     <option value="">— 프로젝트 선택 —</option>
@@ -601,11 +640,11 @@ export default function Workflows() {
               {(fullDef.inputs || []).map((inp) => {
                 const af = autoFillFor(inp.key);
                 return (
-                  <div className="wf-field" key={inp.key}>
-                    <div className="wf-field-head">
+                  <div className="wf-field wf-input-row" key={inp.key}>
+                    <div className="wf-field-head wf-input-label-row">
                       <label>{inp.label}{inp.required ? ' *' : ''}</label>
                       {af && (
-                        <button disabled={autofilling === inp.key} onClick={() => autofill(inp.key, af.type)}>
+                        <button className="wf-autofill-btn" disabled={autofilling === inp.key} onClick={() => autofill(inp.key, af.type)}>
                           {autofilling === inp.key ? '…' : `${af.icon} ${af.label}`}
                         </button>
                       )}
@@ -632,9 +671,10 @@ export default function Workflows() {
                   </div>
                 );
               })}
-              <div className="actions">
-                <button disabled={starting} onClick={startRun}>{starting ? '시작 중…' : '▶ 실행'}</button>
-                <button onClick={() => setSchedOpen((v) => !v)}>⏰ 스케줄</button>
+              <div className="actions wf-actions">
+                <button className="btn wf-run-btn" disabled={starting} onClick={startRun}>{starting ? '시작 중…' : '▶ 실행'}</button>
+                <button className="wf-schedule-btn" onClick={() => setSchedOpen((v) => !v)}>⏰ 스케줄{schedules.some((s) => s.workflowId === activeDefId && s.enabled) && <span className="wf-sched-badge"> ●</span>}</button>
+              </div>
               </div>
               {schedOpen && (
                 <SchedulePanel
@@ -655,18 +695,18 @@ export default function Workflows() {
           {activeRunId && runDetail && !runDetail.loading && !runDetail.error && (
             <>
               <div className="wf-run-head">
-                <h2>{runDetail.workflowName || runDetail.workflowId} <span className="wf-muted">#{String(runDetail.runId).slice(0, 8)}</span></h2>
-                <span className={`wf-badge wf-st-${runDetail.status}`}>
+                <h2 className="wf-run-title">{runDetail.workflowName || runDetail.workflowId} <span className="wf-muted wf-run-id">#{String(runDetail.runId).slice(0, 8)}</span></h2>
+                <span className={`wf-badge wf-run-status-badge wf-st-${runDetail.status}`}>
                   {RUN_LABEL[runDetail.status] || runDetail.status}
                 </span>
                 {runDetail.status === 'running' && (
-                  <button onClick={() => stopRun(runDetail.runId)}>■ 중단</button>
+                  <button className="btn wf-stop-btn" onClick={() => stopRun(runDetail.runId)}>■ 중단</button>
                 )}
                 {runDetail.status !== 'running' && (
-                  <button onClick={() => rerun(runDetail.runId)}>↻ 재실행</button>
+                  <button className="btn wf-rerun-btn" onClick={() => rerun(runDetail.runId)}>↻ 재실행</button>
                 )}
                 {runDetail.startedAt && runDetail.endedAt && (
-                  <span className="wf-muted">소요 {formatDuration(runDetail.endedAt - runDetail.startedAt)}</span>
+                  <span className="wf-muted wf-est-badge">소요 {formatDuration(runDetail.endedAt - runDetail.startedAt)}</span>
                 )}
               </div>
               <Progress run={runDetail} />
@@ -675,28 +715,29 @@ export default function Workflows() {
                   const open = !!expanded[s.id];
                   const clickable = s.status === 'done' || s.status === 'error';
                   return (
-                    <div className={`wf-step wf-sc-${s.status}${open ? ' expanded' : ''}`} key={s.id}>
+                    <div className={`wf-step wf-step-card wf-sc-${s.status}${open ? ' expanded' : ''}`} key={s.id}>
                       <div
-                        className="wf-step-head"
+                        className="wf-step-head wf-sc-head"
                         role={clickable ? 'button' : undefined}
                         tabIndex={clickable ? 0 : undefined}
                         onClick={() => { if (clickable) setExpanded((p) => ({ ...p, [s.id]: !p[s.id] })); }}
                         onKeyDown={(e) => { if (clickable && e.key === 'Enter') setExpanded((p) => ({ ...p, [s.id]: !p[s.id] })); }}
                       >
-                        <span>{RUN_ICON[s.status] || '○'}</span>
-                        <span>{clickable ? (open ? '▾' : '▸') : ''} {s.name}</span>
-                        {s.iterations > 1 && <span>×{s.iterations}</span>}
-                        <span className="wf-muted">{s.type}</span>
-                        {s.provider && s.model && <span className="wf-model">{s.provider}:{s.model}</span>}
-                        <span className="wf-muted">
+                        <span className="wf-sc-status-icon">{RUN_ICON[s.status] || '○'}</span>
+                        <span className="wf-sc-name">{clickable ? (open ? '▾' : '▸') : ''} {s.name}</span>
+                        {s.iterations > 1 && <span className="wf-sc-iter">×{s.iterations}</span>}
+                        <span className="wf-muted wf-sc-type">{s.type}</span>
+                        {s.provider && s.model && <span className="wf-model wf-model-badge">{s.provider}:{s.model}</span>}
+                        <span className="wf-muted wf-sc-duration">
                           {s.startedAt && s.endedAt ? `${((s.endedAt - s.startedAt) / 1000).toFixed(1)}초` : s.startedAt ? '…' : ''}
                         </span>
+                        <span className="wf-sc-expand-icon">{clickable ? (open ? '▾' : '▸') : ''}</span>
                       </div>
-                      {s.role && <div className="wf-muted">{s.role}</div>}
+                      {s.role && <div className="wf-muted wf-sc-role">{s.role}</div>}
                       {open && (s.output || s.error) && (
-                        <div>
-                          <pre className={`wf-output${s.error ? ' wf-output-error' : ''}`}>{s.output || s.error}</pre>
-                          {s.output && <button onClick={() => copyOutput(s.output)}>복사</button>}
+                        <div className="wf-sc-output">
+                          <pre className={`wf-output wf-sc-output-body${s.error ? ' wf-output-error' : ''}`}>{s.output || s.error}</pre>
+                          {s.output && <button className="wf-sc-copy-btn" onClick={() => copyOutput(s.output)}>복사</button>}
                         </div>
                       )}
                     </div>
@@ -704,16 +745,16 @@ export default function Workflows() {
                 })}
               </div>
               {lastDoneOutput && (
-                <div className="wf-final">
-                  <h3>최종 출력</h3>
-                  <pre className="wf-output">{lastDoneOutput}</pre>
-                  <button onClick={() => copyOutput(lastDoneOutput)}>복사</button>
+                <div className="wf-final wf-final-output">
+                  <h3 className="wf-section-label">최종 출력</h3>
+                  <pre className="wf-output wf-output-body">{lastDoneOutput}</pre>
+                  <div className="wf-final-actions"><button className="btn" onClick={() => copyOutput(lastDoneOutput)}>복사</button></div>
                 </div>
               )}
               {runDetail.error && (
-                <div className="wf-final wf-final-error">
-                  <h3>오류</h3>
-                  <pre className="wf-output wf-output-error">{runDetail.error}</pre>
+                <div className="wf-final wf-final-error wf-final-output">
+                  <h3 className="wf-section-label">오류</h3>
+                  <pre className="wf-output wf-output-body wf-output-error">{runDetail.error}</pre>
                 </div>
               )}
             </>

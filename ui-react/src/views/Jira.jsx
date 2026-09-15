@@ -82,7 +82,7 @@ function IssueDetail({ issueKey, onClose, onChanged }) {
   }
 
   return (
-    <div className="row jira-detail">
+    <div className="row jira-detail open">
       <div className="actions jira-detail-head">
         <strong>{issueKey}</strong>
         <button onClick={onClose}>닫기</button>
@@ -313,7 +313,7 @@ export default function Jira() {
     return (
       <main className="jira-view">
         <h1>Jira</h1>
-        <div className="row jira-setup">
+        <div className="row jira-setup jira-setup-card">
           <h2>Jira 미연결 — 서버 설정 필요</h2>
           <p>
             서버에 Jira 연결 설정이 없습니다. 아래 정보를 서버에 저장한 뒤 다시 확인하세요
@@ -378,18 +378,23 @@ export default function Jira() {
           ))}
         </select>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="키·요약·담당자 검색…" />
-        <button onClick={() => setView('list')} style={view === 'list' ? { borderColor: 'var(--accent)' } : undefined}>
-          목록
-        </button>
-        <button onClick={() => setView('board')} style={view === 'board' ? { borderColor: 'var(--accent)' } : undefined}>
-          보드
-        </button>
-        <button onClick={refresh}>새로고침</button>
+        <div className="jira-view-toggle">
+          <button className="jira-view-btn" data-view="list" onClick={() => setView('list')} aria-pressed={view === 'list'} style={view === 'list' ? { borderColor: 'var(--accent)' } : undefined}>
+            목록
+          </button>
+          <button className="jira-view-btn" data-view="board" onClick={() => setView('board')} aria-pressed={view === 'board'} style={view === 'board' ? { borderColor: 'var(--accent)' } : undefined}>
+            보드
+          </button>
+        </div>
+        <button onClick={refresh} title="새로고침">새로고침</button>
       </div>
-      <p>
-        {status}
-        {config?.url && <span className="jira-meta"> · {config.url}</span>}
-      </p>
+      <div className="jira-summary-bar">
+        <p>
+          {status}
+          {config?.url && <span className="jira-meta"> · {config.url}</span>}
+        </p>
+      </div>
+      <div className="jira-content">
 
       {selectedKey && (
         <IssueDetail
@@ -410,7 +415,8 @@ export default function Jira() {
       )}
 
       {view === 'list' ? (
-        filtered.map((i) => (
+        <div className="jira-list-view">
+        {filtered.map((i) => (
           <article key={i.key} className="row jira-row" onClick={() => setSelectedKey(i.key)}>
             <div className="id">
               <span className={`jira-badge jb-${catOf(i)}`}>{i.status?.name || '상태 없음'}</span>
@@ -428,13 +434,14 @@ export default function Jira() {
               </div>
             </div>
           </article>
-        ))
+        ))}
+        </div>
       ) : (
-        <div className="jira-board">
+        <div className="jira-board jira-board-view">
           {boardCols.map((c) => (
-            <section key={c.name} className={`jira-col jira-col-${c.cat}`}>
+            <section key={c.name} className={`jira-col jira-board-col jira-col-${c.cat}`}>
               <header>
-                {c.name} <span className="jira-col-count">{c.list.length}</span>
+                <span>{c.name}</span> <span className="jira-col-count">{c.list.length}</span>
               </header>
               {c.list.map((i) => (
                 <article key={i.key} className="jira-card" onClick={() => setSelectedKey(i.key)}>
@@ -451,6 +458,7 @@ export default function Jira() {
           ))}
         </div>
       )}
+      </div>
     </main>
   );
 }

@@ -50,11 +50,11 @@ function parseSSE(e) {
   }
 }
 
-function StatTile({ label, value }) {
+function StatTile({ label, value, accent = 'accent' }) {
   return (
-    <div className="db-stat">
-      <span className="db-stat-val">{value}</span>
-      <span className="db-stat-label">{label}</span>
+    <div className="stat-card" data-accent={accent}>
+      <span className="stat-label">{label}</span>
+      <span className="stat-value">{value}</span>
     </div>
   );
 }
@@ -63,18 +63,15 @@ function ModelBars({ models, total }) {
   const entries = Object.entries(models || {}).sort(
     (a, b) => (b[1].outputTokens || 0) - (a[1].outputTokens || 0),
   );
-  if (!entries.length) return <p className="db-muted">모델별 데이터 없음</p>;
+  if (!entries.length) return null;
   return (
-    <div className="db-bars">
+    <div className="uc-models">
       {entries.map(([name, m]) => {
         const pct = total > 0 ? ((m.outputTokens || 0) / total) * 100 : 0;
         return (
-          <div className="db-bar-row" key={name}>
-            <span className="db-bar-name">{name}</span>
-            <span className="db-bar-track">
-              <span className="db-bar-fill" style={{ width: `${pct.toFixed(1)}%` }} />
-            </span>
-            <span className="db-bar-val">{fmtTok(m.outputTokens || 0)}</span>
+          <div className="uc-model-row" key={name}>
+            <span className="name">{name}</span>
+            <span className="val">{fmtTok(m.outputTokens || 0)}<span className="pct">{pct.toFixed(1)}%</span></span>
           </div>
         );
       })}
@@ -84,7 +81,7 @@ function ModelBars({ models, total }) {
 
 const CHART_COLORS = ['#818cf8', '#34d399', '#fbbf24', '#f87171', '#60a5fa'];
 const CHART_GRID = 'rgba(255,255,255,.08)';
-const CHART_TICK = '#8b949e';
+const CHART_TICK = '#9a9cb0';
 
 function DailyTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -119,7 +116,7 @@ function ModelTooltip({ active, payload, total }) {
 function DailyTokensChart({ data }) {
   if (!data.length) return <p className="db-muted">일별 데이터 없음</p>;
   return (
-    <div className="db-chart-wrap">
+    <div className="chart-wrap">
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={CHART_GRID} vertical={false} />
@@ -158,7 +155,7 @@ function ModelShareChart({ data }) {
   if (!data.length) return <p className="db-muted">모델별 데이터 없음</p>;
   const total = data.reduce((s, d) => s + (d.value || 0), 0);
   return (
-    <div className="db-chart-wrap">
+    <div className="chart-wrap">
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <Pie
@@ -195,66 +192,74 @@ function ProjectCard({ p, dev, onDevToggle, onOpenIde, onOpenFolder, busy }) {
   const devRunning = !!dev;
   const approved = prs.filter((pr) => pr.reviewDecision === 'APPROVED').length;
   const changes = prs.filter((pr) => pr.reviewDecision === 'CHANGES_REQUESTED').length;
+  const prCls = changes > 0 ? 'card-badge-pr-changes' : approved > 0 ? 'card-badge-pr-ok' : 'card-badge-pr';
 
   return (
-    <article className="db-card">
-      <div className="db-card-accent" style={{ background: p.color || 'var(--accent, #6366f1)' }} />
-      <div className="db-card-body">
-        <div className="db-card-head">
-          <strong>{p.name}</strong>
-          <span className={`db-badge db-${st}`}>
-            <i />{STATE_LABEL[st] || st}
+    <article className="card" data-status={st}>
+      <div className="card-accent" style={{ background: p.color || 'var(--accent)', '--card-color': p.color || 'var(--accent)' }} />
+      <div className="card-body">
+        <div className="card-header">
+          <span className="card-name">{p.name}</span>
+          {p.stack ? <span className="card-stack">{p.stack}</span> : null}
+        </div>
+        <div style={{ marginBottom: 4 }}>
+          <span className={`status ${st}`}>
+            <span className="dot" />{STATE_LABEL[st] || st}
           </span>
         </div>
-        <p className="db-path" title={p.path}>{p.path}</p>
-        <dl className="db-info">
-          <div><dt>브랜치</dt><dd>{g.branch || '-'}</dd></div>
-          <div>
-            <dt>미커밋</dt>
-            <dd className={uncommitted > 0 ? 'db-warn' : ''}>{g.uncommittedCount ?? '-'}</dd>
+        {(g.stashCount > 0 || (g.worktrees?.length || 0) > 1 || prs.length > 0) && (
+          <div className="card-badges-row">
+            {g.stashCount > 0 && <span className="card-badge card-badge-stash">📦 {g.stashCount}</span>}
+            {(g.worktrees?.length || 0) > 1 && <span className="card-badge card-badge-wt">🌳 {g.worktrees.length}</span>}
+            {prs.length > 0 && <span className={`card-badge ${prCls}`}>PR {prs.length}</span>}
           </div>
-          <div><dt>모델</dt><dd>{s.model || '-'}</dd></div>
-          <div><dt>최근 활동</dt><dd>{s.lastActivity ? timeAgo(s.lastActivity) : '-'}</dd></div>
-          {g.stashCount > 0 && <div><dt>스태시</dt><dd>{g.stashCount}</dd></div>}
-          {g.worktrees?.length > 1 && <div><dt>워크트리</dt><dd>{g.worktrees.length}</dd></div>}
-          {prs.length > 0 && (
-            <div>
-              <dt>PR</dt>
-              <dd>{prs.length}개{changes > 0 ? ` (수정요청 ${changes})` : approved > 0 ? ` (승인 ${approved})` : ''}</dd>
-            </div>
-          )}
-        </dl>
+        )}
+        <p className="card-path" title={p.path}>{p.path}</p>
+        <div className="card-info">
+          <div className="info-row"><span className="info-label">Branch</span><span className="info-value branch">{g.branch || '-'}</span></div>
+          <div className="info-row"><span className="info-label">Uncommitted</span><span className={`info-value${uncommitted > 0 ? ' has-changes' : ''}`}>{g.uncommittedCount ?? '-'}</span></div>
+          <div className="info-row"><span className="info-label">Model</span><span className="info-value">{s.model || '-'}</span></div>
+          <div className="info-row"><span className="info-label">Last</span><span className="info-value">{s.lastActivity ? timeAgo(s.lastActivity) : '-'}</span></div>
+        </div>
         {g.recentCommits?.length > 0 && (
-          <ul className="db-commits">
+          <ul className="commits">
             {g.recentCommits.slice(0, 3).map((c, i) => (
               <li key={`${c.hash}-${i}`}>
-                <code>{c.hash}</code> {c.message} <span>({c.ago})</span>
+                <span className="commit-hash">{c.hash}</span>{' '}
+                <span className="commit-msg">{c.message}</span>
+                <span className="commit-ago">{c.ago}</span>
               </li>
             ))}
           </ul>
         )}
         {prs.length > 0 && (
-          <ul className="db-prs">
+          <div className="pr-list">
             {prs.slice(0, 2).map((pr) => (
-              <li key={pr.number}>
-                <span>#{pr.number}</span> {pr.title}
-              </li>
+              <div className="pr-item" key={pr.number}>
+                <span className="pr-num">#{pr.number}</span>
+                <span className="pr-title">{pr.title}</span>
+                <span className={`pr-review ${pr.reviewDecision || 'PENDING'}`}>
+                  {pr.reviewDecision === 'APPROVED' ? 'OK' : pr.reviewDecision === 'CHANGES_REQUESTED' ? 'Changes' : 'Pending'}
+                </span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
-        <div className="db-card-actions">
-          {p.devCmd && (
-            <button disabled={busy} onClick={() => onDevToggle(p, devRunning)}>
-              {busy ? '처리 중…' : devRunning ? `Dev 중지${dev.port ? ` :${dev.port}` : ''}` : 'Dev 시작'}
-            </button>
-          )}
-          <button disabled={busy} onClick={() => onOpenIde(p)}>VS Code</button>
-          <button disabled={busy} onClick={() => onOpenFolder(p)}>폴더</button>
-          {p.github && (
-            <a className="db-link-btn" href={p.github} target="_blank" rel="noreferrer">GitHub</a>
-          )}
+        <div className="card-foot">
+          <div className="card-btn-row">
+            {p.devCmd && (
+              <button className="btn" type="button" disabled={busy} onClick={() => onDevToggle(p, devRunning)}>
+                {busy ? '처리 중…' : devRunning ? `Dev 중지${dev.port ? ` :${dev.port}` : ''}` : 'Dev 시작'}
+              </button>
+            )}
+            <button className="btn" type="button" disabled={busy} onClick={() => onOpenIde(p)}>VS Code</button>
+            <button className="btn" type="button" disabled={busy} onClick={() => onOpenFolder(p)}>폴더</button>
+            {p.github && (
+              <a className="btn" href={p.github} target="_blank" rel="noreferrer">GitHub</a>
+            )}
+          </div>
         </div>
-        {devRunning && dev.command && <p className="db-muted">{dev.command}</p>}
+        {devRunning && dev.command && <p className="card-dev-cmd">{dev.command}</p>}
       </div>
     </article>
   );
@@ -520,62 +525,70 @@ export default function Dashboard() {
     <main className="db">
       <h1>대시보드</h1>
       <p className="db-sub">
-        <span className={`db-conn ${connected ? 'on' : 'off'}`} />
+        <span className={`conn-dot${connected ? '' : ' off'}`} />
         {connected ? '실시간 연결됨' : '연결 중…'} · {projects.length}개 프로젝트{' '}
-        <button onClick={load} disabled={loading}>{loading ? '불러오는 중…' : '새로고침'}</button>
+        <button className="btn" type="button" onClick={load} disabled={loading}>{loading ? '불러오는 중…' : '새로고침'}</button>
       </p>
       {error && <p className="db-error">오류: {error}</p>}
 
-      <section className="db-stats">
-        <StatTile label="활성 세션" value={stats.active} />
-        <StatTile label="열린 PR" value={stats.prCount} />
-        <StatTile label="미커밋 파일" value={stats.uncommitted} />
-        <StatTile label="오늘 출력 토큰" value={fmtTok(stats.today)} />
+      <section className="stats-row">
+        <StatTile label="활성 세션" value={stats.active} accent="green" />
+        <StatTile label="열린 PR" value={stats.prCount} accent="accent" />
+        <StatTile label="미커밋 파일" value={stats.uncommitted} accent="yellow" />
+        <StatTile label="오늘 출력 토큰" value={fmtTok(stats.today)} accent="blue" />
       </section>
 
       {notices.length > 0 && (
-        <section className="db-notices">
+        <section className="smart-actions">
           {notices.map((n, i) => (
-            <div className={`db-notice db-${n.kind}`} key={i}>
-              <strong>{n.title}</strong>
-              {n.desc && <span>{n.desc}</span>}
+            <div className={`sa-card sa-${n.kind === 'warn' ? 'warning' : n.kind}`} key={i}>
+              <span className="sa-icon">
+                {n.kind === 'warn' ? '⚠️' : n.kind === 'danger' ? '⛔' : n.kind === 'info' ? 'ℹ️' : '📊'}
+              </span>
+              <div className="sa-body">
+                <div className="sa-title">{n.title}</div>
+                {n.desc && <div className="sa-desc">{n.desc}</div>}
+              </div>
             </div>
           ))}
         </section>
       )}
 
       <section>
-        <h2>프로젝트</h2>
-        <div className="db-toolbar">
+        <h2 className="section-title">Projects</h2>
+        <div className="project-search-bar">
           <input
             type="text"
             placeholder="프로젝트 검색…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          {['all', 'active', 'idle'].map((f) => (
-            <button
-              key={f}
-              className={filter === f ? 'active' : ''}
-              onClick={() => setFilter(f)}
-            >
-              {f === 'all' ? '전체' : f === 'active' ? '활성' : '유휴'}
-            </button>
-          ))}
-          <select value={sort} onChange={(e) => setSort(e.target.value)} title="정렬">
+          <div className="project-filter-btns">
+            {['all', 'active', 'idle'].map((f) => (
+              <button
+                key={f}
+                type="button"
+                className={`pf-btn${filter === f ? ' active' : ''}`}
+                onClick={() => setFilter(f)}
+              >
+                {f === 'all' ? '전체' : f === 'active' ? '활성' : '유휴'}
+              </button>
+            ))}
+          </div>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} title="정렬" className="card-sort-select">
             <option value="name">이름순</option>
             <option value="activity">활성순</option>
             <option value="recent">최근순</option>
             <option value="uncommitted">미커밋순</option>
           </select>
-          <span className="db-muted">{visibleProjects.length}/{projects.length}</span>
+          <span className="project-search-count">{visibleProjects.length}/{projects.length}</span>
         </div>
         {loading && projects.length === 0 ? (
           <p>불러오는 중…</p>
         ) : visibleProjects.length === 0 ? (
           <p className="db-muted">표시할 프로젝트가 없습니다.</p>
         ) : (
-          <div className="db-grid">
+          <div className="project-grid">
             {visibleProjects.map((p) => (
               <ProjectCard
                 key={p.id}
@@ -592,36 +605,46 @@ export default function Dashboard() {
       </section>
 
       <section>
-        <h2>비용 및 사용량</h2>
+        <h2 className="section-title">Cost &amp; Usage</h2>
         {!usage ? (
           <p className="db-muted">사용량 데이터 없음</p>
         ) : (
-          <div className="db-usage">
-            <div className="db-usage-card">
-              <h3>오늘 {usage.today?.date ? `(${usage.today.date})` : ''}</h3>
-              <p className="db-big">{fmtTok(usage.today?.outputTokens || 0)} 토큰</p>
-              <p className="db-muted">
-                {usage.today?.messages || 0} 메시지 · {usage.today?.sessions || 0} 세션 ·{' '}
-                {usage.today?.toolCalls || 0} 도구 호출
-              </p>
+          <div className="usage-grid">
+            <div className="usage-card">
+              <div className="uc-header">
+                <span className="uc-title">Today</span>
+                <span className="uc-sub">{usage.today?.date || ''}</span>
+              </div>
+              <div className="uc-main">{fmtTok(usage.today?.outputTokens || 0)} 토큰</div>
+              <div className="uc-stats">
+                <div className="uc-stat-row"><span className="label">메시지</span><span className="val">{usage.today?.messages || 0}</span></div>
+                <div className="uc-stat-row"><span className="label">세션</span><span className="val">{usage.today?.sessions || 0}</span></div>
+                <div className="uc-stat-row"><span className="label">도구 호출</span><span className="val">{usage.today?.toolCalls || 0}</span></div>
+              </div>
               <ModelBars models={usage.today?.models} total={usage.today?.outputTokens || 1} />
-              <p className="db-muted">API 환산 약 ${(usage.today?.apiEquivCost || 0).toFixed(2)}</p>
+              <div className="uc-footer">API 환산 약 ${(usage.today?.apiEquivCost || 0).toFixed(2)}</div>
             </div>
-            <div className="db-usage-card">
-              <h3>이번 주</h3>
-              <p className="db-big">{fmtTok(usage.week?.outputTokens || 0)} 토큰</p>
-              <p className="db-muted">{usage.week?.messages || 0} 메시지</p>
+            <div className="usage-card">
+              <div className="uc-header">
+                <span className="uc-title">This Week</span>
+                <span className="uc-sub" />
+              </div>
+              <div className="uc-main">{fmtTok(usage.week?.outputTokens || 0)} 토큰</div>
+              <div className="uc-stats">
+                <div className="uc-stat-row"><span className="label">메시지</span><span className="val">{usage.week?.messages || 0}</span></div>
+              </div>
               <ModelBars models={usage.week?.models} total={usage.week?.outputTokens || 1} />
-              <p className="db-muted">API 환산 약 ${(usage.week?.apiEquivCost || 0).toFixed(2)}</p>
+              <div className="uc-footer">API 환산 약 ${(usage.week?.apiEquivCost || 0).toFixed(2)}</div>
             </div>
-            <div className="db-usage-card">
+            <div className="chart-card">
               <h3>
                 일별 출력 토큰{' '}
                 <span className="db-period">
                   {[7, 14, 30].map((d) => (
                     <button
                       key={d}
-                      className={period === d ? 'active' : ''}
+                      type="button"
+                      className={`pf-btn${period === d ? ' active' : ''}`}
                       onClick={() => setPeriod(d)}
                     >
                       {d}일

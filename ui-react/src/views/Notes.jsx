@@ -292,25 +292,25 @@ export default function Notes() {
   const current = list.find((n) => n.id === currentId);
 
   return (
-    <main className="nt-layout">
-      <nav className="nt-sidebar" aria-label="노트 목록">
-        <div className="nt-side-head">
+    <main className="docs-layout nt-layout">
+      <nav className="docs-sidebar nt-sidebar" aria-label="노트 목록">
+        <div className="docs-sidebar-head nt-side-head">
           <input
             type="text"
-            className="nt-search"
+            className="docs-search nt-search"
             placeholder="노트 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="노트 검색"
           />
-          <button onClick={createNote} disabled={busy} title="새 노트">
+          <button className="btn" onClick={createNote} disabled={busy} title="새 노트">
             ＋ 새 노트
           </button>
         </div>
         <div className="nt-count">{filtered.length}개 노트</div>
-        <div className="nt-list">
+        <div className="docs-nav-tree nt-list">
           {loading ? (
-            <p className="nt-empty">불러오는 중…</p>
+            <p className="docs-nav-empty nt-empty">불러오는 중…</p>
           ) : filtered.length ? filtered.map((n) => (
             <div
               key={n.id}
@@ -318,60 +318,60 @@ export default function Notes() {
               tabIndex={0}
               onClick={() => openNote(n.id)}
               onKeyDown={(e) => { if (e.key === 'Enter') openNote(n.id); }}
-              className={`nt-item${n.id === currentId ? ' active' : ''}`}
+              className={`docs-nav-item nt-item${n.id === currentId ? ' active' : ''}`}
             >
               <strong>{n.title || '제목 없음'}</strong>
               <small>{timeAgo(n.updatedAt)}{n.project ? ` · ${n.project}` : ''}</small>
               {n.preview ? <span className="nt-preview-line">{n.preview.slice(0, 60)}</span> : null}
             </div>
           )) : (
-            <p className="nt-empty">노트가 없습니다</p>
+            <p className="docs-nav-empty nt-empty">노트가 없습니다</p>
           )}
         </div>
       </nav>
 
-      <section className="nt-main">
+      <section className="docs-main nt-main">
         {!currentId ? (
-          <div className="nt-empty-box">
-            <div className="nt-empty-title">Notes</div>
-            <div className="nt-empty-sub">왼쪽에서 노트를 선택하거나 새로 만드세요</div>
-            <button onClick={createNote} disabled={busy}>＋ 새 노트 만들기</button>
+          <div className="docs-empty nt-empty-box">
+            <div className="docs-empty-title nt-empty-title">Notes</div>
+            <div className="docs-empty-sub nt-empty-sub">왼쪽에서 노트를 선택하거나 새로 만드세요</div>
+            <button className="btn" onClick={createNote} disabled={busy}>＋ 새 노트 만들기</button>
           </div>
         ) : (
           <>
-            <header className="nt-head">
+            <header className="notes-head nt-head">
               <input
                 type="text"
-                className="nt-title"
+                className="notes-title-input nt-title"
                 value={title}
                 maxLength={200}
                 placeholder="제목"
                 aria-label="노트 제목"
                 onChange={(e) => { setTitle(e.target.value); scheduleSave(); }}
               />
-              <span className={`nt-status tone-${status.tone}`}>{status.text}</span>
-              <div className="nt-tools">
+              <span className={`notes-save-status nt-status tone-${status.tone}`} data-tone={status.tone}>{status.text}</span>
+              <div className="notes-tools nt-tools">
                 <button
-                  className={mode === 'edit' ? 'primary' : ''}
+                  className={mode === 'edit' ? 'btn primary' : 'btn'}
                   onClick={() => setMode('edit')}
                 >
                   편집
                 </button>
                 <button
-                  className={mode === 'preview' ? 'primary' : ''}
+                  className={mode === 'preview' ? 'btn primary' : 'btn'}
                   onClick={() => setMode('preview')}
                 >
                   미리보기
                 </button>
-                <button onClick={flushSave} disabled={busy}>저장</button>
-                <button onClick={() => refresh(false)} disabled={busy}>새로고침</button>
-                <button onClick={deleteNote} disabled={busy}>삭제</button>
+                <button className="btn" onClick={flushSave} disabled={busy}>저장</button>
+                <button className="btn" onClick={() => refresh(false)} disabled={busy}>새로고침</button>
+                <button className="btn" onClick={deleteNote} disabled={busy}>삭제</button>
               </div>
             </header>
             {mode === 'edit' ? (
               <textarea
                 ref={taRef}
-                className="nt-textarea"
+                className="notes-textarea nt-textarea"
                 value={content}
                 placeholder="마크다운으로 작성하세요…"
                 aria-label="노트 내용"
@@ -380,7 +380,7 @@ export default function Notes() {
             ) : (
               <div
                 id="nt-preview"
-                className="nt-preview markdown-body"
+                className="notes-preview nt-preview markdown-body"
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             )}
@@ -391,10 +391,10 @@ export default function Notes() {
         )}
       </section>
 
-      <aside className="nt-toc" aria-label="목차">
+      <aside className="docs-toc nt-toc" aria-label="목차">
         {toc.length ? (
           <>
-            <div className="nt-toc-title">목차</div>
+            <div className="docs-toc-title nt-toc-title">목차</div>
             {toc.map((h) => (
               <div
                 key={h.line}
@@ -402,7 +402,7 @@ export default function Notes() {
                 tabIndex={0}
                 onClick={() => tocJump(h.line)}
                 onKeyDown={(e) => { if (e.key === 'Enter') tocJump(h.line); }}
-                className={`nt-toc-item lv${h.level}`}
+                className={`docs-toc-item nt-toc-item lv${h.level}`}
               >
                 {h.text}
               </div>

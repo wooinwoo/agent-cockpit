@@ -1,6 +1,6 @@
 // Service Worker for Cockpit PWA
 // Network-first for everything — ensures fresh code after updates
-const CACHE_NAME = 'cockpit-v98';
+const CACHE_NAME = 'cockpit-v99';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => {

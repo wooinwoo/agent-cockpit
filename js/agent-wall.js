@@ -9,6 +9,84 @@ import { terminalGroupLayoutLabel } from './terminal-group-layout.js';
 // 실제 터미널이 아니므로 termMap 에는 없고, 트리 유틸들은 이 id 를 항상 유효한 leaf 로 취급한다.
 export const WALL_ID = '__wall__';
 
+// 세션 보드 이름 더블클릭 → 이름 변경 (캔버스 프레임 헤더와 동일 UX).
+// 첫 클릭이 canvas-jump 로 목록을 재렌더하면 브라우저 dblclick 이 형성되지 않는 경쟁이 있어
+// 클릭 시각 기반 수동 감지를 병행한다 (요소 교체와 무관하게 행 ID로 판정).
+function openSessionRowRename(termId, nameEl) {
+  const t = app.termMap.get(termId);
+  if (!t || nameEl.querySelector('input.session-rename')) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'session-rename';
+  input.value = t.label;
+  input.maxLength = 40;
+  input.style.cssText = 'font: inherit; width: 128px; padding: 0 4px; color: var(--text-0); background: var(--bg-0); border: 1px solid var(--accent); border-radius: 3px;';
+  const commit = () => {
+    if (!input.isConnected) return; // Enter→blur 이중 실행 가드
+    const val = input.value.trim();
+    if (val) {
+      t.label = val;
+      const frameName = document.querySelector(`[data-canvas-frame="${termId}"] .canvas-frame-name`);
+      if (frameName) frameName.textContent = val;
+      notify('saveLayout');
+    }
+    try { input.remove(); } catch { /* blur 재진입 경로에서 이미 분리됨 */ }
+    updateAgentWall();
+  };
+  input.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') commit();
+    if (ev.key === 'Escape') { input.value = t.label; commit(); }
+    ev.stopPropagation();
+  });
+  input.addEventListener('blur', commit);
+  const alias = nameEl.querySelector('.canvas-session-alias');
+  nameEl.textContent = '';
+  if (alias) nameEl.appendChild(alias);
+  nameEl.appendChild(input);
+  input.focus();
+  input.select();
+}
+
+let _lastSessionNameClick = { id: '', at: 0 };
+function sessionRowRenameTarget(e) {
+  const nameEl = e.target.closest?.('.canvas-session-name');
+  if (!nameEl) return null;
+  const row = nameEl.closest('[data-session-order-row]');
+  const termId = row?.dataset.sessionOrderRow;
+  return termId ? { termId, nameEl } : null;
+}
+
+// 점프(canvas-jump)가 사이드 레일을 통째로 재구성하므로, 재구성이 끝난 뒤
+// 새로 만들어진 행에 편집 input 을 연다.
+function openSessionRowRenameDeferred(termId) {
+  setTimeout(() => {
+    const fresh = document.querySelector(`[data-session-order-row="${termId}"] .canvas-session-name`);
+    if (fresh) openSessionRowRename(termId, fresh);
+  }, 80);
+}
+
+document.addEventListener('click', e => {
+  const hit = sessionRowRenameTarget(e);
+  if (!hit) { _lastSessionNameClick = { id: '', at: 0 }; return; }
+  const now = Date.now();
+  if (_lastSessionNameClick.id === hit.termId && now - _lastSessionNameClick.at < 450) {
+    _lastSessionNameClick = { id: '', at: 0 };
+    e.preventDefault();
+    e.stopPropagation();
+    openSessionRowRenameDeferred(hit.termId);
+  } else {
+    _lastSessionNameClick = { id: hit.termId, at: now };
+  }
+});
+
+document.addEventListener('dblclick', e => {
+  const hit = sessionRowRenameTarget(e);
+  if (!hit) return;
+  e.preventDefault();
+  e.stopPropagation();
+  openSessionRowRenameDeferred(hit.termId);
+});
+
 let timer;
 let opsTimer;
 let decisions = [];
@@ -308,6 +386,8 @@ function renderCanvasContexts(agents) {
 function renderCanvasSessionBoard(agents) {
   const list = document.querySelector('[data-canvas-session-list]');
   if (!list) return;
+  // 이름 편집 중에는 재렌더하지 않는다 — 입력이 지워지는 것을 막음
+  if (list.querySelector('input.session-rename')) return;
   const activeElement = document.activeElement;
   const canRestoreOrderFocus = !activeElement || activeElement === document.body || Boolean(activeElement.dataset.sessionOrderId);
   const requestedFocusId = canRestoreOrderFocus && Number(list.dataset.orderFocusUntil) > Date.now() ? list.dataset.orderFocusId : '';
@@ -341,7 +421,7 @@ function renderCanvasSessionBoard(agents) {
       <button type="button" class="canvas-session-main" data-action="${app.pairSourceTermId ? 'canvas-pair-toggle' : 'canvas-jump'}" data-termid="${esc(termId)}" title="${app.pairSourceTermId ? `${groupSelected ? 'Remove from' : 'Add to'} group` : `${shortcut ? `${shortcut} · ` : ''}${esc(term.label)} · ${esc(task)}`}"${!app.pairSourceTermId && shortcut ? ` aria-keyshortcuts="${shortcut}"` : ''}>
         <span class="canvas-session-dot" aria-hidden="true"></span>
         <span class="canvas-session-copy">
-          <span class="canvas-session-name">${esc(term.label)}</span>
+          <span class="canvas-session-name">${term.alias ? `<i class="canvas-session-alias">${esc(term.alias)}</i>` : ''}${esc(term.label)}</span>
           <span class="canvas-session-meta">${esc(agent?.kind || 'Shell')} · ${stateLabel}${pair ? ` · GROUP ${pair.termIds.length} · ${terminalGroupLayoutLabel(pair)}` : ''}</span>
           <span class="canvas-session-task">${esc(task)}</span>
         </span>

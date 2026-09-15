@@ -226,6 +226,9 @@ export function connectSSE() {
   es.addEventListener('schedule:fired', e => { notify('handleWorkflowEvent', { event: 'schedule:fired', data: JSON.parse(e.data) }); });
   es.addEventListener('schedule:update', e => { notify('handleWorkflowEvent', { event: 'schedule:update', data: JSON.parse(e.data) }); });
   es.addEventListener('schedule:error', e => { notify('handleWorkflowEvent', { event: 'schedule:error', data: JSON.parse(e.data) }); });
+
+  // AI 계정 변화 — 로그인 터미널에서 credential 파일이 생기면 서버가 쏨
+  es.addEventListener('ai-accounts:changed', () => { notify('aiAccountsChanged'); });
   // Helper: dispatch DOM event for company view listeners
   const emitDOM = (name, data) => document.dispatchEvent(new CustomEvent(name, { detail: data }));
   es.addEventListener('agent:start', e => { const d = JSON.parse(e.data); notify('handleAgentEvent', { event: 'agent:start', data: d }); emitDOM('agent:start', d); });
@@ -551,6 +554,7 @@ export function switchView(name) {
   if (name === 'terminal') { safeInit(() => notify('renderLayout')); setTimeout(() => notify('fitAllTerminals'), 200); }
   if (name === 'diff') safeInit(() => notify('loadDiff'));
   if (name === 'ai-accounts') safeInit(() => notify('initAiAccounts'));
+  if (name === 'notes') safeInit(() => notify('initNotes'));
   // First-visit-only init views (each module also has internal guards)
   const viewInitMap = { pr: 'initPR', cicd: 'initCicd', workflows: 'initWorkflows', ports: 'initPorts', autopilot: 'initAutopilotView' };
   if (name in viewInitMap) {
@@ -1118,7 +1122,14 @@ function _showReportResult(content) {
 
 // ─── Action Registration ───
 registerClickActions({
-  'switch-view': (el) => switchView(el.dataset.view),
+  'switch-view': (el) => {
+    // 자가 복구: 닫히지 않은 모달의 backdrop이 화면 조작을 가리는 사고 방지 —
+    // 탭 클릭은 명확한 탐색 의도이므로 열려있는 dialog를 정리한다.
+    document.querySelectorAll('dialog[open]').forEach(d => {
+      if (!d.contains(el)) { try { d.close(); } catch { /* non-modal */ } }
+    });
+    switchView(el.dataset.view);
+  },
   'toggle-nav-more': toggleNavMore,
   'toggle-notifications': toggleNotifications,
   'toggle-theme': toggleTheme,

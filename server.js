@@ -27,10 +27,13 @@ import { checkAlerts, saveDailySnapshot, generateBriefing } from './lib/briefing
 import { getAllStats as getMonitorStats } from './lib/monitor-service.js';
 import { initBatch } from './lib/batch-service.js';
 import { logger } from './lib/logger.js';
-import { listNotes, getNote, createNote, updateNote } from './lib/notes-service.js';
+import { cleanupOrphanMcpProcesses } from './lib/orphan-cleaner.js';
+import { listNotes, getNote, createNote, updateNote, deleteNote } from './lib/notes-service.js';
 import { getBoard, replaceBoardIfRevision, updateBoardNote, appendBoardNote, addBoardTask, updateBoardTask, deleteBoardTask } from './lib/board-service.js';
 import { detectAgentProcess } from './lib/process-agent.js';
 import { listAiAccounts, resolveAiAccountLaunch } from './lib/ai-accounts-service.js';
+import { listStoredAccounts, createStoredAccount, deleteStoredAccount, resolveStoredLaunch, setAccountBudget, checkStoredAccountLogin } from './lib/ai-accounts-store.js';
+import { startAiAccountWatcher } from './lib/ai-accounts-watcher.js';
 import {
   activeDelegatedRun, DELEGATE_HEARTBEAT_TTL_MS, DELEGATE_STATUS_DIR,
   finishDelegatedRun, isValidDelegateStatus, touchDelegatedRun, withDelegatedRun,
@@ -55,6 +58,8 @@ import { register as regSupervisor } from './routes/supervisor.js';
 import { register as regAutopilot } from './routes/autopilot.js';
 import { register as regBoard } from './routes/board.js';
 import { register as regAiAccounts } from './routes/ai-accounts.js';
+import { register as regTerminals } from './routes/terminals.js';
+import { register as regNotes } from './routes/notes.js';
 import { init as initAutopilot } from './lib/autopilot.js';
 import * as supervisorService from './lib/supervisor-service.js';
 import * as supervisorLlm from './lib/supervisor-llm.js';
@@ -856,7 +861,9 @@ const routeCtx = {
   readFile, readdir, stat, writeFile, mkdir, existsSync, readFileSync, unlinkSync,
   join, resolve, normalize, spawn, execFile, randomBytes, timingSafeEqual, tmpdir,
   poller, devServers, LAN_TOKEN,
-  listAiAccounts,
+  listAiAccounts, listStoredAccounts, createStoredAccount, deleteStoredAccount, setAccountBudget, checkStoredAccountLogin,
+  resolveTerminalRef, terminalSummaryList, readTerminalScreen,
+  listNotes, getNote, createNote, updateNote, deleteNote,
   durableTerminalsEnabled: () => DURABLE_TERMINALS,
   requestServerRestart,
   getBoard, replaceBoardIfRevision, updateBoardNote, appendBoardNote, addBoardTask, updateBoardTask, deleteBoardTask,
@@ -880,6 +887,8 @@ regSupervisor(routeCtx);
 regAutopilot(routeCtx);
 regBoard(routeCtx);
 regAiAccounts(routeCtx);
+regTerminals(routeCtx);
+regNotes(routeCtx);
 
 // ──────────── Polling ────────────
 
@@ -970,6 +979,9 @@ poller.register('activity', () => getRecentActivity(), POLL_INTERVALS.activity, 
 // Initialize Workflows engine — m13: handle init errors
 try { initWorkflows(poller, callClaude); } catch (err) { logger.error('workflows', 'Init failed', err.message); }
 try { initScheduler(poller, startWorkflowRun); } catch (err) { logger.error('scheduler', 'Init failed', err.message); }
+
+// AI 계정 credential 파일 감시 — 로그인 완료 즉시 SSE로 UI 갱신
+try { startAiAccountWatcher(poller); } catch (err) { logger.error('ai-accounts', 'Watcher init failed', err.message); }
 
 // Initialize Agent engine
 try {
@@ -1213,6 +1225,12 @@ const wss = new WebSocketServer({
   }
 });
 
+// 계정 스폰 해석: 콕핏 내장 계정 우선, 없으면 허브 프로필
+function resolveAnyAccountLaunch(accountId, options) {
+  try { return resolveStoredLaunch(accountId, options); }
+  catch { return resolveAiAccountLaunch(accountId, options); }
+}
+
 // Clean env for child terminals: remove CLAUDECODE to allow nested claude launches
 const cleanEnv = { ...process.env, TERM: 'xterm-256color' };
 delete cleanEnv.CLAUDECODE;
@@ -1329,6 +1347,69 @@ const agentScanTimer = setInterval(() => {
   }
 }, 2000);
 agentScanTimer.unref();
+
+// ─── 고아 MCP 주기 정리 (죽은 세션이 남긴 playwright-mcp 등) ───
+// 시작 5분 후 첫 실행, 이후 30분마다. 활성 세션/에디터 트리는 절대 건드리지 않음.
+if (!IS_WIN) {
+  const sweepOrphanMcp = () => {
+    try {
+      const killed = cleanupOrphanMcpProcesses({ logger });
+      if (killed.length) logger.info('cleanup', `고아 MCP ${killed.length}개 종료 (${killed.reduce((s, k) => s + k.pid + ' ', '')})`);
+    } catch (err) { logger.warn('cleanup', `Orphan MCP sweep failed: ${err.message}`); }
+  };
+  setTimeout(sweepOrphanMcp, 5 * 60 * 1000).unref();
+  setInterval(sweepOrphanMcp, 30 * 60 * 1000).unref();
+}
+
+// ─── 세션 별칭(ai1, ai2, ...) — 터미널 제어 API용 짧은 주소 ───
+function aliasNum(alias) { return parseInt(String(alias || '').replace(/^ai/i, ''), 10) || 0; }
+function nextTerminalAlias() {
+  let max = 0;
+  for (const [, t] of terminals) max = Math.max(max, aliasNum(t.alias));
+  for (const entry of deferredTerminalRestores) max = Math.max(max, aliasNum(entry.alias));
+  return `ai${max + 1}`;
+}
+// 별칭(ai1) 또는 termId로 터미널 찾기
+function resolveTerminalRef(ref) {
+  if (typeof ref !== 'string' || !ref) return null;
+  if (terminals.has(ref)) return { id: ref, entry: terminals.get(ref) };
+  const alias = ref.trim().toLowerCase();
+  if (!alias) return null;
+  for (const [id, t] of terminals) {
+    if ((t.alias || '').toLowerCase() === alias) return { id, entry: t };
+  }
+  return null;
+}
+function terminalSummaryList() {
+  const list = [];
+  for (const [id, t] of terminals) {
+    list.push({
+      termId: id, alias: t.alias || '', projectId: t.projectId, command: t.command || '',
+      account: t.account ? { id: t.account.id, name: t.account.name, provider: t.account.provider } : null,
+      durable: Boolean(t.durableId),
+    });
+  }
+  return list;
+}
+// TUI 스피너·프레임으로 범람하는 줄 걸러내기 (블록/점자/공백만으로 이뤄진 줄)
+const SCREEN_JUNK_LINE = /^[\s■⬝▀▄█░▒▓⠀-⠿◦•·│┃┌┐└┘├┤┬┴┼─═]*$/;
+function readTerminalScreen(ref, lines = 50) {
+  const found = resolveTerminalRef(ref);
+  if (!found) return null;
+  const clean = stripAnsi(bufRead(found.entry));
+  const all = [];
+  for (const raw of clean.split('\n')) {
+    const line = raw.trimEnd();
+    if (SCREEN_JUNK_LINE.test(line)) continue;
+    const prev = all[all.length - 1];
+    if (line === '' && prev === '') continue; // 연속 빈 줄 접기
+    if (line === prev) continue; // 연속 중복 접기 (재렌더 프레임)
+    all.push(line);
+  }
+  const max = Math.min(Math.max(1, lines || 50), 500);
+  return { termId: found.id, alias: found.entry.alias || '', lines: all.slice(-max), truncated: all.length > max };
+}
+
 // Optimized buffer: append to array, join on read
 function bufAppend(entry, data) {
   // OSC 52(클립보드 복사) 시퀀스는 리플레이 버퍼에 저장하지 않음 — 과거 복사가
@@ -1355,7 +1436,7 @@ function bufRead(entry) {
 // ─── 관제 활동 요약: 에이전트 터미널의 최근 출력 → LLM 한 줄 요약 ───
 // 새 출력이 있는 터미널만, 터미널당 최소 20초 간격으로만 호출 (summaryGate)
 function stripAnsi(s) {
-  return s.replace(/\x1b\[[0-9;?]*[a-zA-Z]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)?|[\r\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
+  return s.replace(/\x1b\[[0-9;?]*[a-zA-Z]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)?|\x1b[()][0-9A-B]|[\r\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
 }
 const summaryTimer = setInterval(() => {
   for (const [termId, entry] of terminals) {
@@ -1412,6 +1493,7 @@ function terminalStateEntries() {
     }
     state.push({
       termId: id,
+      alias: terminal.alias || '',
       projectId: terminal.projectId,
       command: terminal.command || '',
       cwd,
@@ -1501,7 +1583,7 @@ function tryRestoreTerminal(entry) {
     : null;
   if (entry.accountId && !canResumeDurable) {
     try {
-      accountLaunch = resolveAiAccountLaunch(entry.accountId, { targetWsl: IS_WSL || Boolean(parseWslPath(termPath)) });
+      accountLaunch = resolveAnyAccountLaunch(entry.accountId, { targetWsl: IS_WSL || Boolean(parseWslPath(termPath)) });
       displayAccount = accountLaunch;
     }
     catch (error) {
@@ -1549,7 +1631,7 @@ function tryRestoreTerminal(entry) {
   terminals.set(newTermId, {
     pty: term, projectId: entry.projectId, _bufArr: [], _bufLen: 0,
     command: entry.command || '', account: displayAccount, cols: 120, rows: 30,
-    durableId: spec.durableId,
+    durableId: spec.durableId, alias: entry.alias || nextTerminalAlias(),
   });
 
   if (!spec.resumed) {
@@ -1618,6 +1700,7 @@ function activeTerminalsPayload() {
     const agentCommand = terminalAgent(t);
     const item = {
       termId: id, projectId: t.projectId, command: t.command || '', buffer: bufRead(t),
+      alias: t.alias || '',
       account: t.account ? { id: t.account.id, name: t.account.name, provider: t.account.provider } : null,
       durable: Boolean(t.durableId),
     };
@@ -1701,7 +1784,7 @@ wss.on('connection', (ws) => {
         let accountLaunch = null;
         if (msg.accountId) {
           try {
-            accountLaunch = resolveAiAccountLaunch(msg.accountId, { targetWsl: IS_WSL || Boolean(wsl) });
+            accountLaunch = resolveAnyAccountLaunch(msg.accountId, { targetWsl: IS_WSL || Boolean(wsl) });
           } catch (error) {
             ws.send(JSON.stringify({ type: 'error', message: error.message }));
             return;
@@ -1751,17 +1834,22 @@ wss.on('connection', (ws) => {
           safeCommand = msg.command;
         }
         if (accountLaunch) safeCommand = accountLaunch.command;
+        // 미로그인 계정의 로그인 터미널은 로그인 명령을 자동 실행.
+        // provider는 화이트리스트 검증된 enum이라 셸 주입 불가.
+        if (msg.loginMode && (accountLaunch?.provider === 'claude' || accountLaunch?.provider === 'codex')) {
+          safeCommand = `${accountLaunch.provider} login`;
+        }
 
         terminals.set(termId, {
           pty: term, projectId: msg.projectId, _bufArr: [], _bufLen: 0,
-          command: safeCommand, account: accountLaunch,
+          command: safeCommand, account: accountLaunch, alias: nextTerminalAlias(),
           cols: initialCols, rows: initialRows, resizeOwner: ws, durableId: spec.durableId,
         });
         _currentTermId = termId;
 
         const createdMsg = JSON.stringify({
           type: 'created', termId, projectId: msg.projectId, command: safeCommand,
-          durable: Boolean(spec.durableId),
+          durable: Boolean(spec.durableId), alias: terminals.get(termId).alias,
           account: accountLaunch ? { id: accountLaunch.id, name: accountLaunch.name, provider: accountLaunch.provider } : null,
         });
         for (const client of wss.clients) {

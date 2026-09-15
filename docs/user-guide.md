@@ -79,6 +79,23 @@ Claude Haiku가 `git status` + `git diff`를 분석해서 관련 파일을 논�
 
 ### AI 계정
 - **Claude / Codex 계정 프로필 관리** — 멀티 프로필 감지·전환, WSL과 Windows 프로필 동시 지원
+- **콕핏 내장 계정** — 허브와 무관하게 콕핏이 소유하는 계정 추가/삭제. 추가 후 '로그인 터미널 열기'로 해당 계정 전용 디렉터리(`~/.local/share/cockpit/ai-accounts/`)에 로그인하면 상태가 '사용 가능'로 전환된다
+- **로컬 사용량 계산** — Claude 계정은 계정 디렉터리의 대화 로그(`projects/*.jsonl`)에서 주간·5시간 토큰 사용량을 콕핏이 직접 계산해 표시한다(어카운트 허브와 동일 방식, 5분 캐시). Codex 토큰은 미지원
+- **터미널 계정 전환** — 터미널 우클릭 → '계정 전환' 메뉴로 실행 중 위치를 선택한 계정 터미널로 교체
+
+### 세션 제어 (ai1 → aiN 오케스트레이션)
+터미널 헤더의 `ai1`, `ai2` 태그가 세션 별칭이다(클릭하면 전체 세션 ID 복사). 로컬에서는 이 별칭으로 세션을 직접 제어할 수 있어, 관리자 세션이 다른 세션에 일을 시키는 구성이 가능하다.
+
+```bash
+curl -s localhost:3847/api/terminals                                        # 세션 목록(별칭·계정·명령)
+curl -s -X POST localhost:3847/api/terminals/ai3/input \
+  -H 'Content-Type: application/json' -d '{"data":"버그 수정 진행 상황 알려줘"}'   # ai3에 입력 주입
+curl -s 'localhost:3847/api/terminals/ai3/screen?lines=30'                  # ai3 화면 끝 30줄 읽기
+```
+
+- 입력 주입·화면 읽기는 localhost 전용이며 분당 60회로 제한된다
+- UI에서는 터미널 우클릭 → '다른 세션에 보내기'로 선택 텍스트(또는 직접 입력)를 다른 세션에 즉시 주입할 수 있다
+- **세션 자율 협업**: 각 세션 안의 Claude/Codex는 `cockpit-session` CLI(스킬 포함)로 스스로 다른 세션과 대화한다. "서로 대화해서 해"라고 지시하면 세션이 list/say/read로 협의하고 각자 작업한다. 도구 설치/갱신: `node scripts/install-session-toolkit.mjs [--dir <추가 설정 디렉터리>]` — 기본으로 `~/.claude`와 콕핏 내장 계정 전부에 스킬을 심는다. 새 계정은 생성 시 자동 시딩. Codex는 `$CODEX_HOME/skills/`에 같은 형식의 스킬이 들어간다
 
 ### Autopilot — 무인 운전 제어
 - **attended / unattended 모드** — 기본은 `attended`(안전 모드), `unattended`로 전환하면 무인 운전 정책 적용

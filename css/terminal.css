@@ -56,6 +56,35 @@
   background: rgba(99, 102, 241, 0.12);
   color: var(--accent-bright);
 }
+.term-head .th-alias {
+  background: rgba(111, 165, 211, 0.12);
+  color: var(--accent-bright);
+  cursor: pointer;
+}
+.term-head .th-alias:hover {
+  background: rgba(111, 165, 211, 0.24);
+}
+.canvas-frame-alias {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid rgba(111, 165, 211, 0.38);
+  border-radius: 4px;
+  color: var(--accent-bright);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  white-space: nowrap;
+  cursor: help;
+}
+.canvas-session-alias {
+  margin-right: 6px;
+  padding: 0 4px;
+  border: 1px solid rgba(111, 165, 211, 0.38);
+  border-radius: 3px;
+  color: var(--accent-bright);
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 0.9em;
+}
 .term-head .th-worktree {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-3);

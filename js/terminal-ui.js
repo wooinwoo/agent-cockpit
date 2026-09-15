@@ -6,7 +6,7 @@ import {
   pairTerminals, setTerminalGroupLayout, setTerminalOrder, unpairTerminal,
 } from './state.js';
 import { startArenaPick } from './arena.js';
-import { copyText, esc, showToast, escapeHtml } from './utils.js';
+import { copyText, esc, showToast, escapeHtml, fetchJson } from './utils.js';
 import { registerClickActions, registerInputActions } from './actions.js';
 import { updateAgentWall, WALL_ID } from './agent-wall.js';
 import { terminalGroupLayoutLabel, terminalGroupLayoutOptions, terminalGroupRects } from './terminal-group-layout.js';
@@ -313,6 +313,7 @@ function canvasFrameHTML(termId, term, frame) {
   article.style.cssText = `left:${frame.x}px;top:${frame.y}px;width:${frame.w}px;height:${frame.h}px;z-index:${canvas.activeItem === termId ? 4 : active ? 2 : 1}`;
   article.innerHTML = `<header class="canvas-frame-head" data-canvas-drag-item="${esc(termId)}">
     <span class="canvas-frame-signal ${esc(state)}" aria-hidden="true"></span>
+    ${term.alias ? `<span class="canvas-frame-alias" title="세션 ${esc(term.alias)} · ${esc(termId)} — 다른 세션 제어: cockpit-session say ${esc(term.alias)} &quot;메시지&quot;">${esc(term.alias)}</span>` : ''}
     <span class="canvas-frame-name">${esc(term.label)}</span>
     ${term.account ? `<span class="term-account-tag ${esc(term.account.provider)}">${esc(term.account.name)}</span>` : ''}
     ${terminalTopicHTML(termId, term.topic, 'canvas-frame-topic')}
@@ -330,6 +331,16 @@ function canvasFrameHTML(termId, term, frame) {
   </header>`;
   const body = document.createElement('div');
   body.className = 'canvas-frame-body';
+  // 세션 이름 더블클릭 → 이름 변경 (분할 뷰와 동일 UX).
+  // 실제 마우스는 헤더의 setPointerCapture 로 target 이 헤더로 리타깃되므로
+  // 이름 span 직접 명중(합성)과 헤더 명중(실마우스) 두 경로 모두 허용.
+  article.addEventListener('dblclick', e => {
+    if (e.target.closest('button, input, .canvas-frame-tabs')) return;
+    if (e.target.closest('.canvas-frame-head')) {
+      e.stopPropagation();
+      startCanvasFrameRename(termId, article);
+    }
+  });
   if (tab === 'context') {
     body.innerHTML = `<div class="canvas-context" data-canvas-context="${esc(termId)}">
       <div class="canvas-context-status" data-context-status>상태 수집 중</div>
@@ -1654,7 +1665,7 @@ export function updateTermHeaders() {
     const bufUsed = t.xterm.buffer.active.length;
     const bufPct = Math.round(bufUsed / _core.getScrollback() * 100);
     const timerStr = t.createdAt ? fmtDuration(Date.now() - t.createdAt) : '';
-    const cacheKey = `${t.label}|${t.topic || ''}|${t.account?.id || ''}|${t.color}|${g.branch || ''}|${g.uncommittedCount || 0}|${model}|${nv}|${wt.length}|${tid === app.activeTermId}|${bufPct}|${timerStr}|${leaf.classList.contains('chat-active') ? 'c' : 's'}`;
+    const cacheKey = `${t.label}|${t.topic || ''}|${t.account?.id || ''}|${t.alias || ''}|${t.color}|${g.branch || ''}|${g.uncommittedCount || 0}|${model}|${nv}|${wt.length}|${tid === app.activeTermId}|${bufPct}|${timerStr}|${leaf.classList.contains('chat-active') ? 'c' : 's'}`;
     if (app._headCache.get(tid) === cacheKey) return;
     app._headCache.set(tid, cacheKey);
     const p = app.projectList.find(pp => pp.id === t.projectId);
@@ -1670,6 +1681,7 @@ export function updateTermHeaders() {
     head.title = projectPath;
     head.innerHTML = `<span class="th-dot" style="background:${t.color}"></span>` +
       `<span class="th-name">${esc(t.label)}</span>` +
+      (t.alias ? `<span class="th-tag th-alias" title="세션 ${t.alias} · ${esc(tid)} — 클릭하면 전체 ID 복사">${esc(t.alias)}</span>` : '') +
       (t.account ? `<span class="th-tag th-account ${esc(t.account.provider)}">${esc(t.account.name)}</span>` : '') +
       terminalTopicHTML(tid, t.topic, 'th-topic') +
       (g.branch ? `<span class="th-tag th-branch">${esc(g.branch)}</span>` : '') + wtTag +
@@ -1690,6 +1702,11 @@ export function updateTermHeaders() {
     }
     head.onclick = e => {
       if (e.target.dataset.action === 'close') { e.stopPropagation(); requestCloseTerminal(tid); return; }
+      if (e.target.classList.contains('th-alias')) {
+        e.stopPropagation();
+        copyText(tid).then(ok => showToast(ok ? `세션 ID 복사됨 (${t.alias}: ${tid})` : '복사 실패', ok ? 'success' : 'error'));
+        return;
+      }
       if (e.target.dataset.action === 'clear-buf') { e.stopPropagation(); const tt = app.termMap.get(tid); if (tt?.xterm) { tt.xterm.clear(); showToast('Buffer cleared'); updateTermHeaders(); } return; }
       if (e.target.dataset.cvMode) {
         e.stopPropagation();
@@ -1733,6 +1750,45 @@ export function startRenameHeader(termId, headEl) {
   nameSpan.replaceWith(input); input.focus(); input.select();
 }
 
+// 캔버스 프레임 이름 변경 — 분할 뷰와 동일한 UX (더블클릭 · Enter 확정)
+export function startCanvasFrameRename(termId, frameEl) {
+  const t = app.termMap.get(termId);
+  if (!t) return;
+  const nameSpan = frameEl.querySelector('.canvas-frame-name');
+  if (!nameSpan) return;
+  const input = document.createElement('input');
+  input.type = 'text'; input.value = t.label; input.maxLength = 40;
+  input.style.cssText = 'font-size:.72rem;padding:1px 5px;background:var(--bg-0);border:1px solid var(--accent);color:var(--text-1);border-radius:3px;width:130px;';
+  const restoreSpan = text => {
+    if (!input.isConnected) return;
+    const restored = document.createElement('span');
+    restored.className = 'canvas-frame-name';
+    restored.textContent = text;
+    input.replaceWith(restored);
+  };
+  const finish = () => {
+    if (!input.isConnected) return; // Enter→blur 이중 실행 가드
+    const val = input.value.trim();
+    if (val) {
+      t.label = val;
+      restoreSpan(val);
+      frameEl.setAttribute('aria-label', `${val} terminal frame`);
+      updateTermHeaders();
+      _core.saveLayout();
+    } else {
+      restoreSpan(t.label);
+    }
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') finish();
+    if (e.key === 'Escape') restoreSpan(t.label);
+    e.stopPropagation();
+  });
+  input.addEventListener('blur', finish);
+  input.addEventListener('dblclick', ev => ev.stopPropagation());
+  nameSpan.replaceWith(input); input.focus(); input.select();
+}
+
 // ─── Context Menu ───
 let _ctxDismiss = null;
 
@@ -1758,9 +1814,21 @@ const _ci = {
   cmd:      `<svg ${_S}><path d="M4 5l3 3-3 3"/><line x1="9" y1="11" x2="13" y2="11"/></svg>`,
   newTerm:  `<svg ${_S}><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M4.5 7l2 1.5-2 1.5"/><line x1="8" y1="10" x2="11" y2="10"/></svg>`,
   select:   `<svg ${_S}><rect x="2.5" y="2.5" width="11" height="11" rx="1" stroke-dasharray="2 2"/></svg>`,
+  user:     `<svg ${_S}><circle cx="8" cy="5" r="2.5"/><path d="M3.5 13c.5-2.5 2.3-4 4.5-4s4 1.5 4.5 4"/></svg>`,
   chevron:  `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4l4 4-4 4"/></svg>`,
 };
 const _ic = (name) => `<span class="ctx-ic">${_ci[name] || ''}</span>`;
+
+// AI 계정 캐시 — ai-accounts 뷰가 채우고, 없으면 우클릭 시 1회 백그라운드 로드
+let _aiAccountsLoadStarted = false;
+function cachedAiAccounts() {
+  if (Array.isArray(app.aiAccounts)) return app.aiAccounts;
+  if (!_aiAccountsLoadStarted) {
+    _aiAccountsLoadStarted = true;
+    fetchJson('/api/ai-accounts').then(d => { app.aiAccounts = d.accounts || []; }).catch(() => {});
+  }
+  return [];
+}
 
 export function showTermCtxMenu(e, termId) {
   const menu = document.getElementById('term-ctx-menu');
@@ -1818,6 +1886,33 @@ export function showTermCtxMenu(e, termId) {
   html += `<div class="ctx-item" data-act="split-v">${_ic('splitV')}Split Down</div>`;
   html += `<div class="ctx-item" data-act="new-term">${_ic('newTerm')}New Terminal</div>`;
   html += `<div class="ctx-item" data-act="new-home-term">${_ic('newTerm')}빈 터미널 (홈)</div>`;
+
+  // AI 계정 전환 ▸ (실행 가능한 계정이 있을 때만)
+  const aiAccounts = cachedAiAccounts();
+  const switchable = aiAccounts.filter(a => a.state === 'ready');
+  if (switchable.length) {
+    const currentAccountId = t.account?.id || '';
+    html += `<div class="ctx-item ctx-toggle" data-sub="account">${_ic('user')}계정 전환<span class="ctx-chevron">${_ci.chevron}</span></div>`;
+    html += `<div class="ctx-panel" data-sub-id="account">`;
+    for (const a of switchable) {
+      const mark = a.id === currentAccountId ? ' ✓' : '';
+      html += `<div class="ctx-item" data-act="switch-account" data-account-id="${esc(a.id)}" data-account-name="${esc(a.name)}">${a.provider === 'claude' ? 'C' : 'X'} · ${escapeHtml(a.name)}${mark}</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<div class="ctx-sep"></div>`;
+
+  // 다른 세션에 보내기 ▸ (다른 터미널이 있을 때만)
+  const others = [...app.termMap.entries()].filter(([id]) => id !== termId);
+  if (others.length) {
+    html += `<div class="ctx-item ctx-toggle" data-sub="sendto">${_ic('paste')}다른 세션에 보내기<span class="ctx-chevron">${_ci.chevron}</span></div>`;
+    html += `<div class="ctx-panel" data-sub-id="sendto">`;
+    for (const [id, ot] of others) {
+      const name = ot.alias ? `${ot.alias} · ${escapeHtml(ot.label || '')}` : escapeHtml(ot.label || id.slice(0, 12));
+      html += `<div class="ctx-item" data-act="send-to-term" data-term-id="${esc(id)}">${name}</div>`;
+    }
+    html += `</div>`;
+  }
   html += `<div class="ctx-sep"></div>`;
 
   // Open ▸
@@ -1972,6 +2067,8 @@ export function showTermCtxMenu(e, termId) {
       case 'split-v': _core.openNewTermModalWithSplit(termId, 'bottom'); break;
       case 'new-term': _core.openTermWith(t.projectId); break;
       case 'new-home-term': _core.openHomeTerminal(); break;
+      case 'switch-account': switchTermAccount(termId, item.dataset.accountId, item.dataset.accountName); break;
+      case 'send-to-term': sendToOtherTerminal(termId, item.dataset.termId); break;
       case 'arrange-grid': _core.arrangeTerminals('grid'); break;
       case 'arrange-cols': _core.arrangeTerminals('cols'); break;
       case 'arrange-rows': _core.arrangeTerminals('rows'); break;
@@ -1982,7 +2079,15 @@ export function showTermCtxMenu(e, termId) {
       case 'broadcast': toggleBroadcastMode(); break;
       case 'quick-bar': toggleQuickBar(); break;
       case 'export': _core.exportTerminal(); break;
-      case 'rename': { const hdr = t.element.closest('.term-panel')?.querySelector('.term-header[data-id="' + termId + '"]'); if (hdr) startRenameHeader(termId, hdr); break; }
+      case 'rename': {
+        const hdr = t.element.closest('.term-panel')?.querySelector('.term-header[data-id="' + termId + '"]');
+        if (hdr) startRenameHeader(termId, hdr);
+        else {
+          const frame = document.querySelector(`[data-canvas-frame="${termId}"]`);
+          if (frame) startCanvasFrameRename(termId, frame);
+        }
+        break;
+      }
       case 'diff': showDiffForProject(t.projectId); break;
       case 'clear': t.xterm.clear(); break;
       case 'close': requestCloseTerminal(termId); break;
@@ -2011,8 +2116,44 @@ export function showTermCtxMenu(e, termId) {
   }, 50);
 }
 
+// 선택 텍스트(없으면 입력창)를 다른 세션에 주입 — Arena의 say()와 동일한 방식
+function sendToOtherTerminal(fromTermId, toTermId) {
+  const from = app.termMap.get(fromTermId);
+  const to = app.termMap.get(toTermId);
+  if (!to || !app.ws || app.ws.readyState !== WebSocket.OPEN) {
+    showToast('터미널 서버가 연결되지 않았습니다.', 'error');
+    return;
+  }
+  const toName = to.alias || to.label || toTermId.slice(0, 12);
+  const sel = from?.xterm.getSelection()?.trim();
+  const text = sel || prompt(`'${toName}' 세션에 보낼 입력:`);
+  if (!text) return;
+  app.ws.send(JSON.stringify({ type: 'input', termId: toTermId, data: `\x1b[200~${text}\x1b[201~` }));
+  setTimeout(() => {
+    if (app.ws?.readyState === WebSocket.OPEN) app.ws.send(JSON.stringify({ type: 'input', termId: toTermId, data: '\r' }));
+  }, 1000);
+  from?.xterm.clearSelection();
+  showToast(`'${toName}' 세션에 전송됨`, 'success');
+}
+
 function openInIDEProject(projectId, ide = 'code') {
   fetch(`/api/projects/${projectId}/open-ide`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ide }) }).catch(() => {});
+}
+
+// 계정 전환 — 같은 프로젝트 위치로 선택한 계정 터미널을 새로 열고 기존 터미널 종료
+function switchTermAccount(termId, accountId, accountName) {
+  const t = app.termMap.get(termId);
+  if (!t || !app.ws || app.ws.readyState !== WebSocket.OPEN) {
+    showToast('터미널 서버가 연결되지 않았습니다.', 'error');
+    return;
+  }
+  if (t.account?.id === accountId) { showToast('이미 이 계정으로 실행 중입니다.', 'info'); return; }
+  app._pendingAccountSwitch = { oldTermId: termId };
+  app.ws.send(JSON.stringify({
+    type: 'create', projectId: t.projectId || '__home__', accountId,
+    cols: t.xterm.cols || 120, rows: t.xterm.rows || 30,
+  }));
+  showToast(`'${accountName}' 계정으로 터미널을 다시 여는 중…`, 'info');
 }
 
 function showDiffForProject(projectId) {

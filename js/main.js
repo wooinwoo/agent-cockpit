@@ -19,7 +19,7 @@ import {
 
 // ─── Terminal module ───
 import {
-  connectWS, renderLayout, fitAllTerminals,
+  connectWS, renderLayout, fitAllTerminals, saveLayout,
   updateTermHeaders, debouncedUpdateTermHeaders, requestCloseTerminal,
   openNewTermModal, openNewTermModalWithSplit, openHomeTerminal, openTermWith,
   toggleTermSearch, closeTermSearch, doTermSearch, exportTerminal,
@@ -81,6 +81,7 @@ import { initPR } from './pr.js';
 import { initPorts, destroyPorts, refreshPorts, togglePortPause, filterPortSearch, toggleDevFilter } from './ports.js';
 import { initAutopilotView } from './autopilot-view.js';
 import { initAiAccounts } from './ai-accounts.js';
+import { initNotes } from './notes.js';
 
 
 // ─── README Content ───
@@ -796,6 +797,7 @@ subscribe('updateSummaryStats', () => updateSummaryStats());
 
 // Terminal
 subscribe('renderLayout', () => renderLayout());
+subscribe('saveLayout', () => saveLayout());
 subscribe('fitAllTerminals', () => fitAllTerminals());
 subscribe('updateTermHeaders', () => updateTermHeaders());
 subscribe('debouncedUpdateTermHeaders', () => debouncedUpdateTermHeaders());
@@ -837,8 +839,10 @@ subscribe('initCicd', () => initCicd());
 subscribe('initPR', () => initPR());
 subscribe('initWorkflows', () => initWorkflows());
 subscribe('initPorts', () => initPorts());
+subscribe('initNotes', () => initNotes());
 subscribe('initAutopilotView', () => initAutopilotView());
 subscribe('initAiAccounts', () => initAiAccounts());
+subscribe('aiAccountsChanged', () => initAiAccounts());
 subscribe('destroyPorts', () => destroyPorts());
 
 async function showMobileConnect() {
@@ -922,10 +926,18 @@ registerChangeActions({
 
 // ─── Global Event Delegation (registry-based) ───
 document.addEventListener('click', e => {
+  // 모달 backdrop 클릭 = 바깥 클릭 닫기 — 걸린 dialog를 마우스만으로 복구
+  if (e.target.tagName === 'DIALOG' && e.target.open && !e.target.hasAttribute('data-persistent')) {
+    try { e.target.close(); } catch { /* non-modal */ }
+    return;
+  }
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const handler = getClickAction(el.dataset.action);
-  if (handler) handler(el, e);
+  if (handler) {
+    try { handler(el, e); }
+    catch (err) { console.error('[Action]', el.dataset.action, err); }
+  }
 });
 document.addEventListener('change', e => {
   const a = e.target.dataset.action;
@@ -961,6 +973,13 @@ document.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey;
   if (e.key === 'F5' || (mod && e.code === 'KeyR' && !e.altKey)) { e.preventDefault(); location.reload(); return; }
   if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return;
+  // Esc 탈출구: 입력창 밖에서 누르면 열린 모달을 전부 닫아 걸린 UI를 즉시 복구
+  if (e.key === 'Escape'
+    && !e.target.closest?.('.xterm')
+    && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) {
+    const open = document.querySelectorAll('dialog[open]');
+    if (open.length) open.forEach(d => { try { d.close(); } catch { /* non-modal */ } });
+  }
   if (mod && e.key === '1') { e.preventDefault(); switchView('dashboard'); return; }
   if (mod && e.key === '2') { e.preventDefault(); switchView('terminal'); return; }
   if (mod && e.key === '3') { e.preventDefault(); switchView('diff'); return; }

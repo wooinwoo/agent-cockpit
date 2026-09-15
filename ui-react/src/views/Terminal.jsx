@@ -451,10 +451,10 @@ function TermPane({ termId, active, fontSize, ctx }) {
   }, [active]);
 
   return (
-    <div className="pane-screen" ref={elRef}>
+    <div className="pane-screen xterm-wrap" ref={elRef}>
       {!atBottom && (
         <button
-          className="pane-bottom"
+          className="pane-bottom term-scroll-bottom"
           title="맨 아래로 스크롤"
           onClick={() => {
             apiRef.current?.scrollToBottom();
@@ -838,13 +838,24 @@ export default function TerminalView() {
     } catch { /* storage unavailable */ }
   }, [activeId]);
 
-  function requestCreate(projectId = '__home__', split = null) {
+  function requestCreate(projectId = '__home__', split = null, extra = {}) {
     pendingRef.current = split ? { kind: 'split', ...split } : { kind: 'create' };
-    if (!send({ type: 'create', projectId, cols: 120, rows: 30 })) {
+    if (!send({ type: 'create', projectId, cols: 120, rows: 30, ...extra })) {
       pendingRef.current = null;
       setStatus('연결되지 않음 — 잠시 후 다시 시도하세요');
     }
   }
+
+  // AI 계정 탭 등 외부에서 터미널 열기 요청 (accountId + loginMode 전달)
+  useEffect(() => {
+    const onOpen = (e) => {
+      const { accountId, loginMode } = e.detail || {};
+      if (!accountId) return;
+      requestCreate('__home__', null, { accountId, ...(loginMode ? { loginMode: true } : {}) });
+    };
+    window.addEventListener('cockpit:open-terminal', onOpen);
+    return () => window.removeEventListener('cockpit:open-terminal', onOpen);
+  }, []);
 
   function createTerminal() {
     requestCreate('__home__');
@@ -1031,21 +1042,21 @@ export default function TerminalView() {
   function paneHeader(t, compact) {
     const id = t.termId;
     return (
-      <div className={`pane-head${compact ? ' compact' : ''}`}>
-        <span className="pane-dot" style={{ background: `hsl(${hueOf(id)} 70% 60%)` }} />
-        <span className="pane-title" title={id}>
+      <div className={`pane-head term-head${compact ? ' compact' : ''}`}>
+        <span className="pane-dot th-dot" style={{ background: `hsl(${hueOf(id)} 70% 60%)` }} />
+        <span className="pane-title th-name" title={id}>
           {unread[id] && <i className="term-dot" />}
           {labelOf(t)}
         </span>
-        {t.exited && <span className="pane-exited">종료됨</span>}
-        <span style={{ flex: 1 }} />
+        {t.exited && <span className="pane-exited th-tag">종료됨</span>}
+        <span className="th-spacer" style={{ flex: 1 }} />
         {!compact && (
           <>
             <button className="pane-btn" title="이 창을 좌우로 분할 (Alt+Shift+H)" onClick={() => { activeRef.current = id; setActiveId(id); splitActive('h'); }}>◫</button>
             <button className="pane-btn" title="이 창을 상하로 분할 (Alt+Shift+V)" onClick={() => { activeRef.current = id; setActiveId(id); splitActive('v'); }}>◧</button>
           </>
         )}
-        <button className="pane-btn danger" title="창 닫기 (Alt+Shift+W)" onClick={() => killTerminal(id)}>✕</button>
+        <button className="pane-btn danger th-close" title="창 닫기 (Alt+Shift+W)" onClick={() => killTerminal(id)}>✕</button>
       </div>
     );
   }
@@ -1060,7 +1071,7 @@ export default function TerminalView() {
         <div
           key={node.termId}
           data-pane-id={node.termId}
-          className={`pane-leaf${isActive ? ' active' : ''}`}
+          className={`pane-leaf split-leaf${isActive ? ' active' : ''}`}
           onMouseDown={() => {
             if (activeRef.current !== node.termId) focusPane(node.termId);
           }}
@@ -1132,15 +1143,15 @@ export default function TerminalView() {
   }
 
   return (
-    <main className="term-tab">
+    <main className="term-tab" id="terminal-view">
       <div className="term-toolbar">
         <h1>터미널</h1>
         <span className="term-status">{status}</span>
         <span style={{ flex: 1 }} />
-        <button onClick={createTerminal}>+ 새 터미널</button>
-        <button title="활성 창을 좌우로 분할 (Alt+Shift+H)" onClick={() => splitActive('h')} disabled={!activeId}>◫ 좌우 분할</button>
-        <button title="활성 창을 상하로 분할 (Alt+Shift+V)" onClick={() => splitActive('v')} disabled={!activeId}>◧ 상하 분할</button>
-        <button title="터미널 내 찾기 (Ctrl+Shift+F)" onClick={() => setFindOpen((o) => !o)}>🔍 찾기</button>
+        <button className="term-tool-btn primary" onClick={createTerminal}>+ 새 터미널</button>
+        <button className="term-tool-btn" title="활성 창을 좌우로 분할 (Alt+Shift+H)" onClick={() => splitActive('h')} disabled={!activeId}>◫ 좌우 분할</button>
+        <button className="term-tool-btn" title="활성 창을 상하로 분할 (Alt+Shift+V)" onClick={() => splitActive('v')} disabled={!activeId}>◧ 상하 분할</button>
+        <button className="term-tool-btn" title="터미널 내 찾기 (Ctrl+Shift+F)" onClick={() => setFindOpen((o) => !o)}>🔍 찾기</button>
         <span className="term-font" title="Ctrl+휠로도 조절">
           <button title="글자 작게" onClick={() => ctx.zoom(-1)}>A−</button>
           <button
@@ -1159,35 +1170,35 @@ export default function TerminalView() {
         </span>
       </div>
       {findOpen && (
-        <div className="term-find">
+        <div className="term-find term-search open">
           <input
             autoFocus
             placeholder="터미널에서 찾기… (Enter 다음, Shift+Enter 이전)"
             value={findQuery}
             onChange={(e) => setFindQuery(e.target.value)}
           />
-          <button title="이전 (Shift+Enter)" onClick={() => stepFind(-1)}>↑</button>
-          <button title="다음 (Enter)" onClick={() => stepFind(1)}>↓</button>
+          <button className="ts-btn" title="이전 (Shift+Enter)" onClick={() => stepFind(-1)}>↑</button>
+          <button className="ts-btn" title="다음 (Enter)" onClick={() => stepFind(1)}>↓</button>
           <button
-            className={findCase ? 'on' : ''}
+            className={`ts-toggle${findCase ? ' active on' : ''}`}
             title="대소문자 구분"
             onClick={() => setFindCase((c) => !c)}
           >
             Aa
           </button>
-          <span className="term-find-count">
+          <span className="term-find-count ts-count">
             {findQuery ? (findPos.n ? `${findPos.i}/${findPos.n}` : '일치 없음') : ''}
           </span>
-          <button title="닫기 (Esc)" onClick={closeFind}>✕</button>
+          <button className="ts-btn" title="닫기 (Esc)" onClick={closeFind}>✕</button>
         </div>
       )}
       <div className="term-body">
-        <ul className="term-list">
+        <ul className="term-list mob-term-tabs">
           {terms.length === 0 && <li className="term-empty">터미널 없음</li>}
           {terms.map((t) => (
             <li
               key={t.termId}
-              className={`term-item${t.termId === activeId ? ' active' : ''}${t.exited ? ' exited' : ''}${selected.includes(t.termId) ? ' picked' : ''}`}
+              className={`term-item mob-tab${t.termId === activeId ? ' active' : ''}${t.exited ? ' exited' : ''}${selected.includes(t.termId) ? ' picked' : ''}`}
               onClick={(e) => {
                 if (e.ctrlKey || e.metaKey) toggleSelect(t.termId);
                 else if (t.termId === activeId) panesRef.current.get(t.termId)?.focus();
@@ -1217,17 +1228,17 @@ export default function TerminalView() {
           {selected.length >= 2 && (
             <div className="term-group-bar">
               <span>{selected.length}개 선택됨</span>
-              <button onClick={groupSelected}>👥 그룹으로 묶기</button>
-              <button onClick={() => setSelected([])}>선택 해제</button>
+              <button className="term-tool-btn" onClick={groupSelected}>👥 그룹으로 묶기</button>
+              <button className="term-tool-btn" onClick={() => setSelected([])}>선택 해제</button>
             </div>
           )}
-          <div className="term-stage" ref={stageRef} onKeyDown={onStageKeyDown}>
+          <div className="term-stage term-panels" ref={stageRef} onKeyDown={onStageKeyDown}>
             {layoutRoot ? (
               renderNode(layoutRoot)
             ) : (
-              <div className="term-empty-stage">
-                <p>터미널 없음</p>
-                <button onClick={createTerminal}>+ 새 터미널</button>
+              <div className="term-empty-stage term-empty">
+                <p className="term-empty-title">터미널 없음</p>
+                <button className="btn primary" onClick={createTerminal}>+ 새 터미널</button>
               </div>
             )}
           </div>

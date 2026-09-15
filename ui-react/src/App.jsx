@@ -97,6 +97,16 @@ function Shell() {
     try { localStorage.setItem(VIEW_KEY, view); } catch { /* 저장소 사용 불가 */ }
   }, [view]);
 
+  // 외부(AI 계정 탭 등)에서 탭 전환 요청
+  useEffect(() => {
+    const onSwitch = (e) => {
+      const id = e.detail;
+      if (TABS.some((t) => t.id === id)) setView(id);
+    };
+    window.addEventListener('cockpit:switch-view', onSwitch);
+    return () => window.removeEventListener('cockpit:switch-view', onSwitch);
+  }, []);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     try { localStorage.setItem(THEME_KEY, theme); } catch { /* 저장소 사용 불가 */ }
@@ -195,8 +205,23 @@ function Shell() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <strong className="app-logo">Cockpit</strong>
-        <nav className="tab-bar" role="tablist" aria-label="대시보드 탐색">
+        <div className="app-logo logo">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+            <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" opacity=".3" />
+          </svg>
+          <span className="logo-word">Cockpit</span>
+        </div>
+        <nav className="tab-bar nav-tabs" role="tablist" aria-label="대시보드 탐색">
           {TABS.map((t, i) => (
             <button
               key={t.id}
@@ -204,13 +229,15 @@ function Shell() {
               aria-selected={view === t.id}
               onClick={() => setView(t.id)}
               title={i < 9 ? `${t.label} (Ctrl+${i + 1})` : t.label}
-              style={view === t.id ? { borderColor: 'var(--accent)' } : undefined}
+              className={`nav-tab${view === t.id ? ' active' : ''}`}
             >
               {t.label}
             </button>
           ))}
         </nav>
-        <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="설정 (Ctrl+,)">설정</button>
+        <div className="header-right">
+          <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="설정 (Ctrl+,)">설정</button>
+        </div>
       </header>
       <main className="app-main" style={zoom !== 100 ? { fontSize: `${zoom}%` } : undefined}>
         <Active />
@@ -222,37 +249,46 @@ function Shell() {
         </div>
       )}
       {settingsOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="설정"
-          onClick={() => setSettingsOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'grid', placeItems: 'center', zIndex: 50 }}
-        >
+        <>
           <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: 8, padding: 16, minWidth: 280, display: 'grid', gap: 12 }}
+            className="settings-overlay open"
+            onClick={() => setSettingsOpen(false)}
+          />
+          <div
+            className="settings-panel open"
+            role="dialog"
+            aria-modal="true"
+            aria-label="설정"
           >
-            <h2 style={{ margin: 0, fontSize: '1rem' }}>설정</h2>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span>테마</span>
-              <button onClick={() => pickTheme('light')} style={theme === 'light' ? { borderColor: 'var(--accent)' } : undefined}>라이트</button>
-              <button onClick={() => pickTheme('dark')} style={theme === 'dark' ? { borderColor: 'var(--accent)' } : undefined}>다크</button>
+            <div className="settings-header">
+              <h2>설정</h2>
+              <button className="modal-close" onClick={() => setSettingsOpen(false)} aria-label="설정 닫기">×</button>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span>서버</span>
-              <button onClick={() => setConfirmRestart(true)}>서버 재시작</button>
+            <div className="settings-body">
+              <div className="settings-theme-row">
+                <span>테마</span>
+                <button onClick={() => pickTheme('light')} aria-pressed={theme === 'light'}>라이트</button>
+                <button onClick={() => pickTheme('dark')} aria-pressed={theme === 'dark'}>다크</button>
+              </div>
+              <div className="settings-section-divider" />
+              <h3 className="settings-section-title">서버</h3>
+              <div className="settings-server-rowbox">
+                <span>서버</span>
+                <button onClick={() => setConfirmRestart(true)}>서버 재시작</button>
+              </div>
+              <div className="settings-origin">
+                <span>서버 주소: </span>
+                <code>{window.location.origin}</code>
+              </div>
+              <div className="settings-shortcuts">
+                단축키: Ctrl+1..9 탭 전환 · Ctrl+, 설정 · Ctrl+Plus/Minus/0 줌
+              </div>
             </div>
-            <div style={{ fontSize: '0.8rem' }}>
-              <span>서버 주소: </span>
-              <code style={{ fontFamily: 'var(--mono)' }}>{window.location.origin}</code>
+            <div className="settings-footer">
+              <button onClick={() => setSettingsOpen(false)}>닫기</button>
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-2)' }}>
-              단축키: Ctrl+1..9 탭 전환 · Ctrl+, 설정 · Ctrl+Plus/Minus/0 줌
-            </div>
-            <button onClick={() => setSettingsOpen(false)}>닫기</button>
           </div>
-        </div>
+        </>
       )}
       <ConfirmDialog
         open={confirmRestart}

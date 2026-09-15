@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-07T15:39:52+09:00",
+  "title": "Design System: Cockpit",
+  "extensions": {
+    "colorMeta": {
+      "terminal-black": {
+        "role": "neutral",
+        "displayName": "Terminal Black",
+        "tonalRamp": ["oklch(15% 0.008 225)", "oklch(25% 0.008 225)", "oklch(35% 0.008 225)", "oklch(48% 0.008 225)", "oklch(62% 0.008 225)", "oklch(75% 0.008 225)", "oklch(87% 0.008 225)", "oklch(95% 0.008 225)"]
+      },
+      "bench-black": {
+        "role": "neutral",
+        "displayName": "Bench Black",
+        "tonalRamp": ["oklch(15% 0.008 225)", "oklch(25% 0.008 225)", "oklch(35% 0.008 225)", "oklch(48% 0.008 225)", "oklch(62% 0.008 225)", "oklch(75% 0.008 225)", "oklch(87% 0.008 225)", "oklch(95% 0.008 225)"]
+      },
+      "rail-matte": {
+        "role": "neutral",
+        "displayName": "Rail Matte",
+        "tonalRamp": ["oklch(15% 0.009 225)", "oklch(25% 0.009 225)", "oklch(35% 0.009 225)", "oklch(48% 0.009 225)", "oklch(62% 0.009 225)", "oklch(75% 0.009 225)", "oklch(87% 0.009 225)", "oklch(95% 0.009 225)"]
+      },
+      "panel-matte": {
+        "role": "neutral",
+        "displayName": "Panel Matte",
+        "tonalRamp": ["oklch(15% 0.011 225)", "oklch(25% 0.011 225)", "oklch(35% 0.011 225)", "oklch(48% 0.011 225)", "oklch(62% 0.011 225)", "oklch(75% 0.011 225)", "oklch(87% 0.011 225)", "oklch(95% 0.011 225)"]
+      },
+      "control-matte": {
+        "role": "neutral",
+        "displayName": "Control Matte",
+        "tonalRamp": ["oklch(15% 0.012 225)", "oklch(25% 0.012 225)", "oklch(35% 0.012 225)", "oklch(48% 0.012 225)", "oklch(62% 0.012 225)", "oklch(75% 0.012 225)", "oklch(87% 0.012 225)", "oklch(95% 0.012 225)"]
+      },
+      "text-bright": {
+        "role": "neutral",
+        "displayName": "Bright Text",
+        "tonalRamp": ["oklch(15% 0.006 220)", "oklch(25% 0.006 220)", "oklch(35% 0.006 220)", "oklch(48% 0.006 220)", "oklch(62% 0.006 220)", "oklch(75% 0.006 220)", "oklch(87% 0.006 220)", "oklch(95% 0.006 220)"]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Primary Text",
+        "tonalRamp": ["oklch(15% 0.009 220)", "oklch(25% 0.009 220)", "oklch(35% 0.009 220)", "oklch(48% 0.009 220)", "oklch(62% 0.009 220)", "oklch(75% 0.009 220)", "oklch(87% 0.009 220)", "oklch(95% 0.009 220)"]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Muted Text",
+        "tonalRamp": ["oklch(15% 0.014 220)", "oklch(25% 0.014 220)", "oklch(35% 0.014 220)", "oklch(48% 0.014 220)", "oklch(62% 0.014 220)", "oklch(75% 0.014 220)", "oklch(87% 0.014 220)", "oklch(95% 0.014 220)"]
+      },
+      "text-engraved": {
+        "role": "neutral",
+        "displayName": "Engraved Text",
+        "tonalRamp": ["oklch(15% 0.016 220)", "oklch(25% 0.016 220)", "oklch(35% 0.016 220)", "oklch(48% 0.016 220)", "oklch(62% 0.016 220)", "oklch(75% 0.016 220)", "oklch(87% 0.016 220)", "oklch(95% 0.016 220)"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "tonalRamp": ["oklch(15% 0.012 220)", "oklch(25% 0.012 220)", "oklch(35% 0.012 220)", "oklch(48% 0.012 220)", "oklch(62% 0.012 220)", "oklch(75% 0.012 220)", "oklch(87% 0.012 220)", "oklch(95% 0.012 220)"]
+      },
+      "hairline-active": {
+        "role": "primary",
+        "displayName": "Active Hairline",
+        "tonalRamp": ["oklch(15% 0.09 242)", "oklch(25% 0.09 242)", "oklch(35% 0.09 242)", "oklch(48% 0.09 242)", "oklch(62% 0.09 242)", "oklch(75% 0.09 242)", "oklch(87% 0.09 242)", "oklch(95% 0.09 242)"]
+      },
+      "focus-steel-blue": {
+        "role": "primary",
+        "displayName": "Focus Steel Blue",
+        "tonalRamp": ["oklch(15% 0.09 242)", "oklch(25% 0.09 242)", "oklch(35% 0.09 242)", "oklch(48% 0.09 242)", "oklch(62% 0.09 242)", "oklch(75% 0.09 242)", "oklch(87% 0.09 242)", "oklch(95% 0.09 242)"]
+      },
+      "focus-blue-bright": {
+        "role": "primary",
+        "displayName": "Bright Focus Blue",
+        "tonalRamp": ["oklch(15% 0.07 242)", "oklch(25% 0.07 242)", "oklch(35% 0.07 242)", "oklch(48% 0.07 242)", "oklch(62% 0.07 242)", "oklch(75% 0.07 242)", "oklch(87% 0.07 242)", "oklch(95% 0.07 242)"]
+      },
+      "signal-green": {
+        "role": "secondary",
+        "displayName": "Signal Green",
+        "tonalRamp": ["oklch(15% 0.14 153)", "oklch(25% 0.14 153)", "oklch(35% 0.14 153)", "oklch(48% 0.14 153)", "oklch(62% 0.14 153)", "oklch(75% 0.14 153)", "oklch(87% 0.14 153)", "oklch(95% 0.14 153)"]
+      },
+      "attention-amber": {
+        "role": "tertiary",
+        "displayName": "Attention Amber",
+        "tonalRamp": ["oklch(15% 0.13 76)", "oklch(25% 0.13 76)", "oklch(35% 0.13 76)", "oklch(48% 0.13 76)", "oklch(62% 0.13 76)", "oklch(75% 0.13 76)", "oklch(87% 0.13 76)", "oklch(95% 0.13 76)"]
+      },
+      "fault-red": {
+        "role": "tertiary",
+        "displayName": "Fault Red",
+        "tonalRamp": ["oklch(15% 0.16 25)", "oklch(25% 0.16 25)", "oklch(35% 0.16 25)", "oklch(48% 0.16 25)", "oklch(62% 0.16 25)", "oklch(75% 0.16 25)", "oklch(87% 0.16 25)", "oklch(95% 0.16 25)"]
+      },
+      "terminal-ink": {
+        "role": "neutral",
+        "displayName": "Terminal Ink",
+        "tonalRamp": ["oklch(15% 0.015 85)", "oklch(25% 0.015 85)", "oklch(35% 0.015 85)", "oklch(48% 0.015 85)", "oklch(62% 0.015 85)", "oklch(75% 0.015 85)", "oklch(87% 0.015 85)", "oklch(95% 0.015 85)"]
+      },
+      "terminal-cyan": {
+        "role": "tertiary",
+        "displayName": "Terminal Cyan",
+        "tonalRamp": ["oklch(15% 0.10 210)", "oklch(25% 0.10 210)", "oklch(35% 0.10 210)", "oklch(48% 0.10 210)", "oklch(62% 0.10 210)", "oklch(75% 0.10 210)", "oklch(87% 0.10 210)", "oklch(95% 0.10 210)"]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Compact Title",
+        "purpose": "Empty states, modal headings, and compact section emphasis."
+      },
+      "body": {
+        "displayName": "Operational Body",
+        "purpose": "Controls, supporting copy, and operational descriptions."
+      },
+      "label": {
+        "displayName": "Engraved Label",
+        "purpose": "Normal-weight workspace legends and related compact mono state readouts."
+      },
+      "terminal": {
+        "displayName": "Terminal Text",
+        "purpose": "xterm output and commands at the established readable minimum."
+      }
+    },
+    "shadows": [
+      {
+        "name": "mechanical-low",
+        "value": "0 2px 5px rgba(0, 0, 0, 0.22)",
+        "purpose": "Small transient overlays only."
+      },
+      {
+        "name": "tool-overlay",
+        "value": "0 8px 20px rgba(0, 0, 0, 0.28)",
+        "purpose": "Terminal search and floating selection tools."
+      },
+      {
+        "name": "dialog-overlay",
+        "value": "0 16px 36px rgba(0, 0, 0, 0.34)",
+        "purpose": "Dialogs, menus, settings, and command surfaces."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "120ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Established button and compact-control state changes."
+      },
+      {
+        "name": "state-medium",
+        "value": "200ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Established overlay and panel state changes."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-bench",
+        "value": "600px"
+      },
+      {
+        "name": "compact-actions",
+        "value": "860px"
+      },
+      {
+        "name": "compact-status",
+        "value": "1180px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Deck Action Button",
+      "kind": "button",
+      "refersTo": "button-deck",
+      "description": "A quiet top-strip action for terminal operations.",
+      "html": "<button class=\"ds-deck-action\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg><span>New terminal</span></button>",
+      "css": ".ds-deck-action { height: 31px; padding: 0 9px; display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); font: 600 .7rem/1 var(--font); cursor: pointer; } .ds-deck-action svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .ds-deck-action:hover { color: var(--text-0); background: var(--bg-surface-hover); border-color: var(--border); } .ds-deck-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Terminal Primary Button",
+      "kind": "button",
+      "refersTo": "button-terminal-primary",
+      "description": "The exceptional solid action used to start a terminal.",
+      "html": "<button class=\"ds-terminal-primary\">New project terminal</button>",
+      "css": ".ds-terminal-primary { min-width: 210px; min-height: 34px; padding: 6px 12px; color: #08110d; background: var(--green); border: 1px solid var(--green); border-radius: var(--radius-sm); font: 600 .8rem/1 var(--font); cursor: pointer; } .ds-terminal-primary:hover { box-shadow: var(--shadow-glow), var(--shadow-sm); filter: brightness(1.08); } .ds-terminal-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-terminal-primary:active { transform: scale(.97); }"
+    },
+    {
+      "name": "Rail Navigation Item",
+      "kind": "nav",
+      "refersTo": "nav-rail-active",
+      "description": "A line-icon activity-rail destination with an inset active edge.",
+      "html": "<button class=\"ds-rail-item ds-active\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><polyline points=\"4 17 10 11 4 5\"/><line x1=\"12\" y1=\"19\" x2=\"20\" y2=\"19\"/></svg><span>Terminal</span></button>",
+      "css": ".ds-rail-item { width: 56px; min-height: 51px; padding: 5px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: var(--text-3); background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); font: 550 .6rem/1 var(--font); cursor: pointer; } .ds-rail-item svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; } .ds-rail-item:hover { color: var(--text-1); background: var(--bg-surface); border-color: var(--border); } .ds-rail-item.ds-active { color: var(--text-0); background: var(--bg-3); border-color: var(--border-active); box-shadow: inset 2px 0 0 var(--accent); } .ds-rail-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Active Session Tab",
+      "kind": "nav",
+      "refersTo": "session-tab-active",
+      "description": "A square-edged terminal session selector with index and state lamp.",
+      "html": "<button class=\"ds-session-tab ds-active\" role=\"tab\" aria-selected=\"true\"><span class=\"ds-session-index\">05</span><span>agencypro</span><span class=\"ds-session-signal\" aria-label=\"running\"></span></button>",
+      "css": ".ds-session-tab { min-width: 132px; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; gap: 7px; color: var(--text-3); background: transparent; border: 1px solid transparent; border-right-color: var(--border); border-radius: 0; font: 500 .7rem/1 var(--mono); cursor: pointer; } .ds-session-tab:hover { color: var(--text-1); background: var(--bg-surface); } .ds-session-tab.ds-active { color: var(--text-0); background: var(--bg-2); border-color: var(--border-active); box-shadow: inset 0 0 0 1px rgba(111, 165, 211, .22); } .ds-session-index { color: var(--accent-bright); font-size: .58rem; letter-spacing: .08em; } .ds-session-signal { width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: var(--green); } .ds-session-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Terminal Metadata Tag",
+      "kind": "chip",
+      "refersTo": "metadata-tag",
+      "description": "An engraved branch, runtime, model, or session metadata chip.",
+      "html": "<span class=\"ds-metadata-tag\">main</span>",
+      "css": ".ds-metadata-tag { min-height: 19px; padding: 1px 5px; display: inline-flex; align-items: center; color: var(--accent-bright); background: transparent; border: 1px solid var(--border); border-radius: 3px; font: 400 .59rem/1 var(--mono); white-space: nowrap; }"
+    },
+    {
+      "name": "Terminal Search Field",
+      "kind": "input",
+      "refersTo": "input-terminal-search",
+      "description": "A compact mono field for searching terminal output.",
+      "html": "<input class=\"ds-terminal-search\" type=\"search\" placeholder=\"Search...\" aria-label=\"Search terminal\">",
+      "css": ".ds-terminal-search { width: 200px; padding: 4px 8px; color: var(--text-1); background: var(--bg-0); border: 1px solid var(--border); border-radius: 3px; font: 400 .82rem/1.4 var(--mono); outline: none; } .ds-terminal-search:focus { border-color: var(--accent); } .ds-terminal-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-terminal-search::placeholder { color: var(--text-3); }"
+    },
+    {
+      "name": "Terminal Panel Header",
+      "kind": "card",
+      "refersTo": "terminal-panel-header",
+      "description": "The compact identity and metadata strip above a desktop terminal pane.",
+      "html": "<div class=\"ds-terminal-panel ds-active\"><div class=\"ds-terminal-head\"><span class=\"ds-head-dot\"></span><strong>agencypro</strong><span class=\"ds-head-tag\">main</span><span class=\"ds-head-tag ds-runtime\">v24.15.0</span><button aria-label=\"Close terminal\">×</button></div></div>",
+      "css": ".ds-terminal-panel { background: var(--bg-0); } .ds-terminal-panel.ds-active { box-shadow: inset 0 0 0 1px rgba(111, 165, 211, .45); } .ds-terminal-head { height: 29px; padding: 0 9px; display: flex; align-items: center; gap: 6px; color: var(--text-2); background: #101214; border-bottom: 1px solid rgba(218, 226, 230, .1); font: 400 .7rem/1 var(--font); } .ds-terminal-panel.ds-active .ds-terminal-head { background: #15191c; } .ds-terminal-head strong { color: var(--text-0); font: 600 .68rem/1 var(--mono); } .ds-head-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); } .ds-head-tag { min-height: 19px; padding: 1px 5px; display: inline-flex; align-items: center; color: var(--accent-bright); border: 1px solid var(--border); border-radius: 3px; font-size: .59rem; } .ds-head-tag.ds-runtime { color: var(--green); } .ds-terminal-head button { width: 24px; height: 24px; margin-left: auto; padding: 0; color: var(--text-3); background: transparent; border: 0; border-radius: var(--radius-sm); cursor: pointer; opacity: .5; } .ds-terminal-head button:hover { color: var(--red); background: var(--red-dim); opacity: 1; } .ds-terminal-head button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Connection Signal",
+      "kind": "custom",
+      "refersTo": "signal-lamp-connected",
+      "description": "A restrained status lamp paired with an engraved connection label.",
+      "html": "<span class=\"ds-connection\" role=\"status\"><span class=\"ds-connection-dot\"></span><span>Connected</span></span>",
+      "css": ".ds-connection { display: inline-flex; align-items: center; gap: 7px; color: var(--text-2); font: 400 .62rem/1 var(--mono); text-transform: uppercase; letter-spacing: .07em; } .ds-connection-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Instrument Bench",
+    "overview": "Cockpit is a terminal multiplexer with nearby operations, expressed as a precise electronic instrument bench. The terminal is the working surface; the activity rail, status strip, session row, and compact controls form the frame around it. Matte near-black planes, engraved micro-labels, and hairline dividers make the interface feel measured and durable rather than decorative.\n\nThe system is dense without feeling busy. State is communicated through a few restrained signals, active boundaries, and exact typography, while secondary operations remain quiet until needed. The visual anti-reference is a glossy reporting dashboard: no ambient gradients, glass effects, oversized cards, or ornamental glow should compete with terminal output.",
+    "keyCharacteristics": [
+      "Terminal-first composition with operations arranged at the edges.",
+      "Matte, closely stepped neutral surfaces separated by hairlines.",
+      "Steel-blue focus and selection with green, amber, and red reserved for state.",
+      "Compact sans-serif controls paired with mono labels and terminal text.",
+      "Nearly square controls, shallow corners, and flat resting surfaces."
+    ],
+    "rules": [
+      {
+        "name": "The Signal Is State Rule",
+        "body": "Steel blue means focus or selection; green means healthy or running; amber means attention; red means fault or destructive action. Never use these colors as ambient decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Engraved Label Rule",
+        "body": "Use mono uppercase labels only for fixed instrument legends and compact state readouts; prose and ordinary actions remain in the sans-serif face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-by-Default Rule",
+        "body": "If a surface does not cover another surface, separate it with tone and a hairline instead of a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do give the terminal every remaining pixel after the fixed navigation and session strips.",
+      "Do use one-pixel hairlines and stepped matte tones to define regions.",
+      "Do reserve steel blue, green, amber, and red for their documented interaction or state meanings.",
+      "Do keep labels short, mono, and compact when they behave like engraved instrument legends.",
+      "Do preserve visible focus, reduced-motion behavior, keyboard reachability, and 44px mobile touch targets."
+    ],
+    "donts": [
+      "Don't turn secondary operations into a dashboard that competes with the terminal.",
+      "Don't add ambient gradients, glass blur, decorative glow, or resting card shadows.",
+      "Don't use signal colors to decorate neutral surfaces or large regions.",
+      "Don't round structural strips or session tabs into floating pills.",
+      "Don't add oversized headings, loose marketing spacing, or decorative illustration to operational screens."
+    ]
+  }
+}

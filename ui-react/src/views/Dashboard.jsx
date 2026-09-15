@@ -1,4 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { fetchJson, postJson } from '../api.js';
 import './Dashboard.css';
 
@@ -65,6 +78,110 @@ function ModelBars({ models, total }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+const CHART_COLORS = ['#818cf8', '#34d399', '#fbbf24', '#f87171', '#60a5fa'];
+const CHART_GRID = 'rgba(255,255,255,.08)';
+const CHART_TICK = '#8b949e';
+
+function DailyTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0]?.payload;
+  return (
+    <div className="db-chart-tip">
+      <div className="db-chart-tip-title">{p?.fullDate || label}</div>
+      <div className="db-chart-tip-row">
+        <span>출력 토큰</span>
+        <strong>{fmtTok(p?.tokens ?? payload[0]?.value ?? 0)}</strong>
+      </div>
+    </div>
+  );
+}
+
+function ModelTooltip({ active, payload, total }) {
+  if (!active || !payload?.length) return null;
+  const entry = payload[0];
+  const v = entry?.value || 0;
+  const pct = total > 0 ? ((v / total) * 100).toFixed(1) : '0.0';
+  return (
+    <div className="db-chart-tip">
+      <div className="db-chart-tip-title">{entry?.name}</div>
+      <div className="db-chart-tip-row">
+        <span>{fmtTok(v)} 토큰</span>
+        <strong>{pct}%</strong>
+      </div>
+    </div>
+  );
+}
+
+function DailyTokensChart({ data }) {
+  if (!data.length) return <p className="db-muted">일별 데이터 없음</p>;
+  return (
+    <div className="db-chart-wrap">
+      <ResponsiveContainer width="100%" height={220}>
+        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <CartesianGrid stroke={CHART_GRID} vertical={false} />
+          <XAxis
+            dataKey="date"
+            tick={{ fill: CHART_TICK, fontSize: 10 }}
+            tickLine={false}
+            axisLine={{ stroke: CHART_GRID }}
+            minTickGap={28}
+          />
+          <YAxis
+            tickFormatter={(v) => fmtTok(v)}
+            tick={{ fill: CHART_TICK, fontSize: 10 }}
+            tickLine={false}
+            axisLine={false}
+            width={46}
+          />
+          <Tooltip content={<DailyTooltip />} cursor={{ stroke: '#818cf8', strokeOpacity: 0.35 }} />
+          <Line
+            type="monotone"
+            dataKey="tokens"
+            name="출력 토큰"
+            stroke="#818cf8"
+            strokeWidth={2}
+            dot={{ r: 1.5, fill: '#818cf8', strokeWidth: 0 }}
+            activeDot={{ r: 4 }}
+            fill="rgba(129,140,248,.12)"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function ModelShareChart({ data }) {
+  if (!data.length) return <p className="db-muted">모델별 데이터 없음</p>;
+  const total = data.reduce((s, d) => s + (d.value || 0), 0);
+  return (
+    <div className="db-chart-wrap">
+      <ResponsiveContainer width="100%" height={220}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            innerRadius="65%"
+            outerRadius="90%"
+            paddingAngle={2}
+            strokeWidth={0}
+          >
+            {data.map((e, i) => (
+              <Cell key={e.name} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip content={<ModelTooltip total={total} />} />
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            formatter={(value) => <span className="db-legend-label">{value}</span>}
+          />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -334,8 +451,13 @@ export default function Dashboard() {
   }, [projects, query, filter, sort]);
 
   const daily = useMemo(() => (usage?.daily || []).slice(-period), [usage, period]);
-  const dailyMax = useMemo(
-    () => Math.max(1, ...daily.map((d) => d.outputTokens || 0)),
+  const dailyChartData = useMemo(
+    () =>
+      daily.map((d) => ({
+        date: (d.date || '').slice(5) || '',
+        fullDate: d.date || '',
+        tokens: d.outputTokens || 0,
+      })),
     [daily],
   );
   const modelTotals = useMemo(() => {
@@ -347,6 +469,10 @@ export default function Dashboard() {
     }
     return Object.entries(mm).sort((a, b) => b[1] - a[1]);
   }, [daily]);
+  const modelChartData = useMemo(
+    () => modelTotals.map(([name, value]) => ({ name, value })),
+    [modelTotals],
+  );
 
   function setBusy(id, on) {
     setBusyIds((prev) => ({ ...prev, [id]: on }));
@@ -503,37 +629,11 @@ export default function Dashboard() {
                   ))}
                 </span>
               </h3>
-              <div className="db-bars">
-                {daily.map((d) => (
-                  <div className="db-bar-row" key={d.date}>
-                    <span className="db-bar-name">{(d.date || '').slice(5)}</span>
-                    <span className="db-bar-track">
-                      <span
-                        className="db-bar-fill"
-                        style={{ width: `${(((d.outputTokens || 0) / dailyMax) * 100).toFixed(1)}%` }}
-                      />
-                    </span>
-                    <span className="db-bar-val">{fmtTok(d.outputTokens || 0)}</span>
-                  </div>
-                ))}
-              </div>
+              <DailyTokensChart data={dailyChartData} />
               {modelTotals.length > 0 && (
                 <>
                   <h3>모델별 합계 ({period}일)</h3>
-                  <div className="db-bars">
-                    {modelTotals.map(([name, tok]) => (
-                      <div className="db-bar-row" key={name}>
-                        <span className="db-bar-name">{name}</span>
-                        <span className="db-bar-track">
-                          <span
-                            className="db-bar-fill alt"
-                            style={{ width: `${((tok / Math.max(1, modelTotals[0][1])) * 100).toFixed(1)}%` }}
-                          />
-                        </span>
-                        <span className="db-bar-val">{fmtTok(tok)}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <ModelShareChart data={modelChartData} />
                 </>
               )}
             </div>

@@ -62,5 +62,21 @@
 .db-bar-fill.alt { background: var(--green, #34d399); }
 .db-bar-val { text-align: right; font-family: var(--mono, monospace); }
 
+.db-chart-wrap { margin: 8px 0; min-height: 220px; }
+.db-chart-wrap .recharts-responsive-container { min-height: 220px; }
+.db-chart-tip {
+  background: var(--bg-2, #161b22);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  color: var(--text-1, #e6edf3);
+  min-width: 140px;
+}
+.db-chart-tip-title { font-family: var(--mono, monospace); opacity: 0.8; margin-bottom: 4px; }
+.db-chart-tip-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.db-chart-tip-row strong { font-family: var(--mono, monospace); color: var(--accent, #818cf8); }
+.db-legend-label { color: var(--text-1, #e6edf3); opacity: 0.75; font-size: 0.72rem; }
+
 .db button { background: var(--bg-1, #0d1117); color: var(--text-1, #e6edf3); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.8rem; }
 .db button:disabled { opacity: 0.5; cursor: default; }

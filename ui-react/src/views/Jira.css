@@ -1,0 +1,170 @@
+.jira-view .jira-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.jira-view select,
+.jira-view input,
+.jira-view textarea {
+  background: var(--bg-1, #161b22);
+  color: var(--text-1, #e6edf3);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: inherit;
+}
+.jira-row {
+  cursor: pointer;
+}
+.jira-row:hover {
+  border-color: var(--accent, #6366f1);
+}
+.jira-key {
+  color: var(--accent, #a5b4fc);
+  font-weight: 600;
+  margin-right: 6px;
+  font-family: var(--mono, monospace);
+}
+.jira-badge {
+  font-size: 0.7rem;
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.jb-done {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--green, #34d399);
+}
+.jb-indeterminate {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--yellow, #fbbf24);
+}
+.jb-new,
+.jb-undefined {
+  background: rgba(139, 148, 158, 0.15);
+  color: var(--text-1, #8b949e);
+}
+.jira-meta {
+  font-size: 0.8rem;
+  color: var(--text-1, #8b949e);
+}
+.jira-mono {
+  font-family: var(--mono, monospace);
+}
+.jira-error {
+  color: var(--red, #f87171);
+  font-size: 0.85rem;
+}
+.jira-board {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.jira-col {
+  min-width: 240px;
+  max-width: 320px;
+  flex: 1;
+  border: 1px solid var(--border, #30363d);
+  border-radius: 8px;
+  padding: 8px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.jira-col > header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px;
+}
+.jira-col-count {
+  font-weight: 400;
+  color: var(--text-1, #8b949e);
+}
+.jira-col-done {
+  border-top: 2px solid var(--green, #34d399);
+}
+.jira-col-indeterminate {
+  border-top: 2px solid var(--yellow, #fbbf24);
+}
+.jira-card {
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  background: var(--bg-1, #161b22);
+}
+.jira-card:hover {
+  border-color: var(--accent, #6366f1);
+}
+.jira-card-key {
+  font-size: 0.72rem;
+  font-family: var(--mono, monospace);
+  color: var(--accent, #a5b4fc);
+}
+.jira-card-summary {
+  font-size: 0.85rem;
+}
+.jira-card-foot {
+  font-size: 0.72rem;
+  color: var(--text-1, #8b949e);
+}
+.jira-detail-head {
+  flex-wrap: wrap;
+}
+.jira-detail-title {
+  margin: 0;
+  font-size: 1rem;
+}
+.jira-view h3 {
+  margin: 12px 0 6px;
+  font-size: 0.85rem;
+}
+.jira-transitions {
+  flex-wrap: wrap;
+}
+.jira-comment {
+  font-size: 0.85rem;
+  padding: 6px 0;
+  border-top: 1px solid var(--border, #30363d);
+}
+.jira-comment p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+.jira-comment-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.jira-comment-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+.jira-setup {
+  display: grid;
+  gap: 10px;
+}
+.jira-setup h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.jira-setup-steps {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  display: grid;
+  gap: 6px;
+}
+.jira-setup a {
+  color: var(--accent, #a5b4fc);
+}

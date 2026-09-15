@@ -1,20 +1,111 @@
-body { background: #0d1117; color: #e6edf3; font-family: system-ui, sans-serif; }
-main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
-.row { border: 1px solid #30363d; border-radius: 8px; padding: 12px 14px; margin: 10px 0; display: grid; gap: 8px; }
+:root {
+  --bg-0: #0d1117;
+  --bg-1: #161b22;
+  --bg-2: #21262d;
+  --text-1: #e6edf3;
+  --text-2: #8b949e;
+  --border: #30363d;
+  --accent: #6366f1;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --green: #34d399;
+  --green-dim: rgba(52, 211, 153, 0.08);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.08);
+  color-scheme: dark;
+}
+
+/* 라이트 테마 — App.jsx가 documentElement에 data-theme을 설정. */
+[data-theme="light"] {
+  --bg-0: #ffffff;
+  --bg-1: #f6f8fa;
+  --bg-2: #eaeef2;
+  --text-1: #1f2328;
+  --text-2: #59636e;
+  --border: #d0d7de;
+  --accent: #4f46e5;
+  --green: #0a7a55;
+  --green-dim: rgba(10, 122, 85, 0.08);
+  --red: #cf222e;
+  --red-dim: rgba(207, 34, 46, 0.08);
+  color-scheme: light;
+}
+
+body { background: var(--bg-0); color: var(--text-1); font-family: system-ui, sans-serif; }
+.app-header { display: flex; gap: 8px; align-items: center; padding: 12px 16px; flex-wrap: wrap; background: var(--bg-0); }
+.app-logo { white-space: nowrap; }
+.tab-bar { display: flex; gap: 4px; flex-wrap: wrap; }
+.settings-btn { margin-left: auto; }
+.app-main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
+.row { border: 1px solid var(--border); background: var(--bg-1); border-radius: 8px; padding: 12px 14px; margin: 10px 0; display: grid; gap: 8px; }
 .id { display: flex; gap: 10px; align-items: center; }
 .id h2 { margin: 0; font-size: 1rem; }
-.id p { margin: 0; color: #8b949e; font-size: 0.75rem; }
-.mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-content: center; font-weight: 700; background: #21262d; }
-.hint { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: #8b949e; }
-.hint code { background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 2px 8px; color: #e6edf3; }
+.id p { margin: 0; color: var(--text-2); font-size: 0.75rem; }
+.mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-content: center; font-weight: 700; background: var(--bg-2); }
+.hint { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-2); }
+.hint code { background: var(--bg-1); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; color: var(--text-1); }
 .test { font-family: monospace; font-size: 0.75rem; display: grid; gap: 2px; padding: 8px; border-radius: 6px; }
-.test.pass { color: #34d399; background: rgba(52, 211, 153, 0.08); }
-.test.fail { color: #f87171; background: rgba(248, 113, 113, 0.08); }
+.test.pass { color: var(--green); background: var(--green-dim); }
+.test.fail { color: var(--red); background: var(--red-dim); }
 .actions { display: flex; gap: 8px; align-items: center; }
 .st { display: inline-flex; gap: 5px; align-items: center; font-size: 0.75rem; }
-.st i { width: 6px; height: 6px; border-radius: 50%; background: #8b949e; }
-.st-ready i { background: #34d399; }
+.st i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-2); }
+.st-ready i { background: var(--green); }
 .st-warning i { background: #fbbf24; }
-.st-login i { background: #f87171; }
-button { background: #21262d; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.st-login i { background: var(--red); }
+button { background: var(--bg-2); color: var(--text-1); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
 button:disabled { opacity: 0.5; cursor: default; }
+code { font-family: var(--mono); }
+
+.zoom-indicator {
+  position: fixed;
+  right: 16px;
+  bottom: 64px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-2);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 90;
+}
+
+.zoom-indicator button {
+  padding: 2px 8px;
+  line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+  /* 탭 바: 하단 고정 가로 스크롤 바. 로고는 숨기고 카드 여백을 확보한다. */
+  .app-header {
+    position: fixed;
+    inset: auto 0 0 0;
+    flex-wrap: nowrap;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--bg-1);
+    z-index: 40;
+  }
+  .app-logo { display: none; }
+  .tab-bar {
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .tab-bar button { flex: 0 0 auto; white-space: nowrap; }
+  .settings-btn { margin-left: 0; flex: 0 0 auto; }
+  .app-main {
+    max-width: none;
+    margin: 12px auto 0;
+    padding: 0 12px 84px;
+  }
+  /* 카드 스택: 한 열로 쌓고 내부 요소가 넘치지 않게 감싼다. */
+  .row { padding: 10px 12px; }
+  .id { flex-wrap: wrap; }
+  .actions { flex-wrap: wrap; }
+}

@@ -1,0 +1,53 @@
+.at h1 { font-size: 1.25rem; margin: 0 0 4px; color: var(--text-1, #e6edf3); }
+.at-sub { margin: 0 0 12px; font-size: 0.8rem; color: var(--text-1, #e6edf3); opacity: 0.6; }
+
+.at-builder { display: grid; gap: 12px; }
+.at-request-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+.at-method { background: var(--bg-1, #0d1117); color: var(--text-1, #e6edf3); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 6px 10px; font-weight: 700; }
+.at-url { flex: 1; min-width: 220px; background: var(--bg-1, #0d1117); color: var(--text-1, #e6edf3); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 6px 10px; font-family: var(--mono, monospace); font-size: 0.85rem; }
+.at-send { border-color: var(--accent, #6366f1); font-weight: 700; }
+
+.at-section { border: 1px solid var(--border, #30363d); border-radius: 8px; padding: 12px 14px; margin: 10px 0; display: grid; gap: 8px; }
+.at-section h2 { margin: 0; font-size: 0.9rem; }
+.at-muted { margin: 0; font-size: 0.8rem; color: var(--text-1, #e6edf3); opacity: 0.55; }
+.at-error { color: var(--red, #f87171); font-size: 0.85rem; margin: 0; }
+
+.at-header-row { display: flex; gap: 8px; }
+.at-header-row input { flex: 1; min-width: 0; background: var(--bg-1, #0d1117); color: var(--text-1, #e6edf3); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; font-family: var(--mono, monospace); }
+.at-header-row button { flex: none; }
+.at-add { justify-self: start; }
+
+.at-body { width: 100%; box-sizing: border-box; background: var(--bg-1, #0d1117); color: var(--text-1, #e6edf3); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 8px 10px; font-family: var(--mono, monospace); font-size: 0.8rem; resize: vertical; }
+
+.at-response { display: grid; gap: 8px; }
+.at-res-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.at-status { display: inline-flex; align-items: center; font-size: 0.8rem; font-weight: 700; font-family: var(--mono, monospace); padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border, #30363d); }
+.at-status.sm { font-size: 0.72rem; padding: 1px 8px; }
+.at-status-ok { color: var(--green, #34d399); border-color: var(--green, #34d399); }
+.at-status-redirect { color: var(--yellow, #fbbf24); border-color: var(--yellow, #fbbf24); }
+.at-status-err { color: var(--red, #f87171); border-color: var(--red, #f87171); }
+.at-chip { font-size: 0.72rem; font-family: var(--mono, monospace); opacity: 0.7; border: 1px solid var(--border, #30363d); border-radius: 999px; padding: 1px 8px; }
+
+.at-res-headers { font-size: 0.78rem; }
+.at-res-headers summary { cursor: pointer; opacity: 0.8; }
+.at-res-headers dl { margin: 8px 0 0; display: grid; gap: 4px; }
+.at-res-headers dl div { display: grid; grid-template-columns: 200px 1fr; gap: 8px; }
+.at-res-headers dt { font-family: var(--mono, monospace); opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+.at-res-headers dd { margin: 0; font-family: var(--mono, monospace); word-break: break-all; }
+
+.at-res-body { margin: 0; max-height: 420px; overflow: auto; background: var(--bg-2, #161b22); border: 1px solid var(--border, #30363d); border-radius: 6px; padding: 10px 12px; font-family: var(--mono, monospace); font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; }
+
+.at-history-head { display: flex; align-items: center; justify-content: space-between; }
+.at-history-head h2 { margin: 0; }
+.at-clear { font-size: 0.75rem; }
+.at-history { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.at-history li { display: flex; gap: 6px; align-items: center; }
+.at-history-item { flex: 1; min-width: 0; display: flex; gap: 8px; align-items: center; text-align: left; }
+.at-history-url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono, monospace); font-size: 0.78rem; }
+.at-method-tag { flex: none; font-size: 0.68rem; font-weight: 700; font-family: var(--mono, monospace); border: 1px solid var(--border, #30363d); border-radius: 4px; padding: 1px 6px; }
+.at-m-get { color: var(--green, #34d399); }
+.at-m-post { color: var(--accent, #6366f1); }
+.at-m-put { color: var(--yellow, #fbbf24); }
+.at-m-delete { color: var(--red, #f87171); }
+.at-m-patch { color: var(--yellow, #fbbf24); }
+.at-history-del { flex: none; font-size: 0.7rem; padding: 4px 8px; }

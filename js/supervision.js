@@ -37,7 +37,9 @@ export function mountSupervision(main) {
     </div>
     <p class="supervision-notice" role="status">보드 불러오는 중…</p>
     <div class="supervision-content" hidden>
-      <section role="tabpanel" id="supervision-panel-config" aria-labelledby="supervision-tab-config" hidden><h2>맡길 일 설정</h2><form class="supervision-config">
+      <section role="tabpanel" id="supervision-panel-config" aria-labelledby="supervision-tab-config" hidden><h2>맡길 일 설정</h2>
+        <div class="supervision-config-update" role="status" hidden><p>다른 세션에서 설정을 변경했습니다. 작성 중인 내용은 유지했습니다. 진행 탭에서 저장된 완료 조건을 확인하세요.</p><button class="btn" type="button" data-reload-config>최신 설정 불러오기</button></div>
+        <form class="supervision-config">
         <label>전체 목표<textarea name="objective" rows="2" maxlength="4000" placeholder="예: 아침까지 로그인과 결제 오류 수정"></textarea></label>
         <details class="supervision-options"><summary>참고 자료 경로 · 링크</summary>
         <label>참고 자료 경로 · 링크<textarea name="referencePaths" rows="3" maxlength="60030" placeholder="/home/user/project/docs/requirements.md&#10;C:\\자료\\설계서.pdf"></textarea></label>
@@ -65,6 +67,7 @@ export function mountSupervision(main) {
       </form></section>
       <section role="tabpanel" id="supervision-panel-progress" aria-labelledby="supervision-tab-progress">
         <div class="supervision-next" hidden aria-live="polite"></div>
+        <details class="supervision-saved-goals" hidden><summary>저장된 목표·완료 조건</summary><div></div></details>
         <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
       </section>
     <section class="supervision-permissions" role="tabpanel" id="supervision-panel-permissions" aria-labelledby="supervision-tab-permissions" hidden><h2>새 AI 세션의 실행 권한</h2>
@@ -126,6 +129,22 @@ export function mountSupervision(main) {
   let board;
   let availableTerminals = null;
   let configDirty = false;
+  let loadedConfig = '';
+  const configUpdate = root.querySelector('.supervision-config-update');
+  const configSignature = review => JSON.stringify([review.termId, review.alias, review.objective, review.referencePaths,
+    review.watched, review.intervalMinutes, review.autoRecover, review.stallMinutes, review.runHours]);
+  function applyConfig(review) {
+    config.elements.target.value = review.alias || review.termId;
+    config.elements.objective.value = review.objective;
+    config.elements.referencePaths.value = review.referencePaths.join('\n');
+    workerRows.innerHTML = review.watched.length ? review.watched.map(w => workerRow(w.alias || w.termId, w.goal)).join('') : workerRow();
+    config.elements.interval.value = review.intervalMinutes;
+    config.elements.autoRecover.checked = review.autoRecover === true;
+    config.elements.stallMinutes.value = review.stallMinutes || 0;
+    config.elements.runHours.value = review.runHours || 0;
+    loadedConfig = configSignature(review);
+    configUpdate.hidden = true;
+  }
   let permissionsDirty = false;
   const dirtyForms = new Set();
   let busy = false;
@@ -180,16 +199,12 @@ export function mountSupervision(main) {
       const noticeText = review.lastError || '설정과 질문·답변은 저장되며, 채팅 기록과 별개로 유지됩니다.';
       notice.hidden = !review.lastError;
       if (notice.textContent !== noticeText) notice.textContent = noticeText;
-      if (!configDirty && !config.contains(document.activeElement)) {
-        config.elements.target.value = review.alias || review.termId;
-        config.elements.objective.value = review.objective;
-        config.elements.referencePaths.value = review.referencePaths.join('\n');
-        workerRows.innerHTML = review.watched.length ? review.watched.map(w => workerRow(w.alias || w.termId, w.goal)).join('') : workerRow();
-        config.elements.interval.value = review.intervalMinutes;
-        config.elements.autoRecover.checked = review.autoRecover === true;
-        config.elements.stallMinutes.value = review.stallMinutes || 0;
-        config.elements.runHours.value = review.runHours || 0;
-      }
+      if (!configDirty && !config.contains(document.activeElement)) applyConfig(review);
+      configUpdate.hidden = !loadedConfig || configSignature(review) === loadedConfig;
+      const savedGoals = root.querySelector('.supervision-saved-goals');
+      savedGoals.hidden = !review.objective && !review.watched.length;
+      const goalsHtml = `${review.objective ? `<h3>전체 목표</h3><p>${esc(review.objective)}</p>` : ''}${review.watched.map(worker => `<h3>${esc(worker.alias || worker.termId)} · 완료 조건</h3><p>${esc(worker.goal)}</p>`).join('')}`;
+      if (savedGoals.querySelector('div').innerHTML !== goalsHtml) savedGoals.querySelector('div').innerHTML = goalsHtml;
       const status = root.querySelector('.supervision-status');
       const running = !['complete', 'stopped'].includes(review.status);
       const unanswered = board.tasks.filter(task => task.kind === 'question' && !task.done && !task.answer?.trim()).length;
@@ -247,6 +262,7 @@ export function mountSupervision(main) {
   lists.addEventListener('input', event => { if (!event.target.matches('[data-task]')) dirtyForms.add(event.target.closest('form')); });
   config.addEventListener('submit', event => {
     event.preventDefault();
+    if (!configUpdate.hidden) return error(new Error('다른 세션의 최신 설정이 있습니다. 작성 중인 내용을 보관하고 최신 설정을 불러온 뒤 다시 적용하세요.'));
     const problems = updateReadiness();
     if (problems.length) {
       root.querySelector('.supervision-readiness').scrollIntoView({ block: 'center' });
@@ -264,6 +280,12 @@ export function mountSupervision(main) {
       stallMinutes: Number(config.elements.stallMinutes.value), runHours: Number(config.elements.runHours.value) }), () => { configDirty = false; });
   });
   root.addEventListener('click', async event => {
+    if (event.target.closest('[data-reload-config]')) {
+      if (configDirty && !confirm('작성 중인 감독 설정을 버리고 서버에 저장된 최신 설정을 불러올까요?')) return;
+      configDirty = false;
+      applyConfig(board.review);
+      updateReadiness();
+    }
     const tab = event.target.closest('[data-supervision-tab]');
     if (tab) selectTab(tab.dataset.supervisionTab, !tablist.contains(tab));
     if (event.target.closest('[data-add-worker]')) {

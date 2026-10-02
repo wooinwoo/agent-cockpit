@@ -115,6 +115,28 @@ try {
  await page.locator('[data-questions]').click();
  assert.equal(await page.locator(`[data-answer="${question.id}"] textarea`).evaluate(element=>element===document.activeElement),true);
  console.log('PASS: conflicting answers/goals are preserved; repeated saves retain independent drafts');
+ // Server-side supervisor edits must remain visible without discarding a local draft.
+ await page.locator('#supervision-tab-config').click();
+ await page.locator('[name=objective]').fill('작성 중인 사용자 목표');
+ service.updateBoardReview({objective:'서버에 저장된 최신 목표',watched:[{termId:'worker',alias:'ai1',goal:'서버에서 정한 실제 완료 조건'}]});
+ await page.locator('.supervision-config-update').waitFor({state:'visible'});
+ assert.equal(await page.locator('[name=objective]').inputValue(),'작성 중인 사용자 목표');
+ await page.locator('.supervision-config button[type=submit]').click();
+ assert.equal(service.getBoard().review.objective,'서버에 저장된 최신 목표','stale form cannot overwrite a known server update');
+ await page.locator('#supervision-tab-progress').click();
+ await page.locator('.supervision-saved-goals > summary').click();
+ assert.match(await page.locator('.supervision-saved-goals').textContent(),/서버에서 정한 실제 완료 조건/);
+ assert.match(await page.locator('.supervision-saved-goals').textContent(),/서버에 저장된 최신 목표/);
+ await page.locator('#supervision-tab-config').click();
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('[data-reload-config]').click();
+ assert.equal(await page.locator('[name=objective]').inputValue(),'작성 중인 사용자 목표','cancel preserves local draft');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-reload-config]').click();
+ assert.equal(await page.locator('[name=objective]').inputValue(),'서버에 저장된 최신 목표');
+ assert.equal(await page.locator('[name=workerGoal]').inputValue(),'서버에서 정한 실제 완료 조건');
+ assert.equal(await page.locator('.supervision-config-update').isVisible(),false);
+ console.log('PASS: saved completion conditions stay visible; stale drafts require explicit reload');
  service.updateBoardReview({termId:'manager',alias:'ai8',status:'running',nextDueAt:Date.now()+600000});
  await page.evaluate(async()=>{
   const supervision=await import('/js/supervision.js'); supervision.stopSupervision();

@@ -134,7 +134,7 @@ function mountTerminal(termId, term) {
 export function renderLayout() {
   syncCanvasToggle();
   const docked = document.getElementById('agent-wall-stage')?.classList.contains('docked');
-  if (isMobile() || docked) { renderMobileLayout(!docked); return; }
+  if (isMobile() || docked) { renderMobileLayout(!docked); updateAgentWall(); return; }
   const container = document.getElementById('term-panels');
   for (const [, t] of app.termMap) { if (t.element.parentNode) t.element.parentNode.removeChild(t.element); }
   container.innerHTML = '';
@@ -943,6 +943,7 @@ export function mobileSwitchTerm(termId) {
   app.activeTermId = termId;
   if (isMobile()) {
     renderMobileLayout();
+    updateAgentWall();
     return;
   }
   if (canvas.enabled) { focusCanvasTerminal(termId); return; }
@@ -1095,7 +1096,7 @@ function handleCanvasWheel(e) {
   if (!canvas.enabled || !e.target.closest('.terminal-canvas')) return;
   if (e.target.closest('[data-canvas-group-layout-menu]')) return;
   if (e.target.closest('.xterm, .xterm-wrap') && !e.shiftKey && !e.ctrlKey && !e.metaKey) return;
-  if (e.target.closest('.canvas-context') && !e.ctrlKey && !e.metaKey) return;
+  if (e.target.closest('.canvas-context, .session-activity') && !e.ctrlKey && !e.metaKey) return;
   if (e.target.closest('.canvas-session-list') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
   if (e.target.closest('.canvas-board-window') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
   if (e.target.closest('.canvas-side-rail') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
@@ -2336,7 +2337,7 @@ export function setupTermEventDelegation() {
     }
     if (handleCanvasPairShortcut(e)) return;
     if (handleCanvasSessionShortcut(e)) return;
-    if (e.code !== 'Space' || !canvas.enabled || e.target.closest('input, textarea, [contenteditable="true"]')) return;
+    if (e.code !== 'Space' || !canvas.enabled || e.target.closest('input, textarea, [contenteditable="true"], .session-activity')) return;
     canvasSpaceDown = true;
     document.body.classList.add('canvas-space-ready');
     if (document.getElementById('terminal-view')?.classList.contains('active')) e.preventDefault();

@@ -1,3 +1,5 @@
+import { WORKER_PROGRESS_DEADLINE } from './worker-progress.js';
+
 export function getAgentKind(command, text) {
   const value = `${command} ${text}`.toLowerCase();
   if (/\bcodex\b/.test(value)) return 'Codex';
@@ -17,6 +19,55 @@ export function getAgentGoal(goal, lines) {
   if (goal?.trim()) return goal.trim();
   const prompt = lines.map(line => line.trim()).find(line => /^[›❯>]\s*\S/.test(line));
   return prompt?.replace(/^[›❯>]\s*/, '').slice(0, 240) || '';
+}
+
+// Presentation only: reports are not proof that a process is making progress.
+export function getSessionActivity({ termId, board, summary = {}, lines = [], now = Date.now() }) {
+  const reviews = board?.supervisors || (board?.review ? [board.review] : []);
+  const active = review => ['running', 'waiting'].includes(review.status);
+  const assignments = reviews.flatMap(review => {
+    const target = review.watched?.find(item => item.termId === termId);
+    const worker = target && review.workerProgress?.find(item => item.termId === termId && item.goal === target.goal);
+    return target ? [{ review, target, worker }] : [];
+  }).sort((a, b) => Number(active(b.review)) - Number(active(a.review))
+    || (b.worker?.run?.reportedAt || 0) - (a.worker?.run?.reportedAt || 0));
+  const { review, target, worker } = assignments[0] || {};
+  const managed = reviews.filter(item => item.termId === termId).sort((a, b) => Number(active(b)) - Number(active(a))
+    || (b.reports?.at(-1)?.at || 0) - (a.reports?.at(-1)?.at || 0))[0];
+  const run = worker?.run || {};
+  const report = managed?.reports?.at(-1);
+  const liveLine = [...lines].reverse().map(line => line.trim()).find(line =>
+    /^(?:[•◦]\s*)?(?:Running |Ran |Exploring\b|Explored\b)/.test(line)
+    || /^•\s+[가-힣]/.test(line));
+  const task = run.summary || report?.text || liveLine || summary.text || target?.goal || managed?.objective || '아직 작업 보고가 없습니다.';
+  const source = run.summary || report?.text ? '최근 보고' : liveLine ? '최근 화면' : summary.text ? '화면 요약' : target?.goal || managed?.objective ? '목표' : '작업';
+  const reportedAt = run.summary ? run.reportedAt : report?.text ? report.at : summary.text && !liveLine ? summary.at : 0;
+  const busy = lines.some(line => /^\s*[•◦]?\s*Working\s*\(/.test(line));
+  const paused = lines.some(line => /^\s*GPT-\S+.*Goal paused\b/.test(line));
+  const composer = lines.findLastIndex(line => /^\s*[›❯>]\s*(?:Ask Codex to do anything)?\s*$/.test(line));
+  const choice = lines.findLastIndex(line => /^\s*[›❯>]?\s*1\.\s*(?:Yes|Allow|Trust|Update)\b/i.test(line));
+  // Ignore approval examples quoted above a later live composer.
+  const approval = choice > composer && lines.slice(choice + 1).some(line => /^\s*[›❯>]?\s*2\.\s*\S/.test(line));
+  let state = 'idle', label = '상태 확인 중';
+  if (approval) { state = 'waiting'; label = '승인 대기'; }
+  else if (busy) { state = 'busy'; label = '실행 중'; }
+  else if (paused || run.observed === 'paused') { state = 'waiting'; label = '목표 일시정지'; }
+  else if (run.observed === 'approval') { state = 'waiting'; label = '승인·로그인 확인'; }
+  else if (run.status === 'blocked') { state = 'waiting'; label = '막힘 보고'; }
+  else if (run.status === 'reported') { label = '완료 검증 대기'; }
+  else if (run.status === 'complete') { state = 'done'; label = '목표 완료 확인'; }
+  else if (run.observed === 'idle' || lines.some(line => /^\s*[›❯>]\s*(?:Ask Codex to do anything)?\s*$/.test(line))) label = '입력 대기';
+  const progressAt = worker?.lastProgressAt || 0;
+  const stalled = Boolean(worker && !['complete', 'stopped'].includes(review.status) && run.status !== 'complete'
+    && now - (progressAt || worker.startedAt || now) >= WORKER_PROGRESS_DEADLINE);
+  return {
+    role: managed ? '감독' : target ? `작업자 · ${review.name || review.id}` : '개별 세션',
+    state, label, task, source, reportedAt, progressAt, stalled,
+    blocker: run.status === 'blocked' ? run.blocker || worker?.blocker || '' : '',
+    nextAction: worker?.nextAction || '', evidence: worker?.evidence || '',
+    goal: target?.goal || managed?.objective || summary.goal || '',
+    supervisionStopped: Boolean((review || managed)?.status === 'stopped'),
+  };
 }
 
 export function getAgentState({ exited, output, projectState, lastOutputAt, now = Date.now() }) {

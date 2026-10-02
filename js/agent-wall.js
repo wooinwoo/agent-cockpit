@@ -2,7 +2,7 @@ import { app, getOrderedTerminalEntries, getTerminalPair, getTerminalPairs, noti
 import { esc, fetchJson } from './utils.js';
 import { filterCicdByProject } from './cicd.js';
 import { registerClickActions } from './actions.js';
-import { getAgentAttentionForTerm, getAgentGoal, getAgentKind, getAgentState, getAgentTask, getOperationalState, getReleaseGate, getWallSummary } from './agent-wall-state.js';
+import { getAgentAttentionForTerm, getAgentGoal, getAgentKind, getAgentState, getAgentTask, getOperationalState, getReleaseGate, getSessionActivity, getWallSummary } from './agent-wall-state.js';
 import { terminalGroupLayoutLabel } from './terminal-group-layout.js';
 
 // 터미널 분할 레이아웃 트리에 들어가는 관제 패널의 센티널 leaf id.
@@ -92,6 +92,8 @@ let opsTimer;
 let decisions = [];
 let agentEvents = [];
 let summaries = {}; // termId → { text, at } — 서버 LLM이 요약한 "지금 뭐 하는 중"
+let activityBoard = null;
+let activityBoardAt = 0;
 const ciByProject = new Map();
 const ciFetchedAt = new Map();
 const popout = new URLSearchParams(location.search).get('agent-wall') === 'popout';
@@ -383,6 +385,61 @@ function renderCanvasContexts(agents) {
   });
 }
 
+function activityFor(termId, term) {
+  return getSessionActivity({ termId, board: activityBoard, summary: summaries[termId], lines: recentLines(term.xterm) });
+}
+
+function activityTiming(activity) {
+  const details = [];
+  if (activity.reportedAt) details.push(`보고 ${freshness(activity.reportedAt)}`);
+  details.push(activity.progressAt ? `결과 근거 ${freshness(activity.progressAt)}` : '결과 근거 미등록');
+  if (activity.stalled) details.push('5분 이상 새 근거 없음');
+  if (activity.supervisionStopped) details.push('자동 감독 중지');
+  if (!activityBoardAt || Date.now() - activityBoardAt > 15_000) details.push('감독 기록 연결 확인 필요');
+  return details.join(' · ');
+}
+
+function renderSessionActivity() {
+  let added = false;
+  for (const [termId, term] of app.termMap) {
+    const container = term.element.closest('.terminal-canvas-frame, .split-leaf');
+    if (!container) continue;
+    let panel = container.querySelector('.session-activity');
+    if (!panel) {
+      const head = container.querySelector('.canvas-frame-head, .term-head');
+      panel = document.createElement('details');
+      panel.className = 'session-activity';
+      panel.addEventListener('toggle', () => notify('fitAllTerminals'));
+      if (head) head.after(panel);
+      else container.prepend(panel);
+      added = true;
+    }
+    const activity = activityFor(termId, term);
+    panel.dataset.state = activity.state;
+    const html = `<summary><strong>${esc(activity.label)}</strong><span class="session-activity-task">${esc(activity.source)} · ${esc(activity.task)}</span><small>${esc(activityTiming(activity))}</small></summary>
+      <div class="session-activity-detail"><p><strong>${esc(activity.role)} · ${esc(activity.source)}</strong><br>${esc(activity.task)}</p>
+      ${activity.blocker ? `<p><strong>막힌 이유</strong><br>${esc(activity.blocker)}</p>` : ''}
+      ${activity.nextAction ? `<p><strong>다음 조치</strong><br>${esc(activity.nextAction)}</p>` : ''}
+      ${activity.evidence ? `<p><strong>최근 결과 근거</strong><br>${esc(activity.evidence)}</p>` : ''}
+      ${activity.goal ? `<p><strong>맡은 목표</strong><br>${esc(activity.goal)}</p>` : ''}</div>`;
+    if (panel._activityHtml !== html) {
+      // Keep the summary node so polling cannot steal keyboard focus or a click.
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      if (!panel.firstElementChild) panel.append(template.content);
+      else {
+        const current = panel.firstElementChild;
+        [...template.content.firstElementChild.children].forEach((child, index) => {
+          if (current.children[index].textContent !== child.textContent) current.children[index].textContent = child.textContent;
+        });
+        if (panel.lastElementChild.innerHTML !== template.content.lastElementChild.innerHTML) panel.lastElementChild.innerHTML = template.content.lastElementChild.innerHTML;
+      }
+      panel._activityHtml = html;
+    }
+  }
+  if (added) requestAnimationFrame(() => notify('fitAllTerminals'));
+}
+
 function renderCanvasSessionBoard(agents) {
   const list = document.querySelector('[data-canvas-session-list]');
   if (!list) return;
@@ -396,23 +453,18 @@ function renderCanvasSessionBoard(agents) {
     delete list.dataset.orderFocusId;
     delete list.dataset.orderFocusUntil;
   }
-  const agentByTerm = new Map(agents.map(agent => [agent.termId, agent]));
   const sessions = getOrderedTerminalEntries().filter(([, term]) => !term.exited);
   const editingGroup = getTerminalPair(app.pairSourceTermId);
   const count = document.querySelector('[data-canvas-session-count]');
   if (count && count.textContent !== String(sessions.length)) count.textContent = String(sessions.length);
   const html = sessions.map(([termId, term], index) => {
-    const agent = agentByTerm.get(termId);
     const pair = getTerminalPair(termId);
     const pairSource = app.pairSourceTermId === termId;
     const groupSelected = pairSource || Boolean(editingGroup?.termIds.includes(termId));
-    const lines = recentLines(term.xterm);
-    const summary = summaries[termId] || {};
-    const inferredTask = agent ? getAgentTask(summary.text, lines) : '일반 셸 세션';
-    const unhelpful = inferredTask === '작업 정보 없음' || /^[•◦─\s]+$/.test(inferredTask) || /Worked for \d+/i.test(inferredTask);
-    const task = unhelpful ? (getAgentGoal(summary.goal, lines) || inferredTask) : inferredTask;
-    const state = agent?.state || 'idle';
-    const stateLabel = state === 'busy' ? '작업 중' : state === 'waiting' ? '입력 필요' : state === 'done' ? '완료' : '대기';
+    const activity = activityFor(termId, term);
+    const task = `${activity.source} · ${activity.task}`;
+    const state = activity.state;
+    const stateLabel = activity.label;
     const shortcut = index < 9 ? `Alt+${index + 1}` : '';
     return `<div class="canvas-session-row ${esc(state)}${termId === app.activeTermId ? ' current' : ''}${pair ? ` paired${pairToneClass(termId)}` : ''}${pairSource ? ' pair-source' : ''}${app.pairSourceTermId ? ' group-editing' : ''}${groupSelected ? ' group-selected' : ''}" data-session-order-row="${esc(termId)}">
       <span class="canvas-session-order" draggable="true" tabindex="0" role="button" data-session-order-id="${esc(termId)}" aria-label="Reorder ${esc(term.label)} session" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown" title="Drag to reorder · Alt+↑/↓">
@@ -422,8 +474,10 @@ function renderCanvasSessionBoard(agents) {
         <span class="canvas-session-dot" aria-hidden="true"></span>
         <span class="canvas-session-copy">
           <span class="canvas-session-name">${term.alias ? `<i class="canvas-session-alias">${esc(term.alias)}</i>` : ''}${esc(term.label)}</span>
-          <span class="canvas-session-meta">${esc(agent?.kind || 'Shell')} · ${stateLabel}${pair ? ` · GROUP ${pair.termIds.length} · ${terminalGroupLayoutLabel(pair)}` : ''}</span>
+          <span class="canvas-session-meta">${esc(activity.role)} · ${stateLabel}${pair ? ` · GROUP ${pair.termIds.length} · ${terminalGroupLayoutLabel(pair)}` : ''}</span>
           <span class="canvas-session-task">${esc(task)}</span>
+          <span class="canvas-session-progress">${esc(activityTiming(activity))}</span>
+          <span class="canvas-session-blocker">${activity.blocker ? `막힘 · ${esc(activity.blocker)}` : ''}</span>
         </span>
         ${app.pairSourceTermId ? `<span class="canvas-session-group-choice" aria-hidden="true">${groupSelected ? '✓' : '+'}</span>` : shortcut ? `<kbd class="canvas-session-shortcut">${shortcut}</kbd>` : ''}
       </button>
@@ -459,7 +513,7 @@ function renderCanvasSessionBoard(agents) {
       const currentMain = row.querySelector('.canvas-session-main');
       const nextMain = next.querySelector('.canvas-session-main');
       if (currentMain && nextMain && currentMain.title !== nextMain.title) currentMain.title = nextMain.title;
-      for (const selector of ['.canvas-session-name', '.canvas-session-meta', '.canvas-session-task']) {
+      for (const selector of ['.canvas-session-name', '.canvas-session-meta', '.canvas-session-task', '.canvas-session-progress', '.canvas-session-blocker']) {
         const current = row.querySelector(selector);
         const value = next.querySelector(selector)?.textContent || '';
         if (current && current.textContent !== value) current.textContent = value;
@@ -502,6 +556,7 @@ function render() {
   }).sort((a, b) => Number(Boolean(b.attention)) - Number(Boolean(a.attention))
     || ['waiting', 'busy', 'idle', 'done'].indexOf(a.state) - ['waiting', 'busy', 'idle', 'done'].indexOf(b.state));
   renderCanvasContexts(agents);
+  renderSessionActivity();
   renderCanvasSessionBoard(agents);
   renderStrip(agents);
   section.style.display = agents.length || popout ? '' : 'none';
@@ -549,19 +604,23 @@ function render() {
 export function updateAgentWall() {
   if (!opsTimer) {
     const refreshOps = async () => {
-      // 관제 벽을 화면에서 안 보는 동안엔 API 폴링·전체 재렌더를 쉰다 —
-      // 터미널 작업 중 상시 CPU·네트워크 부하의 원인이었음.
+      // Refresh session reports while terminals are visible; fetch CI only for the wall.
       const stage = document.getElementById('agent-wall-stage');
-      if (!stage || stage.offsetParent === null) return;
-      const [nextDecisions, nextAgentEvents, nextSummaries] = await Promise.all([
+      const terminalView = document.getElementById('terminal-view');
+      const wallVisible = Boolean(stage && stage.offsetParent !== null);
+      if (!wallVisible && (!terminalView || terminalView.offsetParent === null)) return;
+      const [nextDecisions, nextAgentEvents, nextSummaries, nextBoard] = await Promise.all([
         fetchJson('/api/supervisor/recent?n=30', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/agents', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/summaries', { timeoutMs: 3000 }).catch(() => null),
+        fetchJson('/api/board', { timeoutMs: 3000 }).catch(() => null),
       ]);
       if (Array.isArray(nextDecisions)) decisions = nextDecisions;
       if (Array.isArray(nextAgentEvents)) agentEvents = nextAgentEvents;
       if (nextSummaries && typeof nextSummaries === 'object') summaries = nextSummaries;
+      if (nextBoard?.review) { activityBoard = nextBoard; activityBoardAt = Date.now(); }
       render();
+      if (!wallVisible) return;
       const projectIds = [...new Set([...app.termMap.entries()]
         .filter(([termId, t]) => !t.exited && detectKind(termId, t, tail(t.xterm)))
         .map(([, t]) => t.projectId))];

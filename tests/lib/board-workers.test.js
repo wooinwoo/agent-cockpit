@@ -162,17 +162,19 @@ test('explicit resume reconciles native goal state once and waits for confirmati
   assert.equal(h.messages.filter(m => m.id === 'one').length, 0);
   h.service.resumeBoardWorker({ termId: 'one' });
   h.tick();
-  assert.deepEqual(h.messages.filter(m => m.id === 'one').map(m => m.text), ['/goal resume\r']);
+  assert.deepEqual(h.messages.filter(m => m.id === 'one').map(m => m.text), ['\x1b[200~/goal resume\x1b[201~']);
   assert.ok(h.worker('one').run.resumeSentAt);
+  h.screens.one = '› /goal resume\nGPT-6-Astra high Goal paused (/goal resume)';
   h.restart(); h.advance(); h.tick();
-  assert.equal(h.messages.filter(m => m.id === 'one').length, 1);
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 2);
+  assert.equal(h.messages.filter(m => m.id === 'one')[1].text, '\r');
   h.screens.one = '› Ask Codex to do anything\nGPT-6-Astra high';
   h.tick(); h.advance(); h.tick();
   assert.equal(h.worker('one').run.resumeSentAt, 0);
-  assert.equal(h.messages.filter(m => m.id === 'one').length, 2);
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 3);
   h.screens.one = '› Ask Codex to do anything\nGPT-6-Astra high Goal paused (/goal resume)';
   h.advance(900_000); h.tick();
-  assert.equal(h.messages.filter(m => m.id === 'one').length, 2, 'a later user pause is not overridden');
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 3, 'a later user pause is not overridden');
 });
 
 test('resume never types into approvals, drafts, limits or a stopped/reassigned supervisor', t => {
@@ -280,4 +282,18 @@ test('worker resume API is local and scoped to an assigned worker on an active s
   h.service.updateBoardReview({ status: 'stopped' });
   assert.equal(h.worker('one').run.resumeRequestedAt, 0);
   assert.equal((await call({ termId: 'one' })).status, 409);
+});
+
+
+test('two-phase resume never submits a changed draft or a dialog on the next tick', t => {
+  for (const changed of ['› /goal resume plus user text\nGPT-6-Astra Goal paused', 'Would you like to run the following command?\n1. Yes\n› /goal resume\nGPT-6-Astra Goal paused']) {
+    const h = setup(t);
+    h.screens.one = '› Ask Codex to do anything\nGPT-6-Astra Goal paused';
+    h.service.resumeBoardWorker({ termId: 'one' }); h.tick();
+    h.screens.one = changed;
+    h.advance(); h.tick(); h.advance(31_000); h.tick();
+    assert.equal(h.messages.filter(m => m.id === 'one').length, 1);
+    assert.equal(h.worker('one').run.resumeSentAt, 0);
+    assert.match(h.worker('one').run.lastError, /재개가 확인되지/);
+  }
 });

@@ -45,6 +45,10 @@ test('creates once, then reattaches the same isolated tmux server', () => {
   assert.equal(resumed.resumed, true);
   assert.deepEqual(created.args, ['-L', `cockpit-${'a'.repeat(24)}`, 'attach-session', '-t', 'main']);
   assert.equal(calls.filter(args => args.includes('new-session')).length, 1);
+  assert.equal(calls.filter(args => args.includes('mouse') && args.at(-1) === 'on').length, 2);
+  for (const key of ['WheelUpPane', 'WheelDownPane']) {
+    assert.equal(calls.filter(args => args.includes('bind-key') && args.includes(key)).length, 2);
+  }
   assert.equal(durableTerminalExists(options.id, { exec, exists: () => true }), true);
   assert.equal(durableTerminalCwd(options.id, { exec, exists: () => true }), '/work/project');
   assert.equal(killDurableTerminal(options.id, { exec, exists: () => true }), true);

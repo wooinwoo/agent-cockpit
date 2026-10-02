@@ -1,7 +1,7 @@
 const fields = {
   notes: ['title', 'content'],
   checklists: ['title', 'goal'],
-  tasks: ['text', 'done', 'kind', 'answer', 'checklistId'],
+  tasks: ['text', 'done', 'kind', 'questionTo', 'answer', 'checklistId'],
 };
 
 function conflict(id) {

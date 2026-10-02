@@ -36,6 +36,9 @@ test('reference paths persist, reach prompts after reload, and overnight configu
     tick();
     assert.ok(messages[0].includes(JSON.stringify(paths)));
     assert.match(messages[0], /승인 화면에는 입력을 보내지 마세요/);
+    assert.match(messages[0], /"questionTo":"user"/);
+    assert.match(messages[0], /questionTo가 supervisor인 항목은 사용자가 감독에게 남긴 질문/);
+    assert.match(messages[0], /답변만으로 done 처리하지 말고/);
     await configure({ target: '' });
     assert.deepEqual(reloaded.getBoard().review.referencePaths, paths);
     assert.equal(reloaded.getBoard().review.runUntil, 0);

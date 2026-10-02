@@ -17,7 +17,7 @@ function setup() {
     },
     updateBoardNote: content => (board = { ...board, note: { content } }),
     appendBoardNote: content => (board = { ...board, note: { content: `${board.note.content}\n${content}`.trim() } }),
-    addBoardTask: (text, checklistId) => ({ board, task: { id: 'T-0001', text, checklistId, done: false } }),
+    addBoardTask: (text, checklistId, kind, questionTo) => ({ board, task: { id: 'T-0001', text, checklistId, kind, questionTo, done: false } }),
     updateBoardTask: (id, updates) => id === 'T-0001' ? ({ board, task: { id, ...updates } }) : null,
     deleteBoardTask: id => id === 'T-0001' ? ({ board, task: { id } }) : null,
   });
@@ -25,6 +25,12 @@ function setup() {
 }
 
 describe('board routes', () => {
+  it('forwards the question recipient to storage', async () => {
+    const result = {};
+    await setup()['POST /api/board/tasks']({ body: { text: '진행 상황은?', kind: 'question', questionTo: 'supervisor' } }, result);
+    assert.equal(result.body.task.kind, 'question');
+    assert.equal(result.body.task.questionTo, 'supervisor');
+  });
   it('lists, creates, completes, and deletes tasks by ID', async () => {
     const routes = setup();
     const created = {};

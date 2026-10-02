@@ -200,6 +200,45 @@ describe('board-service', () => {
     assert.equal(merged.checklists[0].goal, '배포 후 상태 확인');
   });
 
+  it('preserves legacy questions and round-trips answers, resolution, reopening and deletion', () => {
+    service.replaceBoard({ tasks: [{ id: 'T-0042', kind: 'question', text: '기존 질문', answer: '기존 답변', done: true }] });
+    assert.equal(service.getBoard().tasks[0].questionTo, 'user');
+    const { task } = service.addBoardTask('진행 상황은?', undefined, 'question', 'supervisor');
+    assert.equal(task.id, 'T-0043');
+    service.updateBoardTask(task.id, { answer: '검증 중' });
+    assert.equal(service.getBoard().tasks[1].done, false);
+    service.updateBoardTask(task.id, { done: true });
+    const saved = createBoardService(file).getBoard();
+    assert.equal(saved.tasks[0].answer, '기존 답변');
+    assert.equal(saved.tasks[0].done, true);
+    assert.equal(saved.tasks[1].questionTo, 'supervisor');
+    assert.equal(saved.tasks[1].answer, '검증 중');
+    assert.equal(saved.tasks[1].done, true);
+    service.updateBoardTask(task.id, { done: false });
+    assert.equal(service.getBoard().tasks[1].answer, '검증 중');
+    service.deleteBoardTask(task.id);
+    assert.deepEqual(service.getBoard().tasks.map(item => item.id), ['T-0042']);
+    assert.throws(() => service.addBoardTask('invalid', undefined, 'question', 'worker'), error => error.code === 'BOARD_VALIDATION');
+  });
+
+  it('retains question direction when older clients omit it from current and stale replacements', () => {
+    service.addBoardTask('내 질문', undefined, 'question', 'supervisor');
+    const legacy = service.getBoard();
+    delete legacy.tasks[0].questionTo;
+    legacy.checklists[0].goal = '이전 클라이언트 목표 수정';
+    service.replaceBoardIfRevision(legacy, legacy.revision);
+    assert.equal(service.getBoard().tasks[0].questionTo, 'supervisor');
+    const base = service.getBoard();
+    delete base.tasks[0].questionTo;
+    const local = structuredClone(base);
+    local.checklists[0].goal = '동시 수정';
+    service.updateBoardTask(base.tasks[0].id, { answer: '새 답변' });
+    const merged = service.replaceBoardIfRevision(local, base.revision, base);
+    assert.equal(merged.tasks[0].questionTo, 'supervisor');
+    assert.equal(merged.tasks[0].answer, '새 답변');
+    assert.equal(merged.checklists[0].goal, '동시 수정');
+  });
+
   it('never overwrites a conflicting answer or a concurrently added question on list deletion', () => {
     const { task } = service.addBoardTask('배포 대상?', undefined, 'question');
     const base = service.getBoard();

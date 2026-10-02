@@ -85,6 +85,7 @@ function normalize(value) {
       text: String(item.text).slice(0, 500),
       done: item.done === true,
       kind: item.kind === 'question' ? 'question' : 'task',
+      ...(item.kind === 'question' ? { questionTo: item.questionTo === 'supervisor' ? 'supervisor' : 'user' } : {}),
       answer: String(item.answer || '').slice(0, 4000),
       checklistId: checklistIds.has(item.checklistId) ? item.checklistId : defaultChecklistId,
     })),
@@ -311,7 +312,6 @@ export function createCanvasBoardFrame(type, boardId, frame) {
           <p data-review-feedback role="status"></p>
         </details>
         <form data-canvas-task-form>
-          <select name="kind" aria-label="항목 종류"><option value="task">할 일</option><option value="question">질문</option></select>
           <input name="task" maxlength="500" autocomplete="off" placeholder="새 태스크…" aria-label="New checklist task">
           <button type="submit" title="Add task" aria-label="Add task">+</button>
         </form>
@@ -366,7 +366,7 @@ function hydrateCanvasBoardFrame(root) {
   root.querySelectorAll('[data-canvas-board-sync]').forEach(sync => {
     if (sync.textContent !== syncLabel) sync.textContent = syncLabel;
   });
-  const checklistTasks = board.tasks.filter(task => task.checklistId === boardId);
+  const checklistTasks = board.tasks.filter(task => task.checklistId === boardId && task.kind !== 'question');
   const open = checklistTasks.filter(task => !task.done).length;
   const count = root.querySelector('[data-canvas-task-count]');
   if (count && count.textContent !== `${open} open`) count.textContent = `${open} open`;
@@ -378,18 +378,13 @@ function hydrateCanvasBoardFrame(root) {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/></svg>
       </button>
       <button type="button" class="canvas-task-id" data-action="canvas-task-copy" data-taskid="${esc(task.id)}" title="Copy task ID">${esc(task.id)}</button>
-      <div class="canvas-task-text">${task.kind === 'question' ? '<strong>질문</strong> ' : ''}${esc(task.text)}
-        ${task.kind === 'question' ? `<label class="canvas-board-field">답변
-          <textarea data-task-answer="${esc(task.id)}" maxlength="4000" rows="2" placeholder="답변을 남기면 관리 세션이 확인합니다.">${esc(task.answer || '')}</textarea>
-        </label>` : ''}
-      </div>
+      <div class="canvas-task-text">${esc(task.text)}</div>
       <button type="button" class="canvas-task-delete" data-action="canvas-task-delete" data-taskid="${esc(task.id)}" title="Delete ${esc(task.id)}" aria-label="Delete ${esc(task.id)}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
         <span>Delete</span>
       </button>
     </div>`).join('') || '<p>태스크 없음</p>';
-    const editingAnswer = document.activeElement?.matches('[data-task-answer]') && list.contains(document.activeElement);
-    if (list._cockpitRenderHtml !== html && !editingAnswer) {
+    if (list._cockpitRenderHtml !== html) {
       const scrollTop = list.scrollTop;
       list.innerHTML = html;
       list._cockpitRenderHtml = html;
@@ -411,7 +406,7 @@ function localTouch() {
   renderCanvasBoard();
 }
 
-async function addTask(text, checklistId, kind = 'task') {
+async function addTask(text, checklistId) {
   const clean = text.trim();
   if (!clean || !findBoardItem('checklist', checklistId)) return;
   const now = Date.now();
@@ -419,7 +414,7 @@ async function addTask(text, checklistId, kind = 'task') {
     id: `T-${String(board.nextTaskNumber++).padStart(4, '0')}`,
     text: clean,
     done: false,
-    kind,
+    kind: 'task',
     answer: '',
     checklistId,
     createdAt: now,
@@ -466,7 +461,7 @@ function setupBoardEvents(root) {
     const input = event.currentTarget.elements.task;
     const text = input.value;
     input.value = '';
-    addTask(text, boardId, event.currentTarget.elements.kind.value);
+    addTask(text, boardId);
     input.focus();
   });
   root.querySelector('[data-canvas-goal]')?.addEventListener('input', event => {
@@ -474,16 +469,6 @@ function setupBoardEvents(root) {
     if (!checklist) return;
     checklist.goal = event.target.value;
     checklist.updatedAt = Date.now();
-    localTouch();
-    clearTimeout(noteSaveTimer);
-    noteSaveTimer = setTimeout(updateCanvasBoard, 450);
-  });
-  root.querySelector('[data-canvas-task-list]')?.addEventListener('input', event => {
-    const id = event.target.dataset.taskAnswer;
-    const task = board.tasks.find(item => item.id === id);
-    if (!task) return;
-    task.answer = event.target.value;
-    task.updatedAt = Date.now();
     localTouch();
     clearTimeout(noteSaveTimer);
     noteSaveTimer = setTimeout(updateCanvasBoard, 450);

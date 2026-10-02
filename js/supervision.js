@@ -29,7 +29,7 @@ export function stopSupervision() {
 export function mountSupervision(main) {
   stopSupervision();
   const mounted = generation;
-  const tabs = [['progress', '진행'], ['config', '목표·설정'], ['work', '할 일·질문'], ['permissions', '권한']];
+  const tabs = [['progress', '감독'], ['work', '작업'], ['questions', '질문'], ['config', '설정']];
   main.innerHTML = `<div class="supervision">
     <header><h1>감독 보드</h1></header>
     <div class="supervision-tabs" role="tablist" aria-label="감독 보드 메뉴" hidden>
@@ -38,7 +38,7 @@ export function mountSupervision(main) {
     <p class="supervision-notice" role="status">보드 불러오는 중…</p>
     <div class="supervision-content" hidden>
       <section role="tabpanel" id="supervision-panel-config" aria-labelledby="supervision-tab-config" hidden><h2>맡길 일 설정</h2>
-        <div class="supervision-config-update" role="status" hidden><p>다른 세션에서 설정을 변경했습니다. 작성 중인 내용은 유지했습니다. 진행 탭에서 저장된 완료 조건을 확인하세요.</p><button class="btn" type="button" data-reload-config>최신 설정 불러오기</button></div>
+        <div class="supervision-config-update" role="status" hidden><p>다른 세션에서 설정을 변경했습니다. 작성 중인 내용은 유지했습니다. 감독 탭에서 저장된 완료 조건을 확인하세요.</p><button class="btn" type="button" data-reload-config>최신 설정 불러오기</button></div>
         <form class="supervision-config">
         <label>전체 목표<textarea name="objective" rows="2" maxlength="4000" placeholder="예: 아침까지 로그인과 결제 오류 수정"></textarea></label>
         <details class="supervision-options"><summary>참고 자료 경로 · 링크</summary>
@@ -64,13 +64,8 @@ export function mountSupervision(main) {
         <button class="btn" type="button" data-permissions>새 감독의 실행 권한 준비하기</button>
         <div class="supervision-actions"><button class="btn primary" type="submit">감독 시작</button><button class="btn" type="button" data-stop>감독 중지</button></div>
         <small>콕핏 서버와 AI 세션이 켜져 있는 동안 점검합니다. 응답이 없으면 간격을 늘려 재요청합니다. 중지는 다음 점검과 지시를 막으며, 이미 실행 중인 작업은 계속됩니다.</small>
-      </form></section>
-      <section role="tabpanel" id="supervision-panel-progress" aria-labelledby="supervision-tab-progress">
-        <div class="supervision-next" hidden aria-live="polite"></div>
-        <details class="supervision-saved-goals" hidden><summary>저장된 목표·완료 조건</summary><div></div></details>
-        <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
-      </section>
-    <section class="supervision-permissions" role="tabpanel" id="supervision-panel-permissions" aria-labelledby="supervision-tab-permissions" hidden><h2>새 AI 세션의 실행 권한</h2>
+      </form>
+    <details class="supervision-permissions supervision-options"><summary>새 AI 세션의 실행 권한</summary>
       <p>저장 후 콕핏에서 새로 여는 기본 Codex·Claude 세션에 적용합니다. 직접 작성한 실행 명령과 이미 실행 중인 세션은 기존 권한을 유지합니다.</p>
       <form class="supervision-permission-form">
         <label>Codex<select name="codex"><option value="default">기존 CLI 설정 유지</option><option value="workspace">작업 폴더 자동 실행 · 승인 요청 없음</option><option value="network">작업 폴더 + 네트워크 · 승인 요청 없음</option><option value="full">전체 접근 · 승인 요청 없음</option></select></label>
@@ -78,13 +73,27 @@ export function mountSupervision(main) {
         <label>Claude<select name="claude"><option value="default">기존 CLI 설정 유지</option><option value="edits">파일 편집 자동 허용 · 명령은 추가 승인 가능</option><option value="auto">자동 판단 · 지원 계정에서 사용</option><option value="full">권한 확인 생략 · 격리 환경용</option></select></label>
         <small>권한 확인 생략은 폭넓은 파일·명령 실행을 허용합니다. 조직 정책·명시적 차단·로그인·사용량 제한은 별도로 적용됩니다.</small>
         <button class="btn" type="submit">새 세션 권한 저장</button>
-        <p>현재 세션은 해당 터미널에서 <code>/permissions</code>로 변경하세요. 작업 진행 여부를 묻는 대화는 도구 권한과 별개입니다. 승인 없이 진행할 작업 범위는 목표·설정 탭의 전체 목표에 적어두세요.</p>
+        <p>현재 세션은 해당 터미널에서 <code>/permissions</code>로 변경하세요. 작업 진행 여부를 묻는 대화는 도구 권한과 별개입니다. 승인 없이 진행할 작업 범위는 설정 탭의 전체 목표에 적어두세요.</p>
         <details><summary>실행 명령 보기</summary><div class="supervision-launch-commands"></div></details>
       </form>
-    </section>
-    <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>체크리스트 · 질문과 답변</h2><p>캔버스 보드와 같은 내용입니다. 답변을 저장하면 다음 점검에 전달됩니다.</p>
+    </details>
+      </section>
+      <section role="tabpanel" id="supervision-panel-progress" aria-labelledby="supervision-tab-progress">
+        <div class="supervision-next" hidden aria-live="polite"></div>
+        <details class="supervision-saved-goals" hidden><summary>저장된 목표·완료 조건</summary><div></div></details>
+        <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
+      </section>
+    <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>작업 체크리스트</h2><p>실행할 일과 완료 조건을 관리합니다. 질문은 질문 탭에 따로 모입니다.</p>
       <div class="supervision-lists"></div>
       <form class="supervision-new-list"><label>새 체크리스트<input name="title" maxlength="120" required placeholder="프로젝트 또는 작업 묶음"></label><button class="btn" type="submit">체크리스트 추가</button></form>
+    </section>
+    <section role="tabpanel" id="supervision-panel-questions" aria-labelledby="supervision-tab-questions" hidden>
+      <section class="supervision-question-section"><h2>내가 감독에게 묻기</h2>
+        <p>감독이 실행 중일 때 다음 점검에서 답변합니다.</p>
+        <form class="supervision-ask"><label>내 질문<textarea name="text" rows="2" required maxlength="500" placeholder="예: 지금 가장 오래 막힌 작업과 이유가 뭐야?"></textarea></label><button class="btn primary" type="submit">감독에게 질문 남기기</button></form>
+        <div data-question-list="supervisor"></div>
+      </section>
+      <section class="supervision-question-section"><h2>감독이 내게 묻기</h2><p>내 결정이나 정보가 필요한 질문입니다. 답변을 저장하면 다음 점검에 전달됩니다.</p><div data-question-list="user"></div></section>
     </section>
     </div>
   </div>`;
@@ -119,6 +128,8 @@ export function mountSupervision(main) {
   const notice = root.querySelector('.supervision-notice');
   const lists = root.querySelector('.supervision-lists');
   const permissionForm = root.querySelector('.supervision-permission-form');
+  const permissionDetails = root.querySelector('.supervision-permissions');
+  const questionLists = [...root.querySelectorAll('[data-question-list]')];
   const workerRows = root.querySelector('.supervision-workers');
   const workerRow = (target = '', goal = '') => `<div class="supervision-worker"><label>작업 AI<input name="workerTarget" list="supervision-terminals" required maxlength="200" value="${esc(target)}" placeholder="예: ai1"></label><label>완료 조건<textarea name="workerGoal" rows="2" required maxlength="2000" placeholder="예: 로그인 오류 수정 후 회귀 테스트 통과">${esc(goal)}</textarea></label><button class="btn" type="button" data-remove-worker aria-label="이 작업 AI 제외">제외</button></div>`;
   const watchedInputs = () => [...workerRows.children].map(row => ({ target: row.querySelector('input').value.trim(), goal: row.querySelector('textarea').value.trim() }));
@@ -150,7 +161,7 @@ export function mountSupervision(main) {
   let busy = false;
   let refreshId = 0;
   let listSignature = '';
-  hasUnsavedInput = () => configDirty || permissionsDirty || dirtyForms.size > 0 || Boolean(root.querySelector('.supervision-new-list input').value);
+  hasUnsavedInput = () => configDirty || permissionsDirty || dirtyForms.size > 0 || Boolean(root.querySelector('.supervision-new-list input').value || root.querySelector('.supervision-ask textarea').value);
   saving = () => busy;
   const active = () => mounted === generation && root.isConnected;
   const error = err => { notice.hidden = false; notice.textContent = err.message || '저장하지 못했습니다. 다시 시도하세요.'; showToast(notice.textContent, 'error'); };
@@ -167,13 +178,18 @@ export function mountSupervision(main) {
     if (target && watched.some(worker => worker.target === target)) problems.push('감독 AI와 작업 AI는 서로 다른 세션을 선택하세요.');
     if (hours > 0) {
       if (!config.elements.autoRecover.checked || Number(config.elements.stallMinutes.value) < 5) problems.push('야간 운영에는 자동 복구와 5분 이상의 보고 기한이 필요합니다.');
-      if (selected && (!selected.durable || !unattendedCommandReady(selected.command))) problems.push('이 세션은 야간 실행 준비가 확인되지 않았습니다. 권한 탭에서 권한을 저장한 뒤 터미널 탭에서 새 감독 AI를 열어 선택하세요. 기존 작업 AI는 그대로 두세요.');
+      if (selected && (!selected.durable || !unattendedCommandReady(selected.command))) problems.push('이 세션은 야간 실행 준비가 확인되지 않았습니다. 설정 탭에서 새 세션 권한을 저장한 뒤 터미널 탭에서 새 감독 AI를 열어 선택하세요. 기존 작업 AI는 그대로 두세요.');
     }
     const html = `<strong>시작 전 확인</strong>${problems.length ? `<ul>${problems.map(problem => `<li>${esc(problem)}</li>`).join('')}</ul>` : '<p>입력 준비가 됐습니다. 시작 시 서버가 AI 실행 상태를 다시 확인합니다.</p>'}${availableTerminals === null ? '<p>세션 목록 확인 전입니다. 시작 시 서버에서 확인합니다.</p>' : ''}<small>시작은 감독 설정을 저장합니다. 실제 점검 여부는 첫 보고로 확인하세요.</small>`;
     const readiness = root.querySelector('.supervision-readiness');
     if (readiness.innerHTML !== html) readiness.innerHTML = html;
     return problems;
   };
+
+  const taskRow = task => `<div class="supervision-task" data-task-row="${esc(task.id)}"><label><input type="checkbox" data-task="${esc(task.id)}" ${task.done ? 'checked' : ''}>${esc(task.text)} <small>${esc(task.id)}</small></label><button class="btn" type="button" data-delete-task="${esc(task.id)}">삭제</button></div>`;
+  const questionRow = task => `<article class="supervision-question" data-task-row="${esc(task.id)}"><p><strong>${esc(task.text)}</strong></p><small>${esc(task.id)} · ${task.done ? '해결됨' : task.answer?.trim() ? '답변 있음' : '답변 대기'}</small>
+    ${task.questionTo === 'supervisor' || task.done ? `<div class="supervision-answer"><strong>${task.questionTo === 'supervisor' ? '감독 답변' : '내 답변'}</strong><p>${esc(task.answer || '아직 답변이 없습니다.')}</p></div>` : `<form data-answer="${esc(task.id)}"><label>내 답변<textarea name="answer" rows="2" maxlength="4000">${esc(task.answer || '')}</textarea></label><button class="btn" type="submit">답변 저장</button></form>`}
+    <div class="supervision-actions"><button class="btn" type="button" data-question-state="${esc(task.id)}" data-done="${!task.done}">${task.done ? '미해결로 되돌리기' : '해결됨으로 이동'}</button><button class="btn" type="button" data-delete-task="${esc(task.id)}">삭제</button></div></article>`;
 
   async function refresh() {
     const requestId = ++refreshId;
@@ -182,7 +198,7 @@ export function mountSupervision(main) {
       if (!active() || requestId !== refreshId) return;
       board = next;
       availableTerminals = Array.isArray(terminalList?.terminals) ? terminalList.terminals : null;
-      if (board.supervisionVersion !== 5) {
+      if (board.supervisionVersion !== 6) {
         notice.hidden = false;
         notice.innerHTML = '서버 업데이트가 필요합니다. 진행 중인 중요한 작업을 마친 뒤 적용하세요. <button class="btn" type="button" data-restart>서버 업데이트…</button>';
         return;
@@ -207,7 +223,7 @@ export function mountSupervision(main) {
       if (savedGoals.querySelector('div').innerHTML !== goalsHtml) savedGoals.querySelector('div').innerHTML = goalsHtml;
       const status = root.querySelector('.supervision-status');
       const running = !['complete', 'stopped'].includes(review.status);
-      const unanswered = board.tasks.filter(task => task.kind === 'question' && !task.done && !task.answer?.trim()).length;
+      const unanswered = board.tasks.filter(task => task.kind === 'question' && task.questionTo !== 'supervisor' && !task.done && !task.answer?.trim()).length;
       const unfinished = board.tasks.filter(task => task.kind !== 'question' && !task.done).length;
       const stalled = running ? stalledWorkerProgress(review) : [];
       const nextAction = review.status === 'complete' ? '목표 달성 보고가 도착했습니다. 보고 근거와 남은 항목을 확인하세요.'
@@ -230,14 +246,37 @@ export function mountSupervision(main) {
       const progressStatus = statusHtml + (progressHtml ? `<p>보고 수신과 결과 진전은 별개입니다. 근거는 감독이 확인하며 서버가 진위를 검증하지는 않습니다.</p>${progressHtml}` : '');
       if (status.innerHTML !== progressStatus) status.innerHTML = progressStatus;
       root.querySelector('.supervision-reports').innerHTML = review.reports.length ? review.reports.slice().reverse().map(r => `<article><small>${esc(stamp(r.at))} · ${esc(labels[r.status] || r.status)}</small><p>${esc(r.text)}</p></article>`).join('') : '<p>아직 보고가 없습니다. 감독을 시작하면 여기에 쌓입니다.</p>';
-      const signature = JSON.stringify([board.checklists, board.tasks]);
-      if (!dirtyForms.size && !lists.contains(document.activeElement) && signature !== listSignature) {
+      const signature = JSON.stringify([board.checklists, board.tasks.filter(task => task.kind !== 'question')]);
+      if (![...dirtyForms].some(form => lists.contains(form)) && !lists.contains(document.activeElement) && signature !== listSignature) {
         lists.innerHTML = board.checklists.map(list => `<article data-list="${esc(list.id)}"><h3>${esc(list.title)} <small>${esc(list.id)}</small></h3>
           <form data-goal><label>목표 / 완료 조건<textarea name="goal" rows="2" maxlength="4000">${esc(list.goal || '')}</textarea></label><button class="btn" type="submit">목표 저장</button></form>
-          ${board.tasks.filter(t => t.checklistId === list.id).map(t => `<div class="supervision-task"><label><input type="checkbox" data-task="${esc(t.id)}" ${t.done ? 'checked' : ''}>${esc(t.text)} <small>${esc(t.id)}${t.kind === 'question' ? ' · 질문' : ''}</small></label>${t.kind === 'question' ? `<form data-answer="${esc(t.id)}"><label>답변<textarea name="answer" rows="2" maxlength="4000">${esc(t.answer || '')}</textarea></label><button class="btn" type="submit">답변 저장</button></form>` : ''}</div>`).join('')}
-          <form data-add><label>항목 종류<select name="kind"><option value="task">할 일</option><option value="question">질문</option></select></label><label>내용<input name="text" required maxlength="500"></label><button class="btn" type="submit">추가</button></form>
-        </article>`).join('') || '<p>체크리스트를 만들고 목표와 질문을 적어두세요.</p>';
+          ${board.tasks.filter(t => t.checklistId === list.id && t.kind !== 'question' && !t.done).map(taskRow).join('')}
+          <details class="supervision-resolved"><summary>완료한 작업 ${board.tasks.filter(t => t.checklistId === list.id && t.kind !== 'question' && t.done).length}개</summary>${board.tasks.filter(t => t.checklistId === list.id && t.kind !== 'question' && t.done).map(taskRow).join('')}</details>
+          <form data-add><label>할 일<input name="text" required maxlength="500"></label><button class="btn" type="submit">할 일 추가</button></form>
+        </article>`).join('') || '<p>체크리스트를 만들고 할 일과 완료 조건을 적어두세요.</p>';
         listSignature = signature;
+      }
+      for (const container of questionLists) {
+        const questions = board.tasks.filter(task => task.kind === 'question' && (task.questionTo || 'user') === container.dataset.questionList);
+        const html = questions.filter(task => !task.done).map(questionRow).join('') || '<p class="supervision-empty">미해결 질문이 없습니다.</p>';
+        const resolved = questions.filter(task => task.done);
+        const content = html + `<details class="supervision-resolved"><summary>해결된 질문 ${resolved.length}개</summary>${resolved.map(questionRow).join('')}</details>`;
+        if (container._questionsHtml !== content) {
+          const focused = container.contains(document.activeElement) ? document.activeElement : null;
+          const selection = focused instanceof HTMLTextAreaElement ? [focused.selectionStart, focused.selectionEnd, focused.selectionDirection] : null;
+          const preserved = [...container.querySelectorAll('[data-task-row]')].filter(row => row.contains(focused) || [...dirtyForms].some(form => row.contains(form)));
+          const wasOpen = container.querySelector('.supervision-resolved')?.open;
+          container.innerHTML = content;
+          for (const row of preserved) {
+            const replacement = [...container.querySelectorAll('[data-task-row]')].find(item => item.dataset.taskRow === row.dataset.taskRow);
+            if (replacement) replacement.replaceWith(row);
+            else container.prepend(row); // Keep a draft even if another client deleted its question.
+          }
+          container.querySelector('.supervision-resolved').open = Boolean(wasOpen);
+          focused?.focus({ preventScroll: true });
+          if (selection) focused.setSelectionRange(...selection);
+          container._questionsHtml = preserved.length ? '' : content;
+        }
       }
     } catch (err) { if (active()) error(err); }
   }
@@ -259,7 +298,7 @@ export function mountSupervision(main) {
     event.preventDefault();
     save(() => send('/api/board/permissions', 'PUT', permissionSelection()), () => { permissionsDirty = false; });
   });
-  lists.addEventListener('input', event => { if (!event.target.matches('[data-task]')) dirtyForms.add(event.target.closest('form')); });
+  root.addEventListener('input', event => { const form = event.target.closest('[data-answer], [data-goal], [data-add]'); if (form) dirtyForms.add(form); });
   config.addEventListener('submit', event => {
     event.preventDefault();
     if (!configUpdate.hidden) return error(new Error('다른 세션의 최신 설정이 있습니다. 작성 중인 내용을 보관하고 최신 설정을 불러온 뒤 다시 적용하세요.'));
@@ -297,19 +336,33 @@ export function mountSupervision(main) {
       event.target.closest('.supervision-worker').remove();
       configDirty = true; updateReadiness();
     }
-    if (event.target.closest('[data-permissions]')) { selectTab('permissions'); permissionForm.elements.codex.focus(); }
+    if (event.target.closest('[data-permissions]')) { selectTab('config'); permissionDetails.open = true; permissionForm.elements.codex.focus(); }
     if (event.target.closest('[data-questions]')) {
-      selectTab('work');
+      selectTab('questions');
       const findQuestion = () => [...root.querySelectorAll('[data-answer]')].find(form => board.tasks.some(task => task.id === form.dataset.answer && !task.done && !task.answer?.trim()));
-      if (!findQuestion() && !dirtyForms.size) await refresh();
+      if (!findQuestion() && ![...dirtyForms].some(form => form.matches('[data-answer]'))) await refresh();
       const first = findQuestion();
       if (first) first.querySelector('textarea').focus();
       else {
         notice.hidden = false;
         notice.textContent = '새 질문이 도착했습니다. 작성 중인 항목을 저장하면 질문 목록이 갱신됩니다. 입력은 유지했습니다.';
         showToast(notice.textContent, 'info');
-        [...dirtyForms][0]?.querySelector('textarea, input')?.focus();
+        [...dirtyForms].find(form => form.matches('[data-answer]'))?.querySelector('textarea')?.focus();
       }
+    }
+    const resolve = event.target.closest('[data-question-state]');
+    if (resolve) {
+      const form = resolve.closest('[data-task-row]').querySelector('form');
+      if (dirtyForms.has(form)) return error(new Error('작성 중인 답변을 먼저 저장하세요.'));
+      save(() => send(`/api/board/tasks/${resolve.dataset.questionState}`, 'PATCH', { done: resolve.dataset.done === 'true' }), () => resolve.blur());
+    }
+    const remove = event.target.closest('[data-delete-task]');
+    if (remove) {
+      const task = board.tasks.find(task => task.id === remove.dataset.deleteTask);
+      if (!task) return error(new Error('이미 삭제된 항목입니다. 작성 중인 내용을 보관하고 보드를 다시 여세요.'));
+      if (!confirm(task.kind === 'question' ? '이 질문과 답변을 삭제할까요? 삭제 후에는 되돌릴 수 없습니다.' : '이 작업을 삭제할까요? 삭제 후에는 되돌릴 수 없습니다.')) return;
+      const row = remove.closest('[data-task-row]');
+      save(() => send(`/api/board/tasks/${task.id}`, 'DELETE'), () => { dirtyForms.delete(row.querySelector('form')); row.remove(); });
     }
     if (event.target.closest('[data-stop]')) save(() => send('/api/board/review', 'PUT', { target: '', intervalMinutes: board.review.intervalMinutes }));
     if (event.target.closest('[data-restart]')) {
@@ -318,11 +371,11 @@ export function mountSupervision(main) {
       catch (err) { error(err); }
     }
   });
-  lists.addEventListener('change', event => {
+  root.addEventListener('change', event => {
     if (!event.target.matches('[data-task]')) return;
     const checkbox = event.target;
     const checked = checkbox.checked;
-    save(() => send(`/api/board/tasks/${checkbox.dataset.task}`, 'PATCH', { done: checked }), null, () => { checkbox.checked = !checked; });
+    save(() => send(`/api/board/tasks/${checkbox.dataset.task}`, 'PATCH', { done: checked }), () => checkbox.blur(), () => { checkbox.checked = !checked; });
   });
   async function changeBoard(change) {
     const base = await fetchJson('/api/board');
@@ -347,14 +400,15 @@ export function mountSupervision(main) {
       if (!task) throw new Error('질문이 삭제되었습니다.');
       task.answer = editedValue(form.elements.answer, task.answer || '');
     });
-    if (form.matches('[data-add]')) operation = () => send('/api/board/tasks', 'POST', { checklistId: listId, kind: form.elements.kind.value, text: form.elements.text.value });
+    if (form.matches('[data-add]')) operation = () => send('/api/board/tasks', 'POST', { checklistId: listId, kind: 'task', text: form.elements.text.value });
+    if (form.matches('.supervision-ask')) operation = () => send('/api/board/tasks', 'POST', { kind: 'question', questionTo: 'supervisor', text: form.elements.text.value });
     if (form.matches('[data-goal]')) operation = () => changeBoard(next => { const list = next.checklists.find(l => l.id === listId); if (!list) throw new Error('체크리스트가 삭제되었습니다.'); list.goal = editedValue(form.elements.goal, list.goal || ''); });
     if (form.matches('.supervision-new-list')) operation = () => changeBoard(next => { next.checklists.push({ id: `C-${String(next.nextChecklistNumber++).padStart(4, '0')}`, title: form.elements.title.value, goal: '' }); });
     if (operation) save(operation, () => {
       dirtyForms.delete(form);
       const field = form.querySelector('textarea');
-      if (field) field.defaultValue = field.value;
-      if (form.matches('[data-add], .supervision-new-list')) form.reset();
+      if (field && !form.matches('.supervision-ask')) field.defaultValue = field.value;
+      if (form.matches('[data-add], .supervision-new-list, .supervision-ask')) form.reset();
       if (form.contains(document.activeElement)) document.activeElement.blur();
     });
   });

@@ -10,6 +10,8 @@ const baseUrl = (urlIndex >= 0 ? args.splice(urlIndex, 2)[1] : process.env.COCKP
   || `http://127.0.0.1:${process.env.COCKPIT_PORT || 3847}`;
 const checklistIndex = args.indexOf('--checklist');
 const checklistId = checklistIndex >= 0 ? args.splice(checklistIndex, 2)[1] : undefined;
+const toIndex = args.indexOf('--to');
+const questionTo = toIndex >= 0 ? args.splice(toIndex, 2)[1] : 'user';
 
 async function request(path, method = 'GET', body) {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -26,6 +28,9 @@ async function backend() {
   let legacyServer = false;
   try {
     const board = await request('/api/board');
+    if (args[0] === 'question' && args[1] === 'add' && questionTo === 'supervisor' && !(board.supervisionVersion >= 6)) {
+      throw Object.assign(new Error('감독에게 질문하려면 Cockpit 서버를 업데이트하고 다시 시작하세요.'), { status: 409 });
+    }
     if (['question', 'review'].includes(args[0]) && board.reviewVersion !== 1) {
       throw Object.assign(new Error('질문·답변 기능을 사용하려면 Cockpit 서버를 업데이트하고 다시 시작하세요.'), { status: 409 });
     }
@@ -34,7 +39,7 @@ async function backend() {
       list: () => request('/api/board'),
       note: content => request('/api/board/note', 'PUT', { content }),
       append: content => request('/api/board/note/append', 'POST', { content }),
-      add: (text, kind = 'task') => request('/api/board/tasks', 'POST', { text, kind, checklistId }),
+      add: (text, kind = 'task') => request('/api/board/tasks', 'POST', { text, kind, checklistId, ...(kind === 'question' ? { questionTo } : {}) }),
       review: pendingSince => request('/api/board/review', 'POST', { pendingSince }),
       update: (id, updates) => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'PATCH', updates),
       delete: id => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'DELETE'),
@@ -67,7 +72,7 @@ async function backend() {
     list: () => service.getBoard(),
     note: content => service.updateBoardNote(content),
     append: content => service.appendBoardNote(content),
-    add: (text, kind = 'task') => service.addBoardTask(text, checklistId, kind),
+    add: (text, kind = 'task') => service.addBoardTask(text, checklistId, kind, questionTo),
     review: () => { throw new Error('확인 기록에는 실행 중인 Cockpit 서버가 필요합니다.'); },
     update: (id, updates) => service.updateBoardTask(id, updates),
     delete: id => service.deleteBoardTask(id),
@@ -85,13 +90,14 @@ function usage() {
   cockpit-board task reopen <T-ID>
   cockpit-board task edit <T-ID> <text>
   cockpit-board task delete <T-ID>
-  cockpit-board question add <text> --checklist <C-ID>
+  cockpit-board question add <text> --checklist <C-ID> [--to user|supervisor]
   cockpit-board question answer <T-ID> <text>
   cockpit-board review <pendingSince>
   task add also accepts --checklist <C-ID>`;
 }
 
 async function main() {
+  if (!['user', 'supervisor'].includes(questionTo)) throw new Error('--to must be user or supervisor');
   const store = await backend();
   const [group = 'list', action, id, ...rest] = args;
   let result;

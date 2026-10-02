@@ -238,7 +238,7 @@ test('terminal-first shell keeps its Tailwind and focus-mode contract', async ()
   assert.match(canvasBoard, /request\('\/api\/board', 'PUT', \{ board: localSnapshot, revision: localSnapshot\.revision, base: baseSnapshot \}\)/);
   assert.match(canvasBoard, /Sync conflict/);
   assert.match(canvasBoard, /generation !== localGeneration/);
-  assert.match(canvasBoard, /if \(list\._cockpitRenderHtml !== html && !editingAnswer\)/);
+  assert.match(canvasBoard, /if \(list\._cockpitRenderHtml !== html\)/);
   assert.match(terminalUi, /function syncSessionTabSelection/);
   assert.match(terminalUi, /container\._cockpitStructureKey === structureKey/);
   assert.match(terminalUi, /container\.scrollLeft = scrollLeft/);

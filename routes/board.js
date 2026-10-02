@@ -138,7 +138,7 @@ export function register(ctx) {
 
   addRoute('POST', '/api/board/tasks', async (req, res) => {
     const body = await readBody(req);
-    try { json(res, addBoardTask(body.text, body.checklistId, body.kind), 201); }
+    try { json(res, addBoardTask(body.text, body.checklistId, body.kind, body.questionTo), 201); }
     catch (error) { handleError(res, error); }
   });
 

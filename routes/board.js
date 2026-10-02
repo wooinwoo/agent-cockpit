@@ -1,4 +1,4 @@
-import { updateBoardReview as persistReview, reportBoardReview as persistReport, reportBoardWorker as persistWorkerReport, addBoardSupervisor as persistSupervisor, supervisorBoard } from '../lib/board-service.js';
+import { updateBoardReview as persistReview, reportBoardReview as persistReport, reportBoardWorker as persistWorkerReport, resumeBoardWorker as persistWorkerResume, addBoardSupervisor as persistSupervisor, supervisorBoard } from '../lib/board-service.js';
 import { createBoardReviewer } from '../lib/board-review.js';
 import { AGENT_PERMISSION_MODES, unattendedCommandReady } from '../js/agent-permissions.js';
 import { createApprovalWatcher } from '../lib/approval-watcher.js';
@@ -137,6 +137,13 @@ export function register(ctx) {
       }
       json(res, reportBoardReview(body.pendingSince, { status: body.status, report: body.report, progress: body.progress, supervisorId: body.supervisorId }));
     } catch (error) { handleError(res, error); }
+  });
+
+  addRoute('POST', '/api/board/worker-resume', async (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '작업자 재개는 로컬에서만 가능합니다.' }, 403);
+    const body = await readBody(req);
+    try { json(res, (ctx.resumeBoardWorker || persistWorkerResume)(body)); }
+    catch (error) { handleError(res, error); }
   });
 
   addRoute('POST', '/api/board/worker-report', async (req, res) => {

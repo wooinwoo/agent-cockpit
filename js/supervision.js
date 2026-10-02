@@ -204,7 +204,7 @@ export function mountSupervision(main) {
       if (!active() || requestId !== refreshId) return;
       board = next;
       availableTerminals = Array.isArray(terminalList?.terminals) ? terminalList.terminals : null;
-      if (board.supervisionVersion !== 8) {
+      if (board.supervisionVersion !== 9) {
         notice.hidden = false;
         notice.innerHTML = '서버 업데이트가 필요합니다. 진행 중인 중요한 작업을 마친 뒤 적용하세요. <button class="btn" type="button" data-restart>서버 업데이트…</button>';
         return;
@@ -260,12 +260,12 @@ export function mountSupervision(main) {
       const progressHtml = review.watched.map(target => {
         const worker = review.workerProgress?.find(item => item.termId === target.termId);
         const run = worker?.run || {};
-        const observation = { busy: '작업 중 화면', idle: '입력 대기', paused: '일시정지 유지', approval: '승인·로그인 확인 필요', offline: '세션 종료', unknown: '화면 확인 불가' }[run.observed] || '아직 확인하지 않음';
+        const observation = { busy: '작업 중 화면', idle: '입력 대기', paused: 'AI 목표 일시정지', interrupted: '턴 중단됨', 'goal-blocked': 'AI 목표 의존성 대기', limited: '사용량·예산 제한', approval: '승인·로그인 확인 필요', offline: '세션 종료', unknown: '화면 확인 불가' }[run.observed] || '아직 확인하지 않음';
         const execution = { ready: '목표 재개 대기', active: '목표 전달됨', blocked: '의존성 대기', reported: '완료 주장 · 감독 검증 대기', complete: '감독 검증 완료' }[run.status] || '목표 전달 전';
         const workerNext = run.status === 'reported' ? '감독이 완료 근거를 검증합니다.' : run.status === 'complete' ? '완료 조건 검증이 끝났습니다.'
-          : run.observed === 'paused' ? '사용자가 일시정지를 해제할 때까지 유지합니다.' : run.status === 'blocked' ? '답변이나 관련 작업 결과가 바뀌면 다시 확인합니다.'
+          : run.resumeRequestedAt || run.resumeSentAt ? '목표 재개 요청의 실제 반영을 확인 중입니다.' : run.observed === 'paused' ? '아래 목표 재개로 AI의 일시정지를 해제할 수 있습니다. 승인·사용량 제한은 별도입니다.' : run.status === 'blocked' ? '조건별 막힘을 기록하고, 새 답변·결과 또는 15분 뒤 독립 작업을 다시 확인합니다.'
           : worker?.nextAction || '자기 완료 조건의 다음 미완료 작업을 이어갑니다.';
-        return `<article><h3>${esc(target.alias || target.termId)}</h3><p><strong>${esc(execution)}</strong> · ${esc(running ? observation : '자동 재개 꺼짐')}</p>${run.lastError ? `<p>${esc(run.lastError)}</p>` : ''}<p><strong>완료 조건</strong><br>${esc(target.goal)}</p><p>${stalled.some(item => item.termId === target.termId) ? '진전 확인 필요 · ' : ''}마지막 근거 등록: ${esc(stamp(worker?.lastProgressAt))}</p><p><strong>확인된 근거</strong><br>${esc(worker?.evidence || '아직 등록된 근거가 없습니다.')}</p>${run.summary ? `<p><strong>작업자 보고 · ${esc(stamp(run.reportedAt))}</strong><br>${esc(run.summary)}</p>` : ''}<p><strong>막힌 이유</strong><br>${esc(run.blocker || worker?.blocker || '보고된 장애 없음')}</p><p><strong>다음 조치</strong><br>${esc(running ? workerNext : '감독이 중지되어 자동 재개하지 않습니다.')}</p></article>`;
+        return `<article><h3>${esc(target.alias || target.termId)}</h3><p><strong>${esc(execution)}</strong> · ${esc(running ? observation : '자동 재개 꺼짐')}</p>${run.lastError ? `<p>${esc(run.lastError)}</p>` : ''}<p><strong>완료 조건</strong><br>${esc(target.goal)}</p><p>${stalled.some(item => item.termId === target.termId) ? '진전 확인 필요 · ' : ''}마지막 근거 등록: ${esc(stamp(worker?.lastProgressAt))}</p><p><strong>확인된 근거</strong><br>${esc(worker?.evidence || '아직 등록된 근거가 없습니다.')}</p>${run.summary ? `<p><strong>작업자 보고 · ${esc(stamp(run.reportedAt))}</strong><br>${esc(run.summary)}</p>` : ''}<p><strong>막힌 이유</strong><br>${esc(run.blocker || worker?.blocker || '보고된 장애 없음')}</p><p><strong>다음 조치</strong><br>${esc(running ? workerNext : '감독이 중지되어 자동 재개하지 않습니다.')}</p>${run.remaining?.length ? `<ul>${run.remaining.map(item => `<li>${esc(item.condition)}: ${esc(item.blocker)} · 다음: ${esc(item.nextAction)}</li>`).join('')}</ul>` : ''}${running && (run.observed === 'paused' || run.status === 'blocked') ? `<button class="btn" type="button" data-worker-resume="${esc(target.termId)}" ${run.resumeRequestedAt || run.resumeSentAt ? 'disabled' : ''}>목표 재개</button>` : ''}</article>`;
       }).join('');
       const workers = root.querySelector('.supervision-worker-status');
       const workersHtml = progressHtml || '<p>배정된 작업자가 없습니다. 설정에서 작업 AI와 완료 조건을 추가하세요.</p>';
@@ -345,6 +345,11 @@ export function mountSupervision(main) {
       stallMinutes: Number(config.elements.stallMinutes.value), runHours: Number(config.elements.runHours.value) }), () => { configDirty = false; });
   });
   root.addEventListener('click', async event => {
+    const resumeWorker = event.target.closest('[data-worker-resume]');
+    if (resumeWorker) {
+      save(() => send('/api/board/worker-resume', 'POST', { supervisorId: selectedSupervisorId, termId: resumeWorker.dataset.workerResume }));
+      return;
+    }
     if (event.target.closest('[data-stop-approval]')) {
       if (!confirm('공통 승인 스크립트를 중지할까요? 이후 도구 승인 요청은 직접 처리해야 합니다. 작업 AI 세션은 유지됩니다.')) return;
       save(() => send('/api/board/approval-watcher/stop', 'POST', {}));

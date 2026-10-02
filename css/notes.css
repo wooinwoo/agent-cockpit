@@ -229,8 +229,10 @@
 .supervision-fab {
   position: fixed; right: 16px; bottom: calc(112px + env(safe-area-inset-bottom, 0px)); z-index: 125;
   min-height: 44px; padding: 10px 16px; border: 1px solid var(--accent); border-radius: var(--radius);
-  background: var(--bg-2); color: var(--text-0); font: 600 .82rem var(--font); cursor: pointer;
+  background: var(--bg-2); color: var(--text-0); font: 600 .82rem var(--font); cursor: grab;
+  touch-action: none; user-select: none;
 }
+.supervision-fab.dragging { cursor: grabbing; }
 .supervision-fab:hover, .supervision-fab[aria-expanded=true] { background: var(--bg-3); }
 .supervision-fab:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; }
 .supervision-floating {
@@ -240,7 +242,7 @@
   color: var(--text-1); background: var(--bg-1); border: 1px solid var(--border-hover); border-radius: var(--radius);
   overflow: hidden;
 }
-.supervision-floating[open] { display: flex; flex-direction: column; }
+.supervision-floating[open] { display: flex; flex-direction: column; animation: none; }
 .supervision-floating-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 .supervision-floating-head { cursor: grab; touch-action: none; user-select: none; }
 .supervision-floating-head.dragging { cursor: grabbing; }

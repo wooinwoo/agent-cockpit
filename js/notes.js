@@ -219,35 +219,56 @@ function moveFloatingSupervision(dx = 0, dy = 0) {
 
 window.addEventListener('resize', () => moveFloatingSupervision());
 
-function bindFloatingDrag(panel) {
-  const head = panel.querySelector('.supervision-floating-head');
+function bindFloatingDrag(handle) {
+  if (!handle) return;
   let pointer = null;
-  head.onpointerdown = event => {
-    if (event.button !== 0 || !event.isPrimary || event.target.closest('button')) return;
+  let suppressClick = false;
+  handle.onpointerdown = event => {
+    if (event.button !== 0 || !event.isPrimary || handle.disabled
+      || (event.target.closest('button') && event.target.closest('button') !== handle)) return;
     event.preventDefault();
-    head.focus({ preventScroll: true });
-    pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
-    head.setPointerCapture(event.pointerId);
-    head.classList.add('dragging');
+    handle.focus({ preventScroll: true });
+    suppressClick = false;
+    pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+    handle.setPointerCapture(event.pointerId);
   };
-  head.onpointermove = event => {
+  handle.onpointermove = event => {
     if (!pointer || event.pointerId !== pointer.id) return;
-    moveFloatingSupervision(event.clientX - pointer.x, event.clientY - pointer.y);
+    const dx = event.clientX - pointer.x;
+    const dy = event.clientY - pointer.y;
+    if (!pointer.moved && Math.hypot(dx, dy) < 5) return;
+    pointer.moved = true;
+    handle.classList.add('dragging');
+    moveFloatingSupervision(dx, dy);
     pointer.x = event.clientX; pointer.y = event.clientY;
   };
-  head.onpointerup = head.onpointercancel = head.onlostpointercapture = () => {
-    if (pointer && head.hasPointerCapture(pointer.id)) head.releasePointerCapture(pointer.id);
+  handle.onpointerup = handle.onpointercancel = handle.onlostpointercapture = event => {
+    if (!pointer || event.pointerId !== pointer.id) return;
+    suppressClick = pointer.moved;
+    const id = pointer.id;
     pointer = null;
-    head.classList.remove('dragging');
+    if (handle.hasPointerCapture(id)) handle.releasePointerCapture(id);
+    handle.classList.remove('dragging');
   };
-  head.onkeydown = event => {
-    if (event.target !== head || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+  if (handle.tagName === 'BUTTON') handle.onclick = event => {
+    // A drag ends with a click in browsers; do not toggle the board on release.
+    if (suppressClick && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); }
+    suppressClick = false;
+  };
+  handle.onkeydown = event => {
+    if (event.target === handle && handle.tagName === 'BUTTON' && event.key === ' ') {
+      event.stopPropagation(); // Preserve the native button click instead of canvas panning.
+      return;
+    }
+    if (event.target !== handle || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
     event.preventDefault(); event.stopPropagation();
     const step = event.shiftKey ? 40 : 10;
     moveFloatingSupervision(event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0,
       event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0);
   };
 }
+
+bindFloatingDrag($('supervision-fab'));
 
 async function toggleFloatingSupervision() {
   if (_floatingOpening) return;
@@ -268,7 +289,7 @@ async function toggleFloatingSupervision() {
     };
     panel.show();
     moveFloatingSupervision();
-    bindFloatingDrag(panel);
+    bindFloatingDrag(panel.querySelector('.supervision-floating-head'));
     button.setAttribute('aria-expanded', 'true');
     panel.onkeydown = event => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeFloatingSupervision(true); }

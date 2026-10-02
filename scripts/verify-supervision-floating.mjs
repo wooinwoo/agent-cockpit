@@ -24,12 +24,34 @@ try {
    input.id='terminal-test-input';input.style.cssText='position:fixed;left:90px;top:95px;width:160px;z-index:124';
    document.body.append(input);
   });
-  await page.locator('#supervision-fab').click();
+  const closedButton=await page.locator('#supervision-fab').boundingBox();
+  if(width===390) {
+   const touch=await page.context().newCDPSession(page);
+   const x=closedButton.x+closedButton.width/2,y=closedButton.y+closedButton.height/2;
+   await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+   await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-25}]});
+   await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+   await touch.detach();
+  } else {
+   await page.mouse.move(closedButton.x+30,closedButton.y+20);await page.mouse.down();
+   await page.mouse.move(closedButton.x-10,closedButton.y-5,{steps:5});await page.mouse.up();
+  }
+  assert.ok((await page.locator('#supervision-fab').boundingBox()).y<closedButton.y-20,'closed button can be dragged before first open');
+  assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.open),false,'drag release must not open the board');
+  await page.locator('#supervision-fab').focus();
+  const beforeKey=await page.locator('#supervision-fab').boundingBox();
+  await page.keyboard.press('ArrowUp');
+  assert.ok((await page.locator('#supervision-fab').boundingBox()).y<beforeKey.y-5,'button can move with keyboard');
+  await page.keyboard.press('Enter');
   await page.locator('#supervision-floating .supervision-content').waitFor({state:'visible'});
+  await page.locator('#supervision-fab').focus();await page.keyboard.press('Space');
+  assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.open),false,'Space folds the board instead of activating canvas pan');
+  await page.keyboard.press('Space');
+  assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.open),true,'Space reopens the board');
   const panelRect=await page.locator('#supervision-floating').boundingBox();
   const buttonRect=await page.locator('#supervision-fab').boundingBox();
   assert.ok(panelRect.y>=0 && panelRect.y+panelRect.height<=buttonRect.y-8,'panel must fit above shortcut');
-  assert.ok(Math.abs(buttonRect.y-panelRect.y-panelRect.height-8)<1,'panel opens directly above its button with an 8px gap');
+  assert.ok(Math.abs(buttonRect.y-panelRect.y-panelRect.height-8)<1,`panel opens above button: ${JSON.stringify({width,panelRect,buttonRect})}`);
   assert.equal(await page.locator('#terminal-view').evaluate(e=>e.classList.contains('active')),true);
   assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.matches(':modal')),false);
   assert.equal(await page.locator('.supervision [role=tab]').count(),4);
@@ -114,6 +136,15 @@ try {
    assert.ok((await page.locator('#supervision-floating').boundingBox()).y>clamped.y+20,'touch drag moves window');
    await touch.detach();
   }
+  const beforeButtonDrag=await page.locator('#supervision-fab').boundingBox();
+  const beforePanelDrag=await page.locator('#supervision-floating').boundingBox();
+  await page.mouse.move(beforeButtonDrag.x+30,beforeButtonDrag.y+20);await page.mouse.down();
+  await page.mouse.move(beforeButtonDrag.x+30,beforeButtonDrag.y+45,{steps:5});await page.mouse.up();
+  assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.open),true,'dragging the open board button must not close it');
+  const afterButtonDrag=await page.locator('#supervision-fab').boundingBox();
+  const afterPanelDrag=await page.locator('#supervision-floating').boundingBox();
+  assert.ok(afterButtonDrag.y>beforeButtonDrag.y+20);
+  assert.ok(Math.abs((afterButtonDrag.y-beforeButtonDrag.y)-(afterPanelDrag.y-beforePanelDrag.y))<1,'button drag carries its window');
   const beforeFold=await page.locator('#supervision-fab').boundingBox();
   await page.locator('[data-action=close-floating-supervision]').click();
   assert.deepEqual(await page.locator('#supervision-fab').boundingBox(),beforeFold,'button stays at moved position when folded');

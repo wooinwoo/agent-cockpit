@@ -2,6 +2,8 @@
 // Uses an isolated server and real app handlers; never connects to live sessions.
 import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { startPortfolioServer } from '../tests/helpers/portfolio-server.js';
 
 const fixture = await startPortfolioServer({ durable: false });
@@ -23,15 +25,51 @@ try {
    document.body.append(input);
   });
   await page.locator('#supervision-fab').click();
-  await page.locator('#supervision-floating .supervision-columns').waitFor({state:'visible'});
+  await page.locator('#supervision-floating .supervision-content').waitFor({state:'visible'});
   const panelRect=await page.locator('#supervision-floating').boundingBox();
   const buttonRect=await page.locator('#supervision-fab').boundingBox();
   assert.ok(panelRect.y>=0 && panelRect.y+panelRect.height<=buttonRect.y-8,'panel must fit above shortcut');
   assert.equal(await page.locator('#terminal-view').evaluate(e=>e.classList.contains('active')),true);
   assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.matches(':modal')),false);
+  assert.equal(await page.locator('.supervision [role=tab]').count(),4);
+  assert.equal(await page.locator('.supervision [role=tabpanel]:visible').count(),1);
+  assert.equal(await page.locator('#supervision-tab-progress').getAttribute('aria-selected'),'true');
+  await page.screenshot({path:join(tmpdir(),`cockpit-supervision-tabs-progress-${width}.png`)});
+  await page.locator('#supervision-tab-progress').focus();await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('#supervision-tab-config').getAttribute('aria-selected'),'true');
+  assert.equal(await page.locator('.supervision-options[open]').count(),0);
   await page.locator('#supervision-floating [name=objective]').fill('접어도 남을 목표');
+  await page.screenshot({path:join(tmpdir(),`cockpit-supervision-tabs-config-${width}.png`)});
+  await page.locator('#supervision-tab-progress').click();
+  await page.locator('[data-questions]').click();
+  assert.equal(await page.locator('#supervision-tab-work').getAttribute('aria-selected'),'true');
+  assert.equal(await page.locator('[data-answer] textarea').evaluate(e=>e===document.activeElement),true);
   await page.locator('#supervision-floating [data-answer] textarea').fill('스테이징');
-  await page.locator('#supervision-floating .supervision').evaluate(e=>e.scrollTop=0);
+  await page.locator('#supervision-tab-permissions').click();
+  await page.locator('[name=codex]').selectOption('network');
+  await page.waitForResponse(response=>response.url()===`${fixture.url}/api/board` && response.request().method()==='GET');
+  assert.equal(await page.locator('#supervision-tab-permissions').getAttribute('aria-selected'),'true','polling preserves selected tab');
+  assert.equal(await page.locator('[name=codex]').inputValue(),'network');
+  await page.locator('#supervision-tab-config').click();
+  assert.equal(await page.locator('[name=objective]').inputValue(),'접어도 남을 목표');
+  await page.locator('[name=target]').fill('ai8');
+  await page.locator('[name=workerTarget]').fill('ai1');
+  await page.locator('[name=workerGoal]').fill('회귀 검사 통과');
+  await page.locator('.supervision-options summary').last().click();
+  await page.locator('[name=runHours]').fill('25');
+  await page.locator('.supervision-options summary').last().click();
+  await page.locator('.supervision-config button[type=submit]').click();
+  assert.equal(await page.locator('[name=runHours]').evaluate(e=>e.closest('details').open),true,'invalid collapsed setting is revealed');
+  assert.equal(await page.locator('[name=runHours]').evaluate(e=>e===document.activeElement),true);
+  await page.locator('[name=runHours]').fill('0');
+  await page.locator('.supervision-options summary').last().click();
+  await page.locator('.supervision').evaluate(e=>e.scrollTop=e.scrollHeight);
+  const tabRect=await page.locator('.supervision-tabs').boundingBox();
+  const boardRect=await page.locator('.supervision').boundingBox();
+  assert.ok(tabRect.y>=boardRect.y-2 && tabRect.y+tabRect.height<=boardRect.y+boardRect.height,'tabs stay reachable after scrolling');
+  await page.locator('[data-permissions]').click();
+  assert.equal(await page.locator('#supervision-tab-permissions').getAttribute('aria-selected'),'true');
+  await page.locator('#supervision-tab-config').click();
   await page.locator('#terminal-test-input').fill('terminal still accepts input');
   assert.equal(await page.locator('#terminal-test-input').inputValue(),'terminal still accepts input');
   await page.locator('#supervision-floating').dispatchEvent('click');
@@ -108,7 +146,7 @@ try {
   await page.evaluate(()=>import('/js/supervision.js').then(m=>m.stopSupervision()));
  }
  assert.deepEqual(errors, []);
- console.log('PASS desktop/mobile: shared button movement, native close/reopen, rapid clicks, drafts, Notes transfer and modal dismissal');
+ console.log('PASS desktop/mobile: tabs, sticky navigation, polling and drafts, shared movement, close/reopen, Notes transfer and modal dismissal');
 } finally {
  await browser?.close();
  await fixture.cleanup();

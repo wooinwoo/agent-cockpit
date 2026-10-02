@@ -248,8 +248,8 @@
 .supervision-floating-head strong { font-size: .82rem; }
 .supervision-floating-head .btn { min-height: 44px; flex: none; }
 .supervision-floating-body { display: flex; min-height: 0; flex: 1; }
-.supervision-floating .supervision { width: 100%; min-width: 0; padding: 16px; }
-.supervision-floating .supervision-columns { grid-template-columns: minmax(0, 1fr); }
+.supervision-floating .supervision { width: 100%; min-width: 0; padding: 0 16px 16px; }
+.supervision-floating .supervision > header { display: none; }
 @media (max-width: 600px) {
   .supervision-floating { inset: auto 12px calc(168px + env(safe-area-inset-bottom, 0px)) auto; width: calc(100vw - 24px); height: 55dvh; max-height: calc(100dvh - 220px); }
 }
@@ -261,7 +261,16 @@
 .supervision p { margin: 6px 0 12px; overflow-wrap: anywhere; }
 .supervision small { color: var(--text-2); font-size: .72rem; }
 .supervision-notice { padding: 10px 12px; border-left: 2px solid var(--accent); background: var(--bg-1); }
-.supervision-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin: 24px 0; }
+.supervision-tabs { position: sticky; top: -1px; z-index: 1; display: flex; gap: 4px; padding: 8px 0; background: var(--bg-1); border-bottom: 1px solid var(--border); }
+.supervision-tabs button { flex: 1; min-width: 0; min-height: 44px; padding: 6px 4px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-2); font: inherit; cursor: pointer; }
+.supervision-tabs button:hover { color: var(--text-0); background: var(--bg-2); }
+.supervision-tabs button[aria-selected=true] { border-bottom-color: var(--accent-bright); color: var(--text-0); font-weight: 600; }
+.supervision-tabs button:disabled { opacity: .5; cursor: wait; }
+.supervision-content { padding-top: 16px; }
+.supervision-options { border-block: 1px solid var(--border); padding: 10px 0; }
+.supervision-options summary { cursor: pointer; color: var(--text-0); }
+.supervision-options[open] > :not(summary) { margin-top: 12px; }
+.supervision-options small { display: block; }
 .supervision [hidden] { display: none; }
 .supervision section { min-width: 0; }
 .supervision form, .supervision label { display: grid; gap: 6px; }
@@ -280,11 +289,9 @@
 .supervision-config h3 { margin: 16px 0 0; }
 .supervision-workers, .supervision-worker { display: grid; gap: 10px; }
 .supervision-worker { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-.supervision-reports { max-height: 450px; overflow-y: auto; }
+.supervision-reports { overflow-wrap: anywhere; }
 .supervision-reports article { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .supervision-reports p { white-space: pre-wrap; }
-.supervision-work { border-top: 1px solid var(--border); padding-top: 24px; }
-.supervision-permissions { border-top: 1px solid var(--border); padding: 24px 0; }
 .supervision-lists { display: grid; gap: 20px; margin: 20px 0; }
 .supervision-lists > article { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
 .supervision-task { margin: 14px 0; padding: 12px 0; border-top: 1px solid var(--border); }
@@ -295,6 +302,5 @@
   .docs-layout:has(.supervision) { flex-direction: column; }
   .docs-layout:has(.supervision) .docs-sidebar { width: auto; max-height: 145px; border-right: none; border-bottom: 1px solid var(--border); }
   .supervision { padding: 16px; }
-  .supervision-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
 }
 @media (pointer: coarse) { .supervision .btn, .supervision input:not([type=checkbox]), .supervision select { min-height: 44px; } }

@@ -29,15 +29,19 @@ export function stopSupervision() {
 export function mountSupervision(main) {
   stopSupervision();
   const mounted = generation;
+  const tabs = [['progress', '진행'], ['config', '목표·설정'], ['work', '할 일·질문'], ['permissions', '권한']];
   main.innerHTML = `<div class="supervision">
-    <header><h1>감독 보드</h1><p>맡길 일과 완료 조건을 정하고, 첫 점검 보고를 확인한 뒤 자리를 비우세요.</p></header>
+    <header><h1>감독 보드</h1></header>
+    <div class="supervision-tabs" role="tablist" aria-label="감독 보드 메뉴" hidden>
+      ${tabs.map(([id, label]) => `<button type="button" role="tab" id="supervision-tab-${id}" aria-controls="supervision-panel-${id}" aria-selected="${id === 'progress'}" tabindex="${id === 'progress' ? 0 : -1}" data-supervision-tab="${id}">${label}</button>`).join('')}
+    </div>
     <p class="supervision-notice" role="status">보드 불러오는 중…</p>
-    <div class="supervision-next" hidden aria-live="polite"></div>
-    <div class="supervision-columns" hidden>
-      <section><h2>맡길 일 설정</h2><form class="supervision-config">
+    <div class="supervision-content" hidden>
+      <section role="tabpanel" id="supervision-panel-config" aria-labelledby="supervision-tab-config" hidden><h2>맡길 일 설정</h2><form class="supervision-config">
         <label>전체 목표<textarea name="objective" rows="2" maxlength="4000" placeholder="예: 아침까지 로그인과 결제 오류 수정"></textarea></label>
+        <details class="supervision-options"><summary>참고 자료 경로 · 링크</summary>
         <label>참고 자료 경로 · 링크<textarea name="referencePaths" rows="3" maxlength="60030" placeholder="/home/user/project/docs/requirements.md&#10;C:\\자료\\설계서.pdf"></textarea></label>
-        <small>한 줄에 파일·폴더 경로 또는 링크 하나씩, 최대 30개. 저장된 자료 목록을 감독이 매 점검과 재시작 후 다시 확인합니다.</small>
+        <small>한 줄에 파일·폴더 경로 또는 링크 하나씩, 최대 30개. 저장된 자료 목록을 감독이 매 점검과 재시작 후 다시 확인합니다.</small></details>
         <h3>작업 AI별 완료 조건</h3>
         <div class="supervision-workers"></div>
         <button class="btn" type="button" data-add-worker>작업 AI 추가</button>
@@ -47,20 +51,23 @@ export function mountSupervision(main) {
         <datalist id="supervision-terminals"></datalist>
         <small>감시할 작업 AI와 다른 세션을 선택하세요. 기존 작업 세션의 권한은 바꾸지 않습니다.</small>
         <label>점검 간격 (분)<input name="interval" type="number" min="1" max="1440" value="5" required></label>
+        <details class="supervision-options"><summary>자동 복구 · 야간 운영</summary>
         <label class="supervision-recovery"><input name="autoRecover" type="checkbox">감독 AI 종료 시 자동 복구</label>
         <small>tmux 터미널에서 지원. 종료된 감독을 같은 실행 명령으로 최대 3회 재시도하고, 보고가 도착하면 횟수를 초기화합니다. 승인·로그인·사용량 제한은 자동으로 해제하지 않습니다.</small>
         <label>보고 기한 초과 시 감독 강제 재시작 (분)<input name="stallMinutes" type="number" min="0" max="240" value="0" required></label>
         <small>0이면 끔. 자동 복구를 켜고 5~240분을 지정하면 응답 없는 감독과 그 안의 실행 중 명령을 중단하고 재시작합니다. 직전 화면을 기록하며 감시 대상 AI는 종료하지 않습니다.</small>
         <label>야간 운영 시간 (시간)<input name="runHours" type="number" min="0" max="24" value="0" required></label>
-        <small>0이면 기존 3회 복구 제한. 1~24시간을 지정하면 3회 실패 후 30분 쉬고 다시 시도하며 종료 시간에 감독을 중지합니다. 자동 복구·보고 기한과 승인 없는 감독 실행 설정이 필요합니다. 막힌 작업은 질문으로 남기고 다른 작업을 계속하도록 지시합니다.</small>
+        <small>0이면 기존 3회 복구 제한. 1~24시간을 지정하면 3회 실패 후 30분 쉬고 다시 시도하며 종료 시간에 감독을 중지합니다. 자동 복구·보고 기한과 승인 없는 감독 실행 설정이 필요합니다. 막힌 작업은 질문으로 남기고 다른 작업을 계속하도록 지시합니다.</small></details>
         <div class="supervision-readiness" aria-live="polite"></div>
         <button class="btn" type="button" data-permissions>새 감독의 실행 권한 준비하기</button>
         <div class="supervision-actions"><button class="btn primary" type="submit">감독 시작</button><button class="btn" type="button" data-stop>감독 중지</button></div>
         <small>콕핏 서버와 AI 세션이 켜져 있는 동안 점검합니다. 응답이 없으면 간격을 늘려 재요청합니다. 중지는 다음 점검과 지시를 막으며, 이미 실행 중인 작업은 계속됩니다.</small>
       </form></section>
-      <section><h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div></section>
-    </div>
-    <section class="supervision-permissions" hidden><h2>새 AI 세션의 실행 권한</h2>
+      <section role="tabpanel" id="supervision-panel-progress" aria-labelledby="supervision-tab-progress">
+        <div class="supervision-next" hidden aria-live="polite"></div>
+        <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
+      </section>
+    <section class="supervision-permissions" role="tabpanel" id="supervision-panel-permissions" aria-labelledby="supervision-tab-permissions" hidden><h2>새 AI 세션의 실행 권한</h2>
       <p>저장 후 콕핏에서 새로 여는 기본 Codex·Claude 세션에 적용합니다. 직접 작성한 실행 명령과 이미 실행 중인 세션은 기존 권한을 유지합니다.</p>
       <form class="supervision-permission-form">
         <label>Codex<select name="codex"><option value="default">기존 CLI 설정 유지</option><option value="workspace">작업 폴더 자동 실행 · 승인 요청 없음</option><option value="network">작업 폴더 + 네트워크 · 승인 요청 없음</option><option value="full">전체 접근 · 승인 요청 없음</option></select></label>
@@ -68,17 +75,44 @@ export function mountSupervision(main) {
         <label>Claude<select name="claude"><option value="default">기존 CLI 설정 유지</option><option value="edits">파일 편집 자동 허용 · 명령은 추가 승인 가능</option><option value="auto">자동 판단 · 지원 계정에서 사용</option><option value="full">권한 확인 생략 · 격리 환경용</option></select></label>
         <small>권한 확인 생략은 폭넓은 파일·명령 실행을 허용합니다. 조직 정책·명시적 차단·로그인·사용량 제한은 별도로 적용됩니다.</small>
         <button class="btn" type="submit">새 세션 권한 저장</button>
-        <p>현재 세션은 해당 터미널에서 <code>/permissions</code>로 변경하세요. 작업 진행 여부를 묻는 대화는 도구 권한과 별개입니다. 승인 없이 진행할 작업 범위는 위 전체 목표에 적어두세요.</p>
+        <p>현재 세션은 해당 터미널에서 <code>/permissions</code>로 변경하세요. 작업 진행 여부를 묻는 대화는 도구 권한과 별개입니다. 승인 없이 진행할 작업 범위는 목표·설정 탭의 전체 목표에 적어두세요.</p>
         <details><summary>실행 명령 보기</summary><div class="supervision-launch-commands"></div></details>
       </form>
     </section>
-    <section class="supervision-work" hidden><h2>체크리스트 · 질문과 답변</h2><p>캔버스 보드와 같은 내용입니다. 답변을 저장하면 다음 점검에 전달됩니다.</p>
+    <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>체크리스트 · 질문과 답변</h2><p>캔버스 보드와 같은 내용입니다. 답변을 저장하면 다음 점검에 전달됩니다.</p>
       <div class="supervision-lists"></div>
       <form class="supervision-new-list"><label>새 체크리스트<input name="title" maxlength="120" required placeholder="프로젝트 또는 작업 묶음"></label><button class="btn" type="submit">체크리스트 추가</button></form>
     </section>
+    </div>
   </div>`;
   const root = main.querySelector('.supervision');
+  const tablist = root.querySelector('[role="tablist"]');
+  function selectTab(id, focus = false) {
+    for (const tab of tablist.querySelectorAll('[role="tab"]')) {
+      const selected = tab.dataset.supervisionTab === id;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      root.querySelector(`#${tab.getAttribute('aria-controls')}`).hidden = !selected;
+      if (selected && focus) tab.focus({ preventScroll: true });
+    }
+    root.scrollTop = 0;
+  }
+  tablist.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const buttons = [...tablist.querySelectorAll('[role="tab"]')];
+    const current = buttons.indexOf(event.target);
+    if (current < 0 || event.target.disabled) return;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1
+      : (current + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+    event.preventDefault(); event.stopPropagation();
+    selectTab(buttons[next].dataset.supervisionTab, true);
+  });
   const config = root.querySelector('.supervision-config');
+  config.addEventListener('invalid', event => {
+    selectTab('config');
+    const details = event.target.closest('details');
+    if (details) details.open = true;
+  }, true);
   const notice = root.querySelector('.supervision-notice');
   const lists = root.querySelector('.supervision-lists');
   const permissionForm = root.querySelector('.supervision-permission-form');
@@ -100,7 +134,7 @@ export function mountSupervision(main) {
   hasUnsavedInput = () => configDirty || permissionsDirty || dirtyForms.size > 0 || Boolean(root.querySelector('.supervision-new-list input').value);
   saving = () => busy;
   const active = () => mounted === generation && root.isConnected;
-  const error = err => { notice.textContent = err.message || '저장하지 못했습니다. 다시 시도하세요.'; showToast(notice.textContent, 'error'); };
+  const error = err => { notice.hidden = false; notice.textContent = err.message || '저장하지 못했습니다. 다시 시도하세요.'; showToast(notice.textContent, 'error'); };
   const updateReadiness = () => {
     const target = config.elements.target.value.trim();
     const pinned = board?.review.alias && target === board.review.alias ? board.review.termId : '';
@@ -114,7 +148,7 @@ export function mountSupervision(main) {
     if (target && watched.some(worker => worker.target === target)) problems.push('감독 AI와 작업 AI는 서로 다른 세션을 선택하세요.');
     if (hours > 0) {
       if (!config.elements.autoRecover.checked || Number(config.elements.stallMinutes.value) < 5) problems.push('야간 운영에는 자동 복구와 5분 이상의 보고 기한이 필요합니다.');
-      if (selected && (!selected.durable || !unattendedCommandReady(selected.command))) problems.push('이 세션은 야간 실행 준비가 확인되지 않았습니다. 아래에서 권한을 저장한 뒤 터미널 탭에서 새 감독 AI를 열어 선택하세요. 기존 작업 AI는 그대로 두세요.');
+      if (selected && (!selected.durable || !unattendedCommandReady(selected.command))) problems.push('이 세션은 야간 실행 준비가 확인되지 않았습니다. 권한 탭에서 권한을 저장한 뒤 터미널 탭에서 새 감독 AI를 열어 선택하세요. 기존 작업 AI는 그대로 두세요.');
     }
     const html = `<strong>시작 전 확인</strong>${problems.length ? `<ul>${problems.map(problem => `<li>${esc(problem)}</li>`).join('')}</ul>` : '<p>입력 준비가 됐습니다. 시작 시 서버가 AI 실행 상태를 다시 확인합니다.</p>'}${availableTerminals === null ? '<p>세션 목록 확인 전입니다. 시작 시 서버에서 확인합니다.</p>' : ''}<small>시작은 감독 설정을 저장합니다. 실제 점검 여부는 첫 보고로 확인하세요.</small>`;
     const readiness = root.querySelector('.supervision-readiness');
@@ -130,12 +164,12 @@ export function mountSupervision(main) {
       board = next;
       availableTerminals = Array.isArray(terminalList?.terminals) ? terminalList.terminals : null;
       if (board.supervisionVersion !== 5) {
+        notice.hidden = false;
         notice.innerHTML = '서버 업데이트가 필요합니다. 진행 중인 중요한 작업을 마친 뒤 적용하세요. <button class="btn" type="button" data-restart>서버 업데이트…</button>';
         return;
       }
-      root.querySelector('.supervision-columns').hidden = false;
-      root.querySelector('.supervision-work').hidden = false;
-      root.querySelector('.supervision-permissions').hidden = false;
+      root.querySelector('.supervision-content').hidden = false;
+      tablist.hidden = false;
       const review = board.review;
       root.querySelector('#supervision-terminals').innerHTML = (availableTerminals || []).map(terminal => `<option value="${esc(terminal.alias || terminal.termId)}">${esc(terminal.projectId || '')}</option>`).join('');
       if (!permissionsDirty && !permissionForm.contains(document.activeElement)) {
@@ -144,6 +178,7 @@ export function mountSupervision(main) {
         previewPermissions();
       }
       const noticeText = review.lastError || '설정과 질문·답변은 저장되며, 채팅 기록과 별개로 유지됩니다.';
+      notice.hidden = !review.lastError;
       if (notice.textContent !== noticeText) notice.textContent = noticeText;
       if (!configDirty && !config.contains(document.activeElement)) {
         config.elements.target.value = review.alias || review.termId;
@@ -160,13 +195,13 @@ export function mountSupervision(main) {
       const unanswered = board.tasks.filter(task => task.kind === 'question' && !task.done && !task.answer?.trim()).length;
       const unfinished = board.tasks.filter(task => task.kind !== 'question' && !task.done).length;
       const stalled = running ? stalledWorkerProgress(review) : [];
-      const nextAction = review.status === 'complete' ? '목표 달성 보고가 도착했습니다. 아래 근거와 남은 항목을 확인하세요.'
+      const nextAction = review.status === 'complete' ? '목표 달성 보고가 도착했습니다. 보고 근거와 남은 항목을 확인하세요.'
         : stalled.length ? `${stalled.length}개 작업 AI에서 30분간 새 결과 근거가 없습니다. 진행 기록의 원인과 다음 조치를 확인하세요.`
         : running && !review.lastReviewedAt ? '설정은 저장됐습니다. 아직 첫 보고가 없습니다. 진행 기록에서 실제 점검 응답을 확인하세요.'
         : running ? '마지막 보고와 확인이 필요한 질문을 살펴보세요.' : '목표와 감독을 설정한 뒤 감독 시작을 누르세요.';
       const nextPanel = root.querySelector('.supervision-next');
       nextPanel.hidden = false;
-      const nextHtml = `<p>${esc(nextAction)}</p><p>미완료 할 일 ${unfinished}개 · 답변할 질문 ${unanswered}개</p><div class="supervision-actions">${unanswered ? '<button class="btn" type="button" data-questions>답변할 질문 보기</button>' : ''}${running ? '<button class="btn" type="button" data-stop>감독만 중지</button>' : ''}</div>`;
+      const nextHtml = `<p>${esc(nextAction)}</p><p>미완료 할 일 ${unfinished}개 · 답변할 질문 ${unanswered}개</p><div class="supervision-actions">${unanswered ? '<button class="btn" type="button" data-questions>답변할 질문 보기</button>' : ''}<button class="btn" type="button" data-supervision-tab="config">${running ? '설정 변경' : '목표·감독 설정'}</button>${running ? '<button class="btn" type="button" data-stop>감독만 중지</button>' : ''}</div>`;
       if (nextPanel.innerHTML !== nextHtml) nextPanel.innerHTML = nextHtml;
       config.querySelector('button[type="submit"]').textContent = running ? '설정 적용' : '감독 시작';
       updateReadiness();
@@ -229,6 +264,8 @@ export function mountSupervision(main) {
       stallMinutes: Number(config.elements.stallMinutes.value), runHours: Number(config.elements.runHours.value) }), () => { configDirty = false; });
   });
   root.addEventListener('click', async event => {
+    const tab = event.target.closest('[data-supervision-tab]');
+    if (tab) selectTab(tab.dataset.supervisionTab, !tablist.contains(tab));
     if (event.target.closest('[data-add-worker]')) {
       if (workerRows.children.length >= 12) return error(new Error('작업 AI는 최대 12개까지 지정할 수 있습니다.'));
       workerRows.insertAdjacentHTML('beforeend', workerRow());
@@ -238,13 +275,15 @@ export function mountSupervision(main) {
       event.target.closest('.supervision-worker').remove();
       configDirty = true; updateReadiness();
     }
-    if (event.target.closest('[data-permissions]')) permissionForm.elements.codex.focus();
+    if (event.target.closest('[data-permissions]')) { selectTab('permissions'); permissionForm.elements.codex.focus(); }
     if (event.target.closest('[data-questions]')) {
+      selectTab('work');
       const findQuestion = () => [...root.querySelectorAll('[data-answer]')].find(form => board.tasks.some(task => task.id === form.dataset.answer && !task.done && !task.answer?.trim()));
       if (!findQuestion() && !dirtyForms.size) await refresh();
       const first = findQuestion();
       if (first) first.querySelector('textarea').focus();
       else {
+        notice.hidden = false;
         notice.textContent = '새 질문이 도착했습니다. 작성 중인 항목을 저장하면 질문 목록이 갱신됩니다. 입력은 유지했습니다.';
         showToast(notice.textContent, 'info');
         [...dirtyForms][0]?.querySelector('textarea, input')?.focus();

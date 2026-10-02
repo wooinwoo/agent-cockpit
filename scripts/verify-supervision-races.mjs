@@ -35,6 +35,9 @@ try {
   return file?route.fulfill({body:file,contentType:url.pathname.endsWith('.js')?'text/javascript':url.pathname.endsWith('.css')?'text/css':'application/octet-stream'}):route.fulfill({status:404,body:''});
  });
  await page.goto('http://cockpit.test/');
+ await page.locator('#supervision-tab-config').click();
+ await page.locator('.supervision-options summary').first().click();
+ await page.locator('.supervision-options summary').last().click();
 
  const references = ['/home/user/project/docs/design notes.md', 'C:\\자료\\설계.pdf'];
  await page.locator('[name="target"]').fill('ai8');
@@ -55,9 +58,12 @@ try {
  assert.deepEqual(service.getBoard().review.referencePaths, references);
  assert.equal(service.getBoard().review.runHours, 8);
  assert.match(await page.locator('.supervision-next').textContent(), /아직 첫 보고가 없습니다/);
+ await page.locator('#supervision-tab-progress').click();
  await page.locator('[data-questions]').click();
  assert.equal(await page.locator('[data-answer] textarea').evaluate(element=>element===document.activeElement),true);
  await page.reload();
+ await page.locator('#supervision-tab-config').click();
+ await page.locator('.supervision-options summary').first().click();
  await page.waitForFunction(()=>document.querySelector('[name="runHours"]')?.value==='8');
  assert.equal(await page.locator('[name="referencePaths"]').inputValue(), references.join('\n'));
  await page.locator('[name="referencePaths"]').scrollIntoViewIfNeeded();
@@ -71,6 +77,7 @@ try {
  await page.setViewportSize({width:1280,height:900});
  console.log('PASS: reference paths and timed overnight settings save, reload, and fit desktop/mobile');
 
+ await page.locator('#supervision-tab-work').click();
  await page.locator('[data-answer] textarea').fill('local answer');
  await page.locator('[data-goal] textarea').fill('local goal');
  service.updateBoardTask('T-0001',{answer:'remote answer'});
@@ -85,6 +92,7 @@ try {
  assert.match(await page.locator('.supervision-notice').textContent(),/다른 곳에서/);
  // A successful save updates only its own field baseline while another form stays dirty.
  await page.evaluate(async()=>{const {mountSupervision}=await import('/js/supervision.js'); mountSupervision(document.querySelector('#notes-editor'));});
+ await page.locator('#supervision-tab-work').click();
  await page.locator('[data-goal] textarea').fill('pending goal');
  await page.locator('[data-answer] textarea').fill('first answer');
  await page.locator('[data-answer] button').click();
@@ -97,11 +105,13 @@ try {
  assert.equal(await page.locator('[data-goal] textarea').inputValue(),'pending goal');
  const question=service.addBoardTask('새로 도착한 질문','C-0001','question').task;
  await page.waitForFunction(()=>document.querySelector('.supervision-next')?.textContent.includes('답변할 질문 1개'));
+ await page.locator('#supervision-tab-progress').click();
  await page.locator('[data-questions]').click();
  assert.match(await page.locator('.supervision-notice').textContent(),/작성 중인 항목을 저장/);
  assert.equal(await page.locator('[data-goal] textarea').inputValue(),'pending goal');
  await page.locator('[data-goal] button').click();
  await page.waitForFunction(()=>!document.querySelector('[data-goal] button').disabled);
+ await page.locator('#supervision-tab-progress').click();
  await page.locator('[data-questions]').click();
  assert.equal(await page.locator(`[data-answer="${question.id}"] textarea`).evaluate(element=>element===document.activeElement),true);
  console.log('PASS: conflicting answers/goals are preserved; repeated saves retain independent drafts');

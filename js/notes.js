@@ -14,6 +14,7 @@ let _mode = 'edit'; // edit | preview
 let _search = '';
 let _boardOpen = true;
 let _floatingOpening = false;
+let _editorRequest = 0;
 const floatingOffset = { x: 0, y: 0 };
 
 function $(id) { return document.getElementById(id); }
@@ -147,10 +148,12 @@ async function flushSave() {
 
 async function openNote(id) {
   if (_boardOpen && !canLeaveSupervision()) return;
+  const request = ++_editorRequest;
   await flushSave();
-  if (_dirty) return;
+  if (_dirty || request !== _editorRequest) return;
   try {
     const note = await fetchJson(`/api/notes/${id}`);
+    if (request !== _editorRequest) return;
     stopSupervision();
     _boardOpen = false;
     $('docs-toc').hidden = false;
@@ -160,15 +163,17 @@ async function openNote(id) {
     renderSidebar();
     renderToc(note.content || '');
   } catch (err) {
+    if (request !== _editorRequest) return;
     showToast(err.message || '노트를 열지 못했습니다', 'error');
   }
 }
 
 async function openSupervision() {
+  const request = ++_editorRequest;
   const existingBoard = () => document.querySelector('#notes-editor > .supervision, #supervision-floating .supervision');
   if (_boardOpen && existingBoard()) return;
   await flushSave();
-  if (_dirty) return;
+  if (_dirty || request !== _editorRequest) return;
   // A delayed Notes request or another click may have opened it while saving.
   if (_boardOpen && existingBoard()) return;
   _boardOpen = true;
@@ -302,6 +307,7 @@ function tocJump(el) {
 let _inited = false;
 export async function initNotes() {
   closeFloatingSupervision();
+  const request = _editorRequest;
   if (!_inited) {
     _inited = true;
     document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
@@ -309,6 +315,7 @@ export async function initNotes() {
   }
   try {
     await loadList();
+    if (request !== _editorRequest) return;
     if (_boardOpen) await openSupervision();
     else if (!_currentId && _list.length) await openNote(_list[0].id);
     else renderEditor(_currentId ? _list.find(n => n.id === _currentId) : null);

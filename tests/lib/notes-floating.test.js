@@ -17,11 +17,13 @@ test('a delayed Notes response and repeated opens reuse the floating board and i
     const response = new Promise(resolve => { resolveNotes = resolve; });
     const actions = {};
     let mounts = 0;
+    let stops = 0;
     const context = {
       window: dom.window, document, setTimeout, clearTimeout,
       app: {}, notify() {}, showToast(message) { throw new Error(message); },
       esc: value => String(value), fetchJson: () => response,
       registerClickActions: value => Object.assign(actions, value), registerInputActions() {},
+      canLeaveSupervision: () => true, stopSupervision() { stops++; },
       mountSupervision(main) { mounts++; main.innerHTML = '<div class="supervision"><input name="objective"></div>'; },
     };
     const source = readFileSync(new URL('../../js/notes.js', import.meta.url), 'utf8')
@@ -44,5 +46,19 @@ test('a delayed Notes response and repeated opens reuse the floating board and i
     await context.initNotes();
     assert.equal(panel.open, false);
     assert.equal(document.querySelector('#notes-editor input'), input);
+    let resolveNote;
+    context.fetchJson = () => new Promise(resolve => { resolveNote = resolve; });
+    const pendingNote = actions['open-note']({ dataset: { id: 'slow-note' } });
+    await Promise.resolve();
+    await actions['toggle-floating-supervision']();
+    input.value = '늦은 노트가 지우면 안 되는 초안';
+    resolveNote({ id: 'slow-note', title: '이전 선택', content: '' });
+    await pendingNote;
+    assert.equal(stops, 0, 'a stale note must not stop supervision polling or draft protection');
+    assert.equal(panel.querySelector('input'), input);
+    actions['close-floating-supervision']();
+    await actions['toggle-floating-supervision']();
+    assert.equal(panel.querySelector('input').value, '늦은 노트가 지우면 안 되는 초안');
+    assert.equal(mounts, 1);
   } finally { dom.window.close(); }
 });

@@ -173,6 +173,35 @@ async function openSupervision() {
   mountSupervision($('notes-editor'));
 }
 
+function closeFloatingSupervision(returnFocus = false) {
+  const panel = $('supervision-floating');
+  if (!panel?.open) return;
+  const board = panel.querySelector('.supervision');
+  if (board) $('notes-editor').append(board);
+  panel.close();
+  $('supervision-fab').setAttribute('aria-expanded', 'false');
+  if (returnFocus) $('supervision-fab').focus();
+}
+
+async function toggleFloatingSupervision() {
+  const panel = $('supervision-floating');
+  if (panel.open) { closeFloatingSupervision(true); return; }
+  const button = $('supervision-fab');
+  button.disabled = true;
+  try {
+    await openSupervision();
+    const board = $('notes-editor').querySelector('.supervision');
+    if (!board) return;
+    // Move the existing form so drafts, focus handlers and polling stay intact.
+    panel.querySelector('.supervision-floating-body').append(board);
+    panel.show();
+    button.setAttribute('aria-expanded', 'true');
+    panel.onkeydown = event => {
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeFloatingSupervision(true); }
+    };
+  } finally { button.disabled = false; }
+}
+
 async function createNewNote() {
   try {
     const note = await postJson('/api/notes', { title: '새 노트', content: '' });
@@ -216,6 +245,7 @@ function tocJump(el) {
 
 let _inited = false;
 export async function initNotes() {
+  closeFloatingSupervision();
   if (!_inited) {
     _inited = true;
     document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
@@ -233,6 +263,8 @@ export async function initNotes() {
 
 registerClickActions({
   'open-supervision': openSupervision,
+  'toggle-floating-supervision': toggleFloatingSupervision,
+  'close-floating-supervision': () => closeFloatingSupervision(true),
   'create-new-note': createNewNote,
   'open-note': el => openNote(el.dataset.id),
   'delete-note': removeNote,

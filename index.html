@@ -465,6 +465,14 @@
 
       <!-- Terminal View -->
       <div class="view active" id="terminal-view" role="tabpanel" tabindex="-1">
+        <button class="supervision-fab" id="supervision-fab" type="button" data-action="toggle-floating-supervision" aria-controls="supervision-floating" aria-expanded="false">감독 보드</button>
+        <dialog class="supervision-floating" id="supervision-floating" aria-labelledby="supervision-floating-title">
+          <div class="supervision-floating-head">
+            <strong id="supervision-floating-title">감독 보드 · 터미널과 함께 보기</strong>
+            <button class="btn" type="button" data-action="close-floating-supervision" aria-label="감독 보드 접기">접기</button>
+          </div>
+          <div class="supervision-floating-body"></div>
+        </dialog>
         <!-- Mobile terminal tab bar -->
         <div class="mob-term-tabs" id="mob-term-tabs" role="tablist" aria-label="Terminal sessions">
           <span class="session-strip-label">Sessions</span>

@@ -54,7 +54,14 @@ try {
   assert.ok(Math.abs(buttonRect.y-panelRect.y-panelRect.height-8)<1,`panel opens above button: ${JSON.stringify({width,panelRect,buttonRect})}`);
   assert.equal(await page.locator('#terminal-view').evaluate(e=>e.classList.contains('active')),true);
   assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.matches(':modal')),false);
-  assert.equal(await page.locator('.supervision [role=tab]').count(),4);
+  assert.equal(await page.locator('.supervision [role=tab]').count(),6);
+  page.once('dialog',dialog=>dialog.accept(`두 번째 감독 ${width}`));
+  await page.locator('[data-new-supervisor]').click();
+  await page.waitForFunction(()=>document.querySelector('#supervision-floating [data-supervisor-select]')?.value !== 'S-0001' && document.querySelector('#supervision-floating .supervision-content')?.hidden===false);
+  assert.equal(await page.locator('.supervision').count(),1,'adding a supervisor retains one board in its current floating host');
+  await page.locator('#supervision-floating [data-supervisor-select]').selectOption('S-0001');
+  await page.locator('#supervision-floating .supervision-content').waitFor({state:'visible'});
+  assert.equal(await page.locator('.supervision').count(),1,'switching supervisors does not mount a second board in Notes');
   assert.equal(await page.locator('.supervision [role=tabpanel]:visible').count(),1);
   assert.equal(await page.locator('#supervision-tab-progress').getAttribute('aria-selected'),'true');
   await page.screenshot({path:join(tmpdir(),`cockpit-supervision-tabs-progress-${width}.png`)});

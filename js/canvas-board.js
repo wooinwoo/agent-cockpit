@@ -60,6 +60,7 @@ function normalize(value) {
     .map(item => ({
       id: item.id,
       title: String(item.title || `Checklist ${Number(item.id.slice(2))}`).trim().slice(0, 80),
+      supervisorId: item.supervisorId || 'S-0001',
       goal: String(item.goal || '').slice(0, 4000),
       createdAt: Number(item.createdAt) || now,
       updatedAt: Number(item.updatedAt) || 0,
@@ -77,6 +78,7 @@ function normalize(value) {
   return {
     schemaVersion: 2,
     review: source.review || {},
+    supervisors: source.supervisors || [source.review || {}],
     note: { content: primaryNote.content, updatedAt: primaryNote.updatedAt },
     notes,
     checklists,
@@ -354,7 +356,7 @@ function hydrateCanvasBoardFrame(root) {
   if (goal && document.activeElement !== goal) goal.value = item?.goal || '';
   const reviewState = root.querySelector('[data-review-state]');
   if (reviewState) {
-    const review = board.review || {};
+    const review = board.supervisors?.find(review => review.id === (item?.supervisorId || 'S-0001')) || board.review || {};
     reviewState.textContent = review.status === 'complete' ? '목표 달성 보고됨' : !review.termId || review.status === 'stopped' ? '자동 확인 꺼짐' : review.pendingSince
       ? 'AI 확인 대기' : `${review.intervalMinutes}분마다 확인${review.lastReviewedAt ? ` · 최근 ${new Date(review.lastReviewedAt).toLocaleTimeString()}` : ''}`;
     const form = root.querySelector('[data-review-form]');
@@ -483,10 +485,11 @@ function setupBoardEvents(root) {
         if (localDirty || !apiAvailable) throw new Error('보드 동기화 후 다시 시도하세요.');
       }
       const saved = await request('/api/board/review', 'PUT', {
-        target, intervalMinutes: target ? Number(reviewForm.elements.minutes.value) : (board.review.intervalMinutes || 5),
+        supervisorId: findBoardItem('checklist', boardId)?.supervisorId || 'S-0001',
+        target, intervalMinutes: target ? Number(reviewForm.elements.minutes.value) : Number(reviewForm.elements.minutes.value) || 5,
       });
       if (!localDirty) applyBoard(saved, 'Synced', true);
-      else { board.review = saved.review; saveLocal(); }
+      else { board.review = saved.review; board.supervisors = saved.supervisors; saveLocal(); }
       feedback.textContent = target ? '자동 확인을 설정했습니다.' : '자동 확인을 껐습니다.';
     } catch (error) { feedback.textContent = error.message; }
   }

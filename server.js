@@ -1396,7 +1396,7 @@ function prepareBoardRecovery(found) {
 function recoverBoardSupervisor(review, { interrupt = false } = {}) {
   if (_shuttingDown || !_terminalsRestored) throw new Error('서버 터미널 복원이 끝나지 않았습니다.');
   if (review.runUntil && review.runUntil <= Date.now()) throw new Error('야간 운영 종료 시각이 지나 자동 복구를 취소했습니다.');
-  if (JSON.stringify(getBoard().review) !== JSON.stringify(review)) throw new Error('감독 설정이 바뀌어 자동 복구를 취소했습니다.');
+  if (JSON.stringify(getBoard(review.id).review) !== JSON.stringify(review)) throw new Error('감독 설정이 바뀌어 자동 복구를 취소했습니다.');
   const saved = review.recoveryTerminal;
   if (!saved || saved.termId !== review.termId || !saved.durableId) throw new Error('저장된 감독 실행 정보가 없습니다. 설정을 다시 적용하세요.');
   validateRecoveryCommand(saved.command);
@@ -1732,9 +1732,9 @@ function tryRestoreTerminal(entry, preserveId = false) {
     if (restoreCommand) setTimeout(() => {
       try {
         if (preserveId) {
-          const review = getBoard().review;
-          if (!review.autoRecover || review.termId !== newTermId || ['stopped', 'complete'].includes(review.status)
-              || (review.runUntil && review.runUntil <= Date.now())) return;
+          const canRestoreSupervisor = getBoard().supervisors.some(review => review.termId === newTermId && review.autoRecover
+            && !['stopped', 'complete'].includes(review.status) && (!review.runUntil || review.runUntil > Date.now()));
+          if (!canRestoreSupervisor) return;
         }
         term.write(restoreCommand + '\r');
       } catch (error) { logger.warn('state', `Deferred agent launch failed: ${error.message}`); }
@@ -1750,10 +1750,10 @@ function restoreTerminals() {
 
   const idMap = {};
   const restored = [];
-  const review = getBoard().review;
+  const reviews = getBoard().supervisors;
 
   for (const entry of saved.terminals) {
-    const supervisor = entry.supervisor === true || review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId;
+    const supervisor = entry.supervisor === true || reviews.some(review => review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId);
     const result = tryRestoreTerminal(entry, supervisor);
     if (result.ok) {
       idMap[entry.termId] = result.termId;
@@ -1770,12 +1770,12 @@ function restoreTerminals() {
 // 프로젝트 등록/account 복구 등으로 매칭 조건이 나중에 충족되면 대기 항목을 되살린다.
 function flushDeferredTerminalRestores() {
   if (deferredTerminalRestores.length === 0) return 0;
-  const review = getBoard().review;
+  const reviews = getBoard().supervisors;
   const pending = deferredTerminalRestores.splice(0);
   const idMap = {};
   let restoredCount = 0;
   for (const entry of pending) {
-    const supervisor = entry.supervisor === true || review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId;
+    const supervisor = entry.supervisor === true || reviews.some(review => review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId);
     const result = tryRestoreTerminal(entry, supervisor);
     if (result.ok) {
       idMap[entry.termId] = result.termId;
@@ -2024,7 +2024,9 @@ wss.on('connection', (ws) => {
         if (t) {
           try {
             // Closing the supervisor explicitly must not resurrect it through the watchdog.
-            if (getBoard().review.termId === msg.termId) updateBoardReview({ status: 'stopped', autoRecover: false, pendingSince: 0, recoveryAfter: 0 });
+            for (const review of getBoard().supervisors.filter(item => item.termId === msg.termId)) {
+              updateBoardReview({ status: 'stopped', autoRecover: false, pendingSince: 0, recoveryAfter: 0 }, undefined, review.id);
+            }
             stopTerminal(t, true);
           } catch (error) {
             logger.error('terminal', `Close failed for ${msg.termId}`, error.message);
@@ -2121,8 +2123,8 @@ const BIND_ADDR = process.env.COCKPIT_BIND || '0.0.0.0';
 server.listen(PORT, BIND_ADDR, () => {
   // An opted-in supervisor must resume without waiting for a browser WebSocket.
   try {
-    const startupReview = getBoard().review;
-    if (startupReview.termId && !['stopped', 'complete'].includes(startupReview.status) && !_terminalsRestored) {
+    const activeSupervisor = getBoard().supervisors.some(review => review.termId && !['stopped', 'complete'].includes(review.status));
+    if (activeSupervisor && !_terminalsRestored) {
       restoreTerminals(); _terminalsRestored = true; saveTerminalStateNow();
     }
   } catch (error) { logger.error('state', 'Supervisor startup restore failed', error.message); }

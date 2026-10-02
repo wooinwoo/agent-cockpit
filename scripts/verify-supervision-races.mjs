@@ -15,8 +15,13 @@ service.replaceBoard({ checklists: [{ id: 'C-0001', title: '로그인 수정', g
 service.addBoardTask('배포 환경은?', 'C-0001', 'question');
 const handlers = {};
 const messages = [];
+let watcherStops = 0;
+const approvalWatcher = {
+ status: () => ({ state: watcherStops ? 'stopped' : 'running', canStop: !watcherStops, intervalSeconds: 3, targets: ['ai1'], heartbeat: null }),
+ stop: () => { watcherStops++; return approvalWatcher.status(); },
+};
 const resolveTerminalRef = target => ['ai8','manager','ai1','worker'].includes(target) ? { id: ['ai8','manager'].includes(target) ? 'manager':'worker', entry: { command: agentPermissionCommand('codex', {codex:'network'}), alias: ['ai8','manager'].includes(target) ? 'ai8':'ai1', pty: { write: value => messages.push(value) } } } : null;
-register({ ...service, addRoute: (method,path,handler) => { handlers[`${method} ${path}`]=handler; }, readBody: async req=>req.body,
+register({ ...service, approvalWatcher, addRoute: (method,path,handler) => { handlers[`${method} ${path}`]=handler; }, readBody: async req=>req.body,
   json:(res,body,status=200)=>Object.assign(res,{body,status}), isLocalhost:()=>true,resolveTerminalRef,terminalAgent:()=> 'codex', prepareBoardRecovery:found=>({termId:found.id,command:found.entry.command,durableId:'a'.repeat(24),projectId:'__home__',cwd:temp}) });
 let browser;
 try {
@@ -141,7 +146,7 @@ try {
  assert.equal(await page.locator('[name=workerGoal]').inputValue(),'서버에서 정한 실제 완료 조건');
  assert.equal(await page.locator('.supervision-config-update').isVisible(),false);
  console.log('PASS: saved completion conditions stay visible; stale drafts require explicit reload');
- await page.locator('#supervision-tab-questions').click();
+ await page.locator('#supervision-tab-my-questions').click();
  await page.locator('.supervision-ask textarea').fill('지금 어디까지 됐나요?');
  await page.locator('.supervision-ask button').click();
  await page.waitForFunction(()=>!document.querySelector('.supervision-ask button').disabled);
@@ -156,6 +161,7 @@ try {
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth));
  await page.screenshot({path:join(tmpdir(),'cockpit-question-sections-mobile.png')});
  await page.setViewportSize({width:1280,height:900});
+ await page.locator('#supervision-tab-questions').click();
  const pendingAnswer = page.locator(`[data-answer="${question.id}"] textarea`);
  await pendingAnswer.fill('보존할 답변 초안');
  await page.locator('[data-question-state="T-0001"]').click();
@@ -169,6 +175,7 @@ try {
  await page.waitForFunction(()=>!document.querySelector('.supervision-ask button').disabled);
  assert.equal(service.getBoard().tasks.find(task=>task.id==='T-0001').done,false);
  assert.equal(await page.locator('[data-answer="T-0001"] textarea').inputValue(),'second answer');
+ await page.locator('#supervision-tab-my-questions').click();
  page.once('dialog',dialog=>dialog.dismiss());
  await page.locator(`[data-delete-task="${mine.id}"]`).click();
  assert.ok(service.getBoard().tasks.some(task=>task.id===mine.id));
@@ -177,6 +184,7 @@ try {
  await page.waitForFunction(()=>!document.querySelector('.supervision-ask button').disabled);
  assert.ok(!service.getBoard().tasks.some(task=>task.id===mine.id));
  assert.equal(await pendingAnswer.inputValue(),'보존할 답변 초안');
+ await page.locator('#supervision-tab-questions').click();
  await page.locator(`[data-answer="${question.id}"] button`).click();
  await page.waitForFunction(()=>!document.querySelector('.supervision-ask button').disabled);
  await page.locator('#supervision-tab-work').click();
@@ -194,6 +202,46 @@ try {
  await page.waitForFunction(()=>!document.querySelector('[data-add] button').disabled);
  assert.ok(!service.getBoard().tasks.some(task=>task.id===work.id));
  console.log('PASS: question directions, answers, resolve/reopen, delete confirmation, task archive and sibling drafts');
+ await page.locator('#supervision-tab-workers').click();
+ assert.match(await page.locator('.supervision-worker-status').textContent(),/서버에서 정한 실제 완료 조건/);
+ assert.equal(await page.locator('.supervision [role=tab]').count(),6);
+ page.once('dialog',dialog=>dialog.accept('둘째 감독'));
+ await page.locator('[data-new-supervisor]').click();
+ await page.waitForFunction(()=>document.querySelector('[data-supervisor-select]')?.options.length===2);
+ const secondId = await page.locator('[data-supervisor-select]').inputValue();
+ assert.notEqual(secondId,'S-0001');
+ await page.locator('#supervision-tab-questions').click();
+ assert.equal(await page.locator('[data-question-list="user"] [data-task-row]').count(),0);
+ await page.locator('#supervision-tab-work').click();
+ assert.equal(await page.locator('.supervision-lists > article').count(),0);
+ await page.locator('#supervision-tab-my-questions').click();
+ await page.locator('.supervision-ask textarea').fill('둘째 감독 질문');
+ await page.locator('.supervision-ask button').click();
+ await page.waitForFunction(()=>!document.querySelector('.supervision-ask button').disabled);
+ assert.equal(service.getBoard(secondId).tasks[0].text,'둘째 감독 질문');
+ assert.ok(!service.getBoard('S-0001').tasks.some(task=>task.text==='둘째 감독 질문'));
+ await page.locator('.supervision-ask textarea').fill('남길 초안');
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('[data-supervisor-select]').selectOption('S-0001');
+ assert.equal(await page.locator('[data-supervisor-select]').inputValue(),secondId);
+ assert.equal(await page.locator('.supervision-ask textarea').inputValue(),'남길 초안');
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-supervisor-select]').selectOption('S-0001');
+ await page.locator('#supervision-tab-questions').click();
+ assert.ok(await page.locator('[data-question-list="user"] [data-task-row]').count()>0);
+ console.log('PASS: six separate tabs, worker goals, supervisor creation/switching, isolated questions and draft protection');
+ await page.locator('#supervision-tab-config').click();
+ await page.locator('.supervision-approval > summary').click();
+ assert.match(await page.locator('[data-approval-status]').textContent(),/실행 중/);
+ page.once('dialog',dialog=>dialog.dismiss());
+ await page.locator('[data-stop-approval]').click();
+ assert.equal(watcherStops,0);
+ page.once('dialog',dialog=>dialog.accept());
+ await page.locator('[data-stop-approval]').click();
+ await page.waitForFunction(()=>document.querySelector('[data-approval-status]').textContent.includes('중지됨'));
+ assert.equal(watcherStops,1);
+ assert.equal(await page.locator('[data-stop-approval]').isDisabled(),true);
+ console.log('PASS: watcher status and confirmed stop use an isolated fake, with no real approvals or process changes');
  service.updateBoardReview({termId:'manager',alias:'ai8',status:'running',nextDueAt:Date.now()+600000});
  await page.evaluate(async()=>{
   const supervision=await import('/js/supervision.js'); supervision.stopSupervision();

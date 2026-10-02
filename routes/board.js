@@ -1,6 +1,7 @@
-import { updateBoardReview as persistReview, reportBoardReview as persistReport } from '../lib/board-service.js';
+import { updateBoardReview as persistReview, reportBoardReview as persistReport, addBoardSupervisor as persistSupervisor, supervisorBoard } from '../lib/board-service.js';
 import { createBoardReviewer } from '../lib/board-review.js';
 import { AGENT_PERMISSION_MODES, unattendedCommandReady } from '../js/agent-permissions.js';
+import { createApprovalWatcher } from '../lib/approval-watcher.js';
 
 export function register(ctx) {
   const {
@@ -9,6 +10,7 @@ export function register(ctx) {
   } = ctx;
   const updateBoardReview = ctx.updateBoardReview || persistReview;
   const reportBoardReview = ctx.reportBoardReview || persistReport;
+  const approvalWatcher = ctx.approvalWatcher || createApprovalWatcher();
 
   if (ctx.resolveTerminalRef && ctx.terminalAgent) {
     const tick = createBoardReviewer({ getBoard, updateBoardReview,
@@ -27,8 +29,26 @@ export function register(ctx) {
     json(res, { error: error.message }, status);
   };
 
-  addRoute('GET', '/api/board', (_req, res) => {
-    try { json(res, getBoard()); }
+  addRoute('GET', '/api/board', (req, res) => {
+    try { const board = getBoard(); json(res, req.query?.supervisorId ? supervisorBoard(board, req.query.supervisorId) : board); }
+    catch (error) { handleError(res, error); }
+  });
+
+  addRoute('GET', '/api/board/approval-watcher', (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '승인 스크립트 관리는 로컬에서만 가능합니다.' }, 403);
+    try { json(res, approvalWatcher.status()); }
+    catch (error) { handleError(res, error); }
+  });
+  addRoute('POST', '/api/board/approval-watcher/stop', (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '승인 스크립트 관리는 로컬에서만 가능합니다.' }, 403);
+    try { json(res, approvalWatcher.stop()); }
+    catch (error) { handleError(res, error); }
+  });
+
+  addRoute('POST', '/api/board/supervisors', async (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '감독 추가는 로컬에서만 가능합니다.' }, 403);
+    const body = await readBody(req);
+    try { json(res, (ctx.addBoardSupervisor || persistSupervisor)(body.name), 201); }
     catch (error) { handleError(res, error); }
   });
 
@@ -54,7 +74,8 @@ export function register(ctx) {
       return json(res, { error: '실행 중인 AI 세션을 선택하세요.' }, 400);
     }
     try {
-      const current = getBoard().review;
+      const supervisorId = body.supervisorId || 'S-0001';
+      const current = supervisorBoard(getBoard(), supervisorId).review;
       const referencePaths = body.referencePaths ?? current.referencePaths;
       if (!Array.isArray(referencePaths) || referencePaths.length > 30 || referencePaths.some(path => typeof path !== 'string' || !path.trim() || path.length > 2000 || /[\x00-\x1f\x7f]/.test(path))) {
         return json(res, { error: '참고 자료는 한 줄에 경로 하나씩, 최대 30개·각 2000자로 입력하세요.' }, 400);
@@ -95,14 +116,14 @@ export function register(ctx) {
         }
       }
       if (found && watched.some(worker => worker.termId === found.id)) return json(res, { error: '감독 세션 자신은 감시 대상이 될 수 없습니다.' }, 400);
-      const result = updateBoardReview({
+      updateBoardReview({
         termId: found?.id || '', alias: found?.entry.alias || '', intervalMinutes: minutes, pendingSince: 0, nextDueAt: Date.now(),
         objective: objective.trim(), referencePaths: referencePaths.map(path => path.trim()), runHours,
         runUntil: runHours ? Date.now() + runHours * 3_600_000 : 0,
         watched, status: found ? 'running' : 'stopped', retryAt: 0, attempts: 0, lastError: '', lastReviewedAt: found ? 0 : current.lastReviewedAt,
         autoRecover, recoveryTerminal, recoveryAttempts: 0, recoveryAfter: 0, stallMinutes, cycleStartedAt: 0,
-      });
-      json(res, result);
+      }, undefined, supervisorId);
+      json(res, getBoard());
     } catch (error) { handleError(res, error); }
   });
 
@@ -110,11 +131,11 @@ export function register(ctx) {
     if (!ctx.isLocalhost?.(req)) return json(res, { error: '확인 기록은 로컬에서만 가능합니다.' }, 403);
     const body = await readBody(req);
     try {
-      const { review } = getBoard();
+      const { review } = supervisorBoard(getBoard(), body.supervisorId || 'S-0001');
       if (!body.pendingSince || body.pendingSince !== review.pendingSince) {
         return json(res, { error: '현재 확인 요청의 번호가 아닙니다. 보드를 다시 조회하세요.' }, 409);
       }
-      json(res, reportBoardReview(body.pendingSince, { status: body.status, report: body.report, progress: body.progress }));
+      json(res, reportBoardReview(body.pendingSince, { status: body.status, report: body.report, progress: body.progress, supervisorId: body.supervisorId }));
     } catch (error) { handleError(res, error); }
   });
 
@@ -138,7 +159,7 @@ export function register(ctx) {
 
   addRoute('POST', '/api/board/tasks', async (req, res) => {
     const body = await readBody(req);
-    try { json(res, addBoardTask(body.text, body.checklistId, body.kind, body.questionTo), 201); }
+    try { json(res, addBoardTask(body.text, body.checklistId, body.kind, body.questionTo, body.supervisorId), 201); }
     catch (error) { handleError(res, error); }
   });
 

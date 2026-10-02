@@ -1,6 +1,6 @@
 const fields = {
   notes: ['title', 'content'],
-  checklists: ['title', 'goal'],
+  checklists: ['title', 'goal', 'supervisorId'],
   tasks: ['text', 'done', 'kind', 'questionTo', 'answer', 'checklistId'],
 };
 

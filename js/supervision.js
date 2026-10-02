@@ -6,6 +6,7 @@ let timer;
 let generation = 0;
 let hasUnsavedInput = () => false;
 let saving = () => false;
+let selectedSupervisorId = 'S-0001';
 const labels = { running: '감독 중', waiting: '확인 필요', complete: '목표 달성 보고됨', stopped: '중지됨', interrupted: '보고 기한 초과 · 재시작 요청' };
 const stamp = value => value ? new Date(value).toLocaleString('ko-KR') : '아직 없음';
 const send = (url, method, body) => fetchJson(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -29,9 +30,10 @@ export function stopSupervision() {
 export function mountSupervision(main) {
   stopSupervision();
   const mounted = generation;
-  const tabs = [['progress', '감독'], ['work', '작업'], ['questions', '질문'], ['config', '설정']];
+  const tabs = [['progress', '감독'], ['workers', '작업자'], ['work', '체크리스트'], ['my-questions', '내가 남긴 질문'], ['questions', '감독이 남긴 질문'], ['config', '설정']];
   main.innerHTML = `<div class="supervision">
     <header><h1>감독 보드</h1></header>
+    <div class="supervision-picker"><label>감독 선택<select data-supervisor-select></select></label><button class="btn" type="button" data-new-supervisor>감독 추가</button></div>
     <div class="supervision-tabs" role="tablist" aria-label="감독 보드 메뉴" hidden>
       ${tabs.map(([id, label]) => `<button type="button" role="tab" id="supervision-tab-${id}" aria-controls="supervision-panel-${id}" aria-selected="${id === 'progress'}" tabindex="${id === 'progress' ? 0 : -1}" data-supervision-tab="${id}">${label}</button>`).join('')}
     </div>
@@ -77,22 +79,26 @@ export function mountSupervision(main) {
         <details><summary>실행 명령 보기</summary><div class="supervision-launch-commands"></div></details>
       </form>
     </details>
+    <details class="supervision-options supervision-approval"><summary>승인 스크립트 관리 · 공통</summary><p>기존 승인 스크립트의 상태를 확인하고 중지합니다. 감독 선택과 관계없이 공통으로 적용됩니다.</p><div data-approval-status></div><button class="btn" type="button" data-stop-approval disabled>승인 스크립트 중지</button><p>자동 승인 재시작 대신 위 실행 권한 설정에서 허용 범위를 지정하세요.</p></details>
       </section>
       <section role="tabpanel" id="supervision-panel-progress" aria-labelledby="supervision-tab-progress">
         <div class="supervision-next" hidden aria-live="polite"></div>
         <details class="supervision-saved-goals" hidden><summary>저장된 목표·완료 조건</summary><div></div></details>
         <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
       </section>
-    <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>작업 체크리스트</h2><p>실행할 일과 완료 조건을 관리합니다. 질문은 질문 탭에 따로 모입니다.</p>
+    <section role="tabpanel" id="supervision-panel-workers" aria-labelledby="supervision-tab-workers" hidden><h2>담당 작업자</h2><p>선택한 감독이 맡은 AI별 완료 조건과 최근 보고입니다. 실시간 실행 상태와는 다를 수 있습니다.</p><div class="supervision-worker-status"></div><button class="btn" type="button" data-supervision-tab="config">작업자 배정·완료 조건 설정</button></section>
+    <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>작업 체크리스트</h2><p>선택한 감독의 할 일과 완료 조건입니다.</p>
       <div class="supervision-lists"></div>
       <form class="supervision-new-list"><label>새 체크리스트<input name="title" maxlength="120" required placeholder="프로젝트 또는 작업 묶음"></label><button class="btn" type="submit">체크리스트 추가</button></form>
     </section>
-    <section role="tabpanel" id="supervision-panel-questions" aria-labelledby="supervision-tab-questions" hidden>
+    <section role="tabpanel" id="supervision-panel-my-questions" aria-labelledby="supervision-tab-my-questions" hidden>
       <section class="supervision-question-section"><h2>내가 감독에게 묻기</h2>
         <p>감독이 실행 중일 때 다음 점검에서 답변합니다.</p>
         <form class="supervision-ask"><label>내 질문<textarea name="text" rows="2" required maxlength="500" placeholder="예: 지금 가장 오래 막힌 작업과 이유가 뭐야?"></textarea></label><button class="btn primary" type="submit">감독에게 질문 남기기</button></form>
         <div data-question-list="supervisor"></div>
       </section>
+    </section>
+    <section role="tabpanel" id="supervision-panel-questions" aria-labelledby="supervision-tab-questions" hidden>
       <section class="supervision-question-section"><h2>감독이 내게 묻기</h2><p>내 결정이나 정보가 필요한 질문입니다. 답변을 저장하면 다음 점검에 전달됩니다.</p><div data-question-list="user"></div></section>
     </section>
     </div>
@@ -194,22 +200,34 @@ export function mountSupervision(main) {
   async function refresh() {
     const requestId = ++refreshId;
     try {
-      const [next, terminalList] = await Promise.all([fetchJson('/api/board'), fetchJson('/api/terminals').catch(() => null)]);
+      const [next, terminalList, approval] = await Promise.all([fetchJson('/api/board'), fetchJson('/api/terminals').catch(() => null), fetchJson('/api/board/approval-watcher').catch(() => null)]);
       if (!active() || requestId !== refreshId) return;
       board = next;
       availableTerminals = Array.isArray(terminalList?.terminals) ? terminalList.terminals : null;
-      if (board.supervisionVersion !== 6) {
+      if (board.supervisionVersion !== 7) {
         notice.hidden = false;
         notice.innerHTML = '서버 업데이트가 필요합니다. 진행 중인 중요한 작업을 마친 뒤 적용하세요. <button class="btn" type="button" data-restart>서버 업데이트…</button>';
         return;
       }
+      const picker = root.querySelector('[data-supervisor-select]');
+      const options = next.supervisors.map(item => `<option value="${esc(item.id)}">${esc(item.name)}${item.alias ? ` · ${esc(item.alias)}` : ''} · ${esc(labels[item.status])}</option>`).join('');
+      if (picker.innerHTML !== options) picker.innerHTML = options;
+      if (!next.supervisors.some(item => item.id === selectedSupervisorId)) selectedSupervisorId = next.supervisors[0].id;
+      picker.value = selectedSupervisorId;
+      const selectedLists = next.checklists.filter(list => (list.supervisorId || 'S-0001') === selectedSupervisorId);
+      board = { ...next, review: next.supervisors.find(item => item.id === selectedSupervisorId), checklists: selectedLists,
+        tasks: next.tasks.filter(task => selectedLists.some(list => list.id === task.checklistId)) };
+      const approvalText = approval ? `<p><strong>${esc({ running: '실행 중', stopped: '중지됨', unknown: '실행 상태 확인 불가' }[approval.state])}</strong> · ${approval.intervalSeconds}초 간격</p><p>대상: ${esc(approval.targets.join(', '))}</p><p>마지막 상태 기록: ${esc(stamp(approval.heartbeat?.at))}${approval.heartbeat?.stale ? ' · 15초 이상 갱신 없음' : ''}</p>${approval.heartbeat ? `<p>입력 전송 ${approval.heartbeat.sent ?? '미확인'}회 · 승인창 사라짐 ${approval.heartbeat.cleared ?? '미확인'}회</p>` : ''}` : '<p>승인 스크립트 상태를 가져오지 못했습니다.</p>';
+      const approvalStatus = root.querySelector('[data-approval-status]');
+      if (approvalStatus.innerHTML !== approvalText) approvalStatus.innerHTML = approvalText;
+      root.querySelector('[data-stop-approval]').disabled = !approval?.canStop;
       root.querySelector('.supervision-content').hidden = false;
       tablist.hidden = false;
       const review = board.review;
       root.querySelector('#supervision-terminals').innerHTML = (availableTerminals || []).map(terminal => `<option value="${esc(terminal.alias || terminal.termId)}">${esc(terminal.projectId || '')}</option>`).join('');
       if (!permissionsDirty && !permissionForm.contains(document.activeElement)) {
-        permissionForm.elements.codex.value = review.launchPermissions.codex;
-        permissionForm.elements.claude.value = review.launchPermissions.claude;
+        permissionForm.elements.codex.value = next.review.launchPermissions.codex;
+        permissionForm.elements.claude.value = next.review.launchPermissions.claude;
         previewPermissions();
       }
       const noticeText = review.lastError || '설정과 질문·답변은 저장되며, 채팅 기록과 별개로 유지됩니다.';
@@ -239,12 +257,14 @@ export function mountSupervision(main) {
       const nextCheckAt = review.recoveryAfter > Date.now() ? review.recoveryAfter : (review.pendingSince ? review.retryAt : review.nextDueAt);
       const stateLabel = running && review.recoveryAfter > Date.now() ? '복구 재시도 대기' : running && !review.lastReviewedAt ? '첫 보고 대기' : labels[review.status] || '중지됨';
       const statusHtml = `<strong>${esc(stateLabel)}</strong><p>감독 ${esc(review.alias || review.termId || '미지정')} · 대상 ${review.watched.length}개</p><p>자동 복구: ${review.autoRecover ? `켜짐 · ${review.recoveryAttempts || 0}/3회 시도` : '꺼짐'}</p>${review.runUntil ? `<p>야간 운영 종료: ${esc(stamp(review.runUntil))}</p>` : ''}<p>마지막 보고: ${esc(stamp(review.lastReviewedAt))}</p><p>${review.pendingSince ? '응답 대기 · 재요청' : '다음 점검'}: ${['complete', 'stopped'].includes(review.status) ? '없음' : esc(stamp(nextCheckAt))}</p>`;
-      const progressHtml = (review.workerProgress || []).map(worker => {
-        const target = review.watched.find(target => target.termId === worker.termId);
-        return `<p><strong>${esc(target?.alias || worker.termId)}</strong> · ${stalled.some(item => item.termId === worker.termId) ? '진전 확인 필요 · ' : ''}마지막 새 근거: ${esc(stamp(worker.lastProgressAt))}${worker.blocker ? `<br>원인: ${esc(worker.blocker)}` : ''}${worker.nextAction ? `<br>다음 조치: ${esc(worker.nextAction)}` : ''}</p>`;
+      const progressHtml = review.watched.map(target => {
+        const worker = review.workerProgress?.find(item => item.termId === target.termId);
+        return `<article><h3>${esc(target.alias || target.termId)}</h3><p><strong>완료 조건</strong><br>${esc(target.goal)}</p><p>${stalled.some(item => item.termId === target.termId) ? '진전 확인 필요 · ' : ''}마지막 새 근거: ${esc(stamp(worker?.lastProgressAt))}</p><p><strong>확인된 근거</strong><br>${esc(worker?.evidence || '아직 등록된 근거가 없습니다.')}</p><p><strong>막힌 이유</strong><br>${esc(worker?.blocker || '보고된 장애 없음')}</p><p><strong>다음 조치</strong><br>${esc(worker?.nextAction || '아직 보고되지 않았습니다.')}</p></article>`;
       }).join('');
-      const progressStatus = statusHtml + (progressHtml ? `<p>보고 수신과 결과 진전은 별개입니다. 근거는 감독이 확인하며 서버가 진위를 검증하지는 않습니다.</p>${progressHtml}` : '');
-      if (status.innerHTML !== progressStatus) status.innerHTML = progressStatus;
+      const workers = root.querySelector('.supervision-worker-status');
+      const workersHtml = progressHtml || '<p>배정된 작업자가 없습니다. 설정에서 작업 AI와 완료 조건을 추가하세요.</p>';
+      if (workers.innerHTML !== workersHtml) workers.innerHTML = workersHtml;
+      if (status.innerHTML !== statusHtml) status.innerHTML = statusHtml;
       root.querySelector('.supervision-reports').innerHTML = review.reports.length ? review.reports.slice().reverse().map(r => `<article><small>${esc(stamp(r.at))} · ${esc(labels[r.status] || r.status)}</small><p>${esc(r.text)}</p></article>`).join('') : '<p>아직 보고가 없습니다. 감독을 시작하면 여기에 쌓입니다.</p>';
       const signature = JSON.stringify([board.checklists, board.tasks.filter(task => task.kind !== 'question')]);
       if (![...dirtyForms].some(form => lists.contains(form)) && !lists.contains(document.activeElement) && signature !== listSignature) {
@@ -289,7 +309,7 @@ export function mountSupervision(main) {
     controls.forEach(control => { control.disabled = true; });
     try { await operation(); if (active()) { done?.(); await refresh(); showToast('저장됨', 'success'); } }
     catch (err) { if (active()) { failed?.(); error(err); } }
-    finally { controls.forEach(control => { control.disabled = false; }); busy = false; }
+    finally { controls.forEach(control => { if (!control.matches('[data-stop-approval]')) control.disabled = false; }); busy = false; }
   }
 
   config.addEventListener('input', () => { configDirty = true; updateReadiness(); });
@@ -312,13 +332,27 @@ export function mountSupervision(main) {
     // Retain stable IDs when reapplying a saved configuration after alias renumbering.
     const target = config.elements.target.value.trim();
     const resolveSaved = alias => board.review.watched.find(w => alias === w.alias || alias === w.termId)?.termId || alias;
-    save(() => send('/api/board/review', 'PUT', { target: target === board.review.alias ? board.review.termId : target,
+    save(() => send('/api/board/review', 'PUT', { supervisorId: selectedSupervisorId, target: target === board.review.alias ? board.review.termId : target,
       objective: config.elements.objective.value, watched: watched.map(w => ({ ...w, target: resolveSaved(w.target) })),
       referencePaths: config.elements.referencePaths.value.split('\n').map(path => path.trim()).filter(Boolean),
       intervalMinutes: Number(config.elements.interval.value), autoRecover: config.elements.autoRecover.checked,
       stallMinutes: Number(config.elements.stallMinutes.value), runHours: Number(config.elements.runHours.value) }), () => { configDirty = false; });
   });
   root.addEventListener('click', async event => {
+    if (event.target.closest('[data-stop-approval]')) {
+      if (!confirm('공통 승인 스크립트를 중지할까요? 이후 도구 승인 요청은 직접 처리해야 합니다. 작업 AI 세션은 유지됩니다.')) return;
+      save(() => send('/api/board/approval-watcher/stop', 'POST', {}));
+    }
+    if (event.target.closest('[data-new-supervisor]')) {
+      if (!canLeaveSupervision()) return;
+      const name = prompt('새 감독의 이름을 입력하세요. 예: 결제팀 감독');
+      if (!name?.trim()) return;
+      let created;
+      save(async () => { created = await send('/api/board/supervisors', 'POST', { name: name.trim() }); }, () => {
+        selectedSupervisorId = created.supervisor.id;
+        mountSupervision(root.parentElement);
+      });
+    }
     if (event.target.closest('[data-reload-config]')) {
       if (configDirty && !confirm('작성 중인 감독 설정을 버리고 서버에 저장된 최신 설정을 불러올까요?')) return;
       configDirty = false;
@@ -364,7 +398,7 @@ export function mountSupervision(main) {
       const row = remove.closest('[data-task-row]');
       save(() => send(`/api/board/tasks/${task.id}`, 'DELETE'), () => { dirtyForms.delete(row.querySelector('form')); row.remove(); });
     }
-    if (event.target.closest('[data-stop]')) save(() => send('/api/board/review', 'PUT', { target: '', intervalMinutes: board.review.intervalMinutes }));
+    if (event.target.closest('[data-stop]')) save(() => send('/api/board/review', 'PUT', { supervisorId: selectedSupervisorId, target: '', intervalMinutes: board.review.intervalMinutes }));
     if (event.target.closest('[data-restart]')) {
       if (!confirm('감독 기능을 적용하기 위해 콕핏 서버를 재시작할까요? 연결이 잠시 끊길 수 있습니다.')) return;
       try { await send('/api/server/restart', 'POST', {}); notice.textContent = '업데이트 적용 중… 연결되면 설정 화면이 열립니다.'; }
@@ -372,6 +406,13 @@ export function mountSupervision(main) {
     }
   });
   root.addEventListener('change', event => {
+    if (event.target.matches('[data-supervisor-select]')) {
+      const id = event.target.value;
+      if (!canLeaveSupervision()) { event.target.value = selectedSupervisorId; return; }
+      selectedSupervisorId = id;
+      mountSupervision(root.parentElement);
+      return;
+    }
     if (!event.target.matches('[data-task]')) return;
     const checkbox = event.target;
     const checked = checkbox.checked;
@@ -400,10 +441,10 @@ export function mountSupervision(main) {
       if (!task) throw new Error('질문이 삭제되었습니다.');
       task.answer = editedValue(form.elements.answer, task.answer || '');
     });
-    if (form.matches('[data-add]')) operation = () => send('/api/board/tasks', 'POST', { checklistId: listId, kind: 'task', text: form.elements.text.value });
-    if (form.matches('.supervision-ask')) operation = () => send('/api/board/tasks', 'POST', { kind: 'question', questionTo: 'supervisor', text: form.elements.text.value });
+    if (form.matches('[data-add]')) operation = () => send('/api/board/tasks', 'POST', { supervisorId: selectedSupervisorId, checklistId: listId, kind: 'task', text: form.elements.text.value });
+    if (form.matches('.supervision-ask')) operation = () => send('/api/board/tasks', 'POST', { supervisorId: selectedSupervisorId, kind: 'question', questionTo: 'supervisor', text: form.elements.text.value });
     if (form.matches('[data-goal]')) operation = () => changeBoard(next => { const list = next.checklists.find(l => l.id === listId); if (!list) throw new Error('체크리스트가 삭제되었습니다.'); list.goal = editedValue(form.elements.goal, list.goal || ''); });
-    if (form.matches('.supervision-new-list')) operation = () => changeBoard(next => { next.checklists.push({ id: `C-${String(next.nextChecklistNumber++).padStart(4, '0')}`, title: form.elements.title.value, goal: '' }); });
+    if (form.matches('.supervision-new-list')) operation = () => changeBoard(next => { next.checklists.push({ id: `C-${String(next.nextChecklistNumber++).padStart(4, '0')}`, supervisorId: selectedSupervisorId, title: form.elements.title.value, goal: '' }); });
     if (operation) save(operation, () => {
       dirtyForms.delete(form);
       const field = form.querySelector('textarea');

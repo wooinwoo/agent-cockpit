@@ -246,7 +246,7 @@ test('supervision pins workers, backs off unanswered checks, persists reports an
       readTerminalScreen: id => { reads.push(id); return { lines: ['테스트 실행 중'] }; } });
     tick(); tick();
     assert.equal(messages.length, 1);
-    assert.deepEqual(reads, ['manager', 'worker']);
+    assert.deepEqual(reads, ['manager', 'worker', 'worker', 'worker']);
     assert.match(messages[0], /로그인 테스트 통과/);
     const first = service.getBoard().review;
     assert.throws(() => service.reportBoardReview(first.pendingSince), /근거/);

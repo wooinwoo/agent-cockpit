@@ -5,6 +5,16 @@ description: Run a user-configured Cockpit supervision check when receiving a �
 
 # Cockpit supervisor
 
+## Workers own their goals
+
+The server delivers each saved completion condition directly to its worker and checks idle workers independently of the supervisor's reporting interval. Workers must keep implementing, verifying, and choosing their next unfinished step within that goal. You aggregate results, reconcile dependencies, and relay necessary evidence and corrections. Do not turn each small step into a new permission gate or replace a blocked primary goal with repeated support reviews merely to keep a terminal busy.
+
+Read each `workerProgress.run`: `summary`, `blocker`, and `alternatives` are the worker's own report, not verified progress. Worker reports request an earlier supervisor check. A `reported` status means the worker claims full completion; verify all of that worker's completion conditions, then include `workState:"complete"` with `artifact`, `version`, and `result` in that worker's next progress entry. If incomplete, use `workState:"ready"` and a concrete `nextAction` to return it to its own goal. Do not leave an unverified completion claim indefinitely awaiting review.
+
+Use `workState:"blocked"` only after checking that every remaining independent part of that worker's goal needs a named dependency. Record the blocker and alternatives considered. New question answers or verified results from other workers allow the blocked worker to reassess. An unchanged blocker does not need repeated executions. Explicit user pauses and tool approval screens receive no continuation input. Missing or unknown terminal screens also receive no input; investigate their status instead of claiming they are executing. A stopped supervisor or expired operating window stops automatic worker reminders without killing existing work.
+
+Worker reports go to `POST /api/board/worker-report` with the current supervisor ID, stable worker ID, and `run.token`. Their contents never advance verified progress clocks by themselves. A supervisor report may explicitly use `workState:"ready"` to relay a concrete next action; the worker runner handles delivery once the terminal is safely idle. Use direct session messages only for coordination that is needed now, and never duplicate a step already running.
+
 The user configures supervision in Notes → 감독 보드. Multiple supervisors can run at once. Use the incoming `supervisorId` (legacy checks without it use `S-0001`) in every board read: `GET /api/board?supervisorId=S-ID`. Include the same `supervisorId` in report and question-creation JSON. Read and act only on that supervisor's assigned work. Never change another supervisor or its workers. The server schedules checks; do not start a second polling loop or change the assignment without the user asking.
 
 Use the localhost URL and `pendingSince` supplied in the incoming check. Fetch the scoped board URL before acting. Continue only when `review.pendingSince` matches this check, `review.termId` identifies this session, and the status is `running` or `waiting`. An outdated check grants no authority to send further instructions. Read the configured objective, each `review.watched` completion condition, checklist goals, unanswered questions, user answers, and recent reports.

@@ -7,7 +7,7 @@ let generation = 0;
 let hasUnsavedInput = () => false;
 let saving = () => false;
 let selectedSupervisorId = 'S-0001';
-const labels = { running: '감독 중', waiting: '확인 필요', complete: '목표 달성 보고됨', stopped: '중지됨', interrupted: '보고 기한 초과 · 재시작 요청' };
+const labels = { running: '감독 켜짐', waiting: '확인 필요', complete: '목표 달성 보고됨', stopped: '중지됨', interrupted: '보고 기한 초과 · 재시작 요청' };
 const stamp = value => value ? new Date(value).toLocaleString('ko-KR') : '아직 없음';
 const send = (url, method, body) => fetchJson(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
@@ -86,7 +86,7 @@ export function mountSupervision(main) {
         <details class="supervision-saved-goals" hidden><summary>저장된 목표·완료 조건</summary><div></div></details>
         <h2>진행 기록</h2><div class="supervision-status" aria-live="polite"></div><div class="supervision-reports"></div>
       </section>
-    <section role="tabpanel" id="supervision-panel-workers" aria-labelledby="supervision-tab-workers" hidden><h2>담당 작업자</h2><p>선택한 감독이 맡은 AI별 완료 조건과 최근 보고입니다. 실시간 실행 상태와는 다를 수 있습니다.</p><div class="supervision-worker-status"></div><button class="btn" type="button" data-supervision-tab="config">작업자 배정·완료 조건 설정</button></section>
+    <section role="tabpanel" id="supervision-panel-workers" aria-labelledby="supervision-tab-workers" hidden><h2>담당 작업자</h2><p>각 작업자는 자기 완료 조건을 이어가고, 감독은 결과와 막힘을 취합합니다. 화면 상태는 15초마다 확인하며 실행 표시가 목표 달성을 뜻하지는 않습니다.</p><div class="supervision-worker-status"></div><button class="btn" type="button" data-supervision-tab="config">작업자 배정·완료 조건 설정</button></section>
     <section class="supervision-work" role="tabpanel" id="supervision-panel-work" aria-labelledby="supervision-tab-work" hidden><h2>작업 체크리스트</h2><p>선택한 감독의 할 일과 완료 조건입니다.</p>
       <div class="supervision-lists"></div>
       <form class="supervision-new-list"><label>새 체크리스트<input name="title" maxlength="120" required placeholder="프로젝트 또는 작업 묶음"></label><button class="btn" type="submit">체크리스트 추가</button></form>
@@ -204,7 +204,7 @@ export function mountSupervision(main) {
       if (!active() || requestId !== refreshId) return;
       board = next;
       availableTerminals = Array.isArray(terminalList?.terminals) ? terminalList.terminals : null;
-      if (board.supervisionVersion !== 7) {
+      if (board.supervisionVersion !== 8) {
         notice.hidden = false;
         notice.innerHTML = '서버 업데이트가 필요합니다. 진행 중인 중요한 작업을 마친 뒤 적용하세요. <button class="btn" type="button" data-restart>서버 업데이트…</button>';
         return;
@@ -259,7 +259,13 @@ export function mountSupervision(main) {
       const statusHtml = `<strong>${esc(stateLabel)}</strong><p>감독 ${esc(review.alias || review.termId || '미지정')} · 대상 ${review.watched.length}개</p><p>자동 복구: ${review.autoRecover ? `켜짐 · ${review.recoveryAttempts || 0}/3회 시도` : '꺼짐'}</p>${review.runUntil ? `<p>야간 운영 종료: ${esc(stamp(review.runUntil))}</p>` : ''}<p>마지막 보고: ${esc(stamp(review.lastReviewedAt))}</p><p>${review.pendingSince ? '응답 대기 · 재요청' : '다음 점검'}: ${['complete', 'stopped'].includes(review.status) ? '없음' : esc(stamp(nextCheckAt))}</p>`;
       const progressHtml = review.watched.map(target => {
         const worker = review.workerProgress?.find(item => item.termId === target.termId);
-        return `<article><h3>${esc(target.alias || target.termId)}</h3><p><strong>완료 조건</strong><br>${esc(target.goal)}</p><p>${stalled.some(item => item.termId === target.termId) ? '진전 확인 필요 · ' : ''}마지막 새 근거: ${esc(stamp(worker?.lastProgressAt))}</p><p><strong>확인된 근거</strong><br>${esc(worker?.evidence || '아직 등록된 근거가 없습니다.')}</p><p><strong>막힌 이유</strong><br>${esc(worker?.blocker || '보고된 장애 없음')}</p><p><strong>다음 조치</strong><br>${esc(worker?.nextAction || '아직 보고되지 않았습니다.')}</p></article>`;
+        const run = worker?.run || {};
+        const observation = { busy: '작업 중 화면', idle: '입력 대기', paused: '일시정지 유지', approval: '승인·로그인 확인 필요', offline: '세션 종료', unknown: '화면 확인 불가' }[run.observed] || '아직 확인하지 않음';
+        const execution = { ready: '목표 재개 대기', active: '목표 전달됨', blocked: '의존성 대기', reported: '완료 주장 · 감독 검증 대기', complete: '감독 검증 완료' }[run.status] || '목표 전달 전';
+        const workerNext = run.status === 'reported' ? '감독이 완료 근거를 검증합니다.' : run.status === 'complete' ? '완료 조건 검증이 끝났습니다.'
+          : run.observed === 'paused' ? '사용자가 일시정지를 해제할 때까지 유지합니다.' : run.status === 'blocked' ? '답변이나 관련 작업 결과가 바뀌면 다시 확인합니다.'
+          : worker?.nextAction || '자기 완료 조건의 다음 미완료 작업을 이어갑니다.';
+        return `<article><h3>${esc(target.alias || target.termId)}</h3><p><strong>${esc(execution)}</strong> · ${esc(running ? observation : '자동 재개 꺼짐')}</p>${run.lastError ? `<p>${esc(run.lastError)}</p>` : ''}<p><strong>완료 조건</strong><br>${esc(target.goal)}</p><p>${stalled.some(item => item.termId === target.termId) ? '진전 확인 필요 · ' : ''}마지막 근거 등록: ${esc(stamp(worker?.lastProgressAt))}</p><p><strong>확인된 근거</strong><br>${esc(worker?.evidence || '아직 등록된 근거가 없습니다.')}</p>${run.summary ? `<p><strong>작업자 보고 · ${esc(stamp(run.reportedAt))}</strong><br>${esc(run.summary)}</p>` : ''}<p><strong>막힌 이유</strong><br>${esc(run.blocker || worker?.blocker || '보고된 장애 없음')}</p><p><strong>다음 조치</strong><br>${esc(running ? workerNext : '감독이 중지되어 자동 재개하지 않습니다.')}</p></article>`;
       }).join('');
       const workers = root.querySelector('.supervision-worker-status');
       const workersHtml = progressHtml || '<p>배정된 작업자가 없습니다. 설정에서 작업 AI와 완료 조건을 추가하세요.</p>';

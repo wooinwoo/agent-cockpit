@@ -927,7 +927,7 @@ registerChangeActions({
 // ─── Global Event Delegation (registry-based) ───
 document.addEventListener('click', e => {
   // 모달 backdrop 클릭 = 바깥 클릭 닫기 — 걸린 dialog를 마우스만으로 복구
-  if (e.target.tagName === 'DIALOG' && e.target.open && !e.target.hasAttribute('data-persistent')) {
+  if (e.target.tagName === 'DIALOG' && e.target.matches(':modal') && !e.target.hasAttribute('data-persistent')) {
     try { e.target.close(); } catch { /* non-modal */ }
     return;
   }
@@ -977,7 +977,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape'
     && !e.target.closest?.('.xterm')
     && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) {
-    const open = document.querySelectorAll('dialog[open]');
+    const open = document.querySelectorAll('dialog:modal');
     if (open.length) open.forEach(d => { try { d.close(); } catch { /* non-modal */ } });
   }
   if (mod && e.key === '1') { e.preventDefault(); switchView('dashboard'); return; }

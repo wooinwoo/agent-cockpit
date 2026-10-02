@@ -12,7 +12,11 @@ test('a delayed Notes response and repeated opens reuse the floating board and i
     const { document } = dom.window;
     const panel = document.getElementById('supervision-floating');
     panel.show = () => { panel.open = true; };
-    panel.close = () => { panel.open = false; };
+    panel.close = () => {
+      if (!panel.open) return;
+      panel.open = false;
+      setTimeout(() => panel.dispatchEvent(new dom.window.Event('close')), 0);
+    };
     let resolveNotes;
     const response = new Promise(resolve => { resolveNotes = resolve; });
     const actions = {};
@@ -37,6 +41,29 @@ test('a delayed Notes response and repeated opens reuse the floating board and i
     await pending;
     assert.equal(document.querySelectorAll('.supervision').length, 1);
     assert.equal(mounts, 1);
+    const button = document.getElementById('supervision-fab');
+    const rect = (element, left, top, width, height) => {
+      const [x = 0, y = 0] = element.style.translate.split(' ').map(value => parseFloat(value) || 0);
+      return { left: left + x, top: top + y, right: left + x + width, bottom: top + y + height, width, height };
+    };
+    context.innerWidth = 1000; context.innerHeight = 800;
+    button.getClientRects = () => [{}];
+    Object.defineProperty(button, 'offsetWidth', { value: 100 });
+    button.getBoundingClientRect = () => rect(button, 700, 650, 100, 44);
+    panel.getBoundingClientRect = () => rect(panel, 400, 100, 400, 500);
+    document.getElementById('terminal-view').getBoundingClientRect = () => ({ left: 0, top: 0, right: 1000, bottom: 800 });
+    context.moveFloatingSupervision(-200, -50);
+    assert.equal(panel.style.translate, '-200px -50px');
+    assert.equal(button.style.translate, panel.style.translate);
+    actions['close-floating-supervision']();
+    assert.equal(button.style.translate, '-200px -50px', 'folding preserves the moved button');
+    context.moveFloatingSupervision(5000, 5000);
+    assert.ok(button.getBoundingClientRect().right <= 992);
+    assert.ok(button.getBoundingClientRect().bottom <= 792);
+    await actions['toggle-floating-supervision']();
+    assert.equal(button.style.translate, panel.style.translate);
+    assert.ok(panel.getBoundingClientRect().top >= 8);
+    assert.ok(button.getBoundingClientRect().bottom <= 792);
     actions['close-floating-supervision']();
     await Promise.all(Array.from({ length: 8 }, () => actions['toggle-floating-supervision']()));
     assert.equal(document.querySelectorAll('.supervision').length, 1);
@@ -59,6 +86,17 @@ test('a delayed Notes response and repeated opens reuse the floating board and i
     actions['close-floating-supervision']();
     await actions['toggle-floating-supervision']();
     assert.equal(panel.querySelector('input').value, '늦은 노트가 지우면 안 되는 초안');
+    panel.close();
+    await new Promise(resolve => setTimeout(resolve, 10));
+    assert.equal(button.getAttribute('aria-expanded'), 'false');
+    assert.equal(document.querySelector('#notes-editor input'), input);
+    await actions['toggle-floating-supervision']();
+    panel.close();
+    await actions['toggle-floating-supervision']();
+    await new Promise(resolve => setTimeout(resolve, 10));
+    assert.equal(panel.open, true, 'an older native close event must not undo a reopen');
+    assert.equal(button.getAttribute('aria-expanded'), 'true');
+    assert.equal(panel.querySelector('input'), input);
     assert.equal(mounts, 1);
   } finally { dom.window.close(); }
 });

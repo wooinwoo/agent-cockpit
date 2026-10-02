@@ -2315,7 +2315,7 @@ export function setupTermEventDelegation() {
   document.addEventListener('keydown', e => {
     if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return;
     const groupMenu = document.querySelector('[data-canvas-group-layout-menu]');
-    if (e.key === 'Escape' && !groupMenu?.hidden) {
+    if (e.key === 'Escape' && groupMenu && !groupMenu.hidden) {
       e.preventDefault();
       closeCanvasGroupLayoutMenu(true);
       return;
@@ -2325,7 +2325,7 @@ export function setupTermEventDelegation() {
       finishCanvasGroupEdit();
       return;
     }
-    if (!groupMenu?.hidden && groupMenu.contains(e.target) && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+    if (groupMenu && !groupMenu.hidden && groupMenu.contains(e.target) && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
       const items = [...groupMenu.querySelectorAll('[role="menuitemradio"]')];
       const current = Math.max(0, items.indexOf(document.activeElement));
       const next = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1

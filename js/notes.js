@@ -185,20 +185,28 @@ async function openSupervision() {
 
 function closeFloatingSupervision(returnFocus = false) {
   const panel = $('supervision-floating');
-  if (!panel?.open) return;
+  if (!panel) return;
   const board = panel.querySelector('.supervision');
   if (board) $('notes-editor').append(board);
-  panel.close();
+  if (panel.open) panel.close();
   $('supervision-fab').setAttribute('aria-expanded', 'false');
   if (returnFocus) $('supervision-fab').focus();
 }
 
 function moveFloatingSupervision(dx = 0, dy = 0) {
   const panel = $('supervision-floating');
-  if (!panel?.open || !panel.getClientRects().length) return;
-  const rect = panel.getBoundingClientRect();
+  const button = $('supervision-fab');
+  if (!panel || !button?.getClientRects().length) return;
+  const buttonRect = button.getBoundingClientRect();
+  const panelRect = panel.open ? panel.getBoundingClientRect() : buttonRect;
+  // Keep the window and its toggle together, including at the screen edges.
+  const rect = {
+    left: Math.min(panelRect.left, buttonRect.left), top: Math.min(panelRect.top, buttonRect.top),
+    width: Math.max(panelRect.right, buttonRect.right) - Math.min(panelRect.left, buttonRect.left),
+    height: Math.max(panelRect.bottom, buttonRect.bottom) - Math.min(panelRect.top, buttonRect.top),
+  };
   const bounds = $('terminal-view').getBoundingClientRect();
-  const scale = rect.width / panel.offsetWidth || 1;
+  const scale = buttonRect.width / button.offsetWidth || 1;
   const left = Math.max(8, bounds.left + 8);
   const top = Math.max(8, bounds.top + 8);
   const right = Math.max(left, Math.min(innerWidth, bounds.right) - rect.width - 8);
@@ -206,6 +214,7 @@ function moveFloatingSupervision(dx = 0, dy = 0) {
   floatingOffset.x += (Math.max(left, Math.min(right, rect.left + dx)) - rect.left) / scale;
   floatingOffset.y += (Math.max(top, Math.min(bottom, rect.top + dy)) - rect.top) / scale;
   panel.style.translate = `${floatingOffset.x}px ${floatingOffset.y}px`;
+  button.style.translate = panel.style.translate;
 }
 
 window.addEventListener('resize', () => moveFloatingSupervision());
@@ -249,10 +258,14 @@ async function toggleFloatingSupervision() {
   button.disabled = true;
   try {
     await openSupervision();
-    const board = $('notes-editor').querySelector('.supervision');
+    const board = document.querySelector('#notes-editor > .supervision, #supervision-floating .supervision');
     if (!board) return;
     // Move the existing form so drafts, focus handlers and polling stay intact.
     panel.querySelector('.supervision-floating-body').append(board);
+    panel.onclose = () => {
+      // Native close events are queued; an older event must not undo a reopen.
+      if (!panel.open) closeFloatingSupervision();
+    };
     panel.show();
     moveFloatingSupervision();
     bindFloatingDrag(panel);

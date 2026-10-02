@@ -100,9 +100,9 @@ export function register(ctx) {
     });
   });
 
-  addRoute('POST', '/api/server/restart', (_req, res) => {
+  addRoute('POST', '/api/server/restart', async (_req, res) => {
     try {
-      const result = ctx.requestServerRestart?.();
+      const result = await ctx.requestServerRestart?.();
       if (!result) return json(res, { error: '서버 재시작 기능을 사용할 수 없습니다.' }, 501);
       json(res, { restarting: true, ...result });
     } catch (error) {

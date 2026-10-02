@@ -8,6 +8,8 @@ const args = process.argv.slice(2);
 const urlIndex = args.indexOf('--url');
 const baseUrl = (urlIndex >= 0 ? args.splice(urlIndex, 2)[1] : process.env.COCKPIT_URL)
   || `http://127.0.0.1:${process.env.COCKPIT_PORT || 3847}`;
+const checklistIndex = args.indexOf('--checklist');
+const checklistId = checklistIndex >= 0 ? args.splice(checklistIndex, 2)[1] : undefined;
 
 async function request(path, method = 'GET', body) {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -23,13 +25,17 @@ async function request(path, method = 'GET', body) {
 async function backend() {
   let legacyServer = false;
   try {
-    await request('/api/board');
+    const board = await request('/api/board');
+    if (['question', 'review'].includes(args[0]) && board.reviewVersion !== 1) {
+      throw Object.assign(new Error('질문·답변 기능을 사용하려면 Cockpit 서버를 업데이트하고 다시 시작하세요.'), { status: 409 });
+    }
     return {
       mode: 'api',
       list: () => request('/api/board'),
       note: content => request('/api/board/note', 'PUT', { content }),
       append: content => request('/api/board/note/append', 'POST', { content }),
-      add: text => request('/api/board/tasks', 'POST', { text }),
+      add: (text, kind = 'task') => request('/api/board/tasks', 'POST', { text, kind, checklistId }),
+      review: pendingSince => request('/api/board/review', 'POST', { pendingSince }),
       update: (id, updates) => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'PATCH', updates),
       delete: id => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'DELETE'),
     };
@@ -61,7 +67,8 @@ async function backend() {
     list: () => service.getBoard(),
     note: content => service.updateBoardNote(content),
     append: content => service.appendBoardNote(content),
-    add: text => service.addBoardTask(text),
+    add: (text, kind = 'task') => service.addBoardTask(text, checklistId, kind),
+    review: () => { throw new Error('확인 기록에는 실행 중인 Cockpit 서버가 필요합니다.'); },
     update: (id, updates) => service.updateBoardTask(id, updates),
     delete: id => service.deleteBoardTask(id),
   };
@@ -77,7 +84,11 @@ function usage() {
   cockpit-board task done <T-ID>
   cockpit-board task reopen <T-ID>
   cockpit-board task edit <T-ID> <text>
-  cockpit-board task delete <T-ID>`;
+  cockpit-board task delete <T-ID>
+  cockpit-board question add <text> --checklist <C-ID>
+  cockpit-board question answer <T-ID> <text>
+  cockpit-board review <pendingSince>
+  task add also accepts --checklist <C-ID>`;
 }
 
 async function main() {
@@ -85,6 +96,9 @@ async function main() {
   const [group = 'list', action, id, ...rest] = args;
   let result;
   if (group === 'list') result = await store.list();
+  else if (group === 'review') result = await store.review(Number(action));
+  else if (group === 'question' && action === 'add') result = await store.add([id, ...rest].filter(Boolean).join(' '), 'question');
+  else if (group === 'question' && action === 'answer') result = await store.update(id, { answer: rest.join(' ') });
   else if (group === 'note' && action === 'get') result = (await store.list()).note;
   else if (group === 'note' && action === 'set') result = await store.note([id, ...rest].filter(Boolean).join(' '));
   else if (group === 'note' && action === 'append') {

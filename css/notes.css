@@ -224,3 +224,50 @@
 .docs-toc-item:hover { color: var(--accent-bright); }
 .docs-toc-item.lv2 { padding-left: 12px; }
 .docs-toc-item.lv3 { padding-left: 24px; }
+
+/* Persistent supervision board shares the Notes surface and existing theme. */
+.notes-board-link { width: 100%; text-align: left; border: 1px solid var(--border); background: transparent; min-height: 48px; }
+.supervision { overflow-y: auto; padding: 24px; color: var(--text-1); font-size: .82rem; line-height: 1.6; }
+.supervision h1 { font-size: 1.4rem; color: var(--text-0); margin: 0; }
+.supervision h2 { font-size: 1rem; color: var(--text-0); margin: 0 0 12px; }
+.supervision h3 { font-size: .88rem; margin: 0 0 12px; }
+.supervision p { margin: 6px 0 12px; overflow-wrap: anywhere; }
+.supervision small { color: var(--text-2); font-size: .72rem; }
+.supervision-notice { padding: 10px 12px; border-left: 2px solid var(--accent); background: var(--bg-1); }
+.supervision-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin: 24px 0; }
+.supervision [hidden] { display: none; }
+.supervision section { min-width: 0; }
+.supervision form, .supervision label { display: grid; gap: 6px; }
+.supervision form { gap: 12px; }
+.supervision input:not([type=checkbox]), .supervision textarea, .supervision select { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-0); color: var(--text-0); padding: 9px; font: inherit; }
+.supervision textarea { resize: vertical; }
+.supervision input:focus-visible, .supervision textarea:focus-visible, .supervision select:focus-visible, .supervision button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.supervision .btn { min-height: 36px; width: fit-content; white-space: normal; }
+.supervision-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.supervision label.supervision-recovery { display: flex; align-items: center; gap: 8px; }
+.supervision-recovery input { width: 18px; height: 18px; accent-color: var(--accent); }
+.supervision-status { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.supervision-status strong { color: var(--accent-bright); }
+.supervision-next, .supervision-readiness { padding: 12px 0; border-block: 1px solid var(--border); }
+.supervision-readiness ul { margin: 8px 0; padding-left: 20px; }
+.supervision-config h3 { margin: 16px 0 0; }
+.supervision-workers, .supervision-worker { display: grid; gap: 10px; }
+.supervision-worker { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.supervision-reports { max-height: 450px; overflow-y: auto; }
+.supervision-reports article { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.supervision-reports p { white-space: pre-wrap; }
+.supervision-work { border-top: 1px solid var(--border); padding-top: 24px; }
+.supervision-permissions { border-top: 1px solid var(--border); padding: 24px 0; }
+.supervision-lists { display: grid; gap: 20px; margin: 20px 0; }
+.supervision-lists > article { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+.supervision-task { margin: 14px 0; padding: 12px 0; border-top: 1px solid var(--border); }
+.supervision-task > label { display: flex; flex-wrap: wrap; align-items: center; overflow-wrap: anywhere; }
+.supervision-task input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+.supervision-task form { margin-top: 8px; }
+@media (max-width: 800px) {
+  .docs-layout:has(.supervision) { flex-direction: column; }
+  .docs-layout:has(.supervision) .docs-sidebar { width: auto; max-height: 145px; border-right: none; border-bottom: 1px solid var(--border); }
+  .supervision { padding: 16px; }
+  .supervision-columns { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+}
+@media (pointer: coarse) { .supervision .btn, .supervision input:not([type=checkbox]), .supervision select { min-height: 44px; } }

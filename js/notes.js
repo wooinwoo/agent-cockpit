@@ -2,6 +2,7 @@
 import { app, notify } from './state.js';
 import { registerClickActions, registerInputActions } from './actions.js';
 import { esc, fetchJson, postJson, showToast, timeAgo, simpleMarkdown } from './utils.js';
+import { mountSupervision, stopSupervision, canLeaveSupervision } from './supervision.js';
 
 const AUTOSAVE_DELAY = 1200;
 
@@ -11,6 +12,7 @@ let _dirty = false;
 let _saveTimer = null;
 let _mode = 'edit'; // edit | preview
 let _search = '';
+let _boardOpen = true;
 
 function $(id) { return document.getElementById(id); }
 
@@ -39,11 +41,11 @@ function renderSidebar() {
   if (!wrap) return;
   const q = _search.trim().toLowerCase();
   const items = _list.filter(n => !q || (n.title || '').toLowerCase().includes(q) || (n.preview || '').toLowerCase().includes(q));
-  wrap.innerHTML = items.length ? items.map(n => `
+  wrap.innerHTML = `<button type="button" class="docs-nav-item notes-board-link ${_boardOpen ? 'active' : ''}" data-action="open-supervision"><strong>감독 보드</strong><small>목표 · 질문 · 자동 점검</small></button>` + (items.length ? items.map(n => `
     <div class="docs-nav-item ${n.id === _currentId ? 'active' : ''}" data-action="open-note" data-id="${esc(n.id)}" role="button" tabindex="0">
       <strong>${esc(n.title || 'Untitled')}</strong>
       <small>${esc(timeAgo(n.updatedAt))}</small>
-    </div>`).join('') : '<p class="docs-nav-empty">노트가 없습니다</p>';
+    </div>`).join('') : '<p class="docs-nav-empty">노트가 없습니다</p>');
 }
 
 function renderToc(content) {
@@ -142,9 +144,14 @@ async function flushSave() {
 }
 
 async function openNote(id) {
+  if (_boardOpen && !canLeaveSupervision()) return;
   await flushSave();
+  if (_dirty) return;
   try {
     const note = await fetchJson(`/api/notes/${id}`);
+    stopSupervision();
+    _boardOpen = false;
+    $('docs-toc').hidden = false;
     _currentId = id;
     _dirty = false;
     renderEditor(note);
@@ -153,6 +160,17 @@ async function openNote(id) {
   } catch (err) {
     showToast(err.message || '노트를 열지 못했습니다', 'error');
   }
+}
+
+async function openSupervision() {
+  if (_boardOpen && $('notes-editor')?.querySelector('.supervision')) return;
+  await flushSave();
+  if (_dirty) return;
+  _boardOpen = true;
+  _currentId = null;
+  $('docs-toc').hidden = true;
+  renderSidebar();
+  mountSupervision($('notes-editor'));
 }
 
 async function createNewNote() {
@@ -205,7 +223,8 @@ export async function initNotes() {
   }
   try {
     await loadList();
-    if (!_currentId && _list.length) await openNote(_list[0].id);
+    if (_boardOpen) await openSupervision();
+    else if (!_currentId && _list.length) await openNote(_list[0].id);
     else renderEditor(_currentId ? _list.find(n => n.id === _currentId) : null);
   } catch (err) {
     showToast(err.message || '노트를 불러오지 못했습니다', 'error');
@@ -213,6 +232,7 @@ export async function initNotes() {
 }
 
 registerClickActions({
+  'open-supervision': openSupervision,
   'create-new-note': createNewNote,
   'open-note': el => openNote(el.dataset.id),
   'delete-note': removeNote,

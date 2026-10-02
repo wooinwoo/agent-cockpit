@@ -1,9 +1,12 @@
 import { registerClickActions } from './actions.js';
 import { copyText, esc, fetchJson, showToast } from './utils.js';
+import { mergeBoardChanges } from './board-merge.js';
 
 const LOCAL_KEY = 'cockpit-canvas-board';
 const DIRTY_KEY = 'cockpit-canvas-board-dirty';
+const BASE_KEY = 'cockpit-canvas-board-base';
 let board = loadLocal();
+let syncedBoard = loadBase();
 let localDirty = localStorage.getItem(DIRTY_KEY) === '1'
   && Boolean(board.updatedAt || board.notes.some(note => note.content) || board.tasks.length);
 let localGeneration = 0;
@@ -16,6 +19,7 @@ let syncLabel = 'Local';
 function emptyBoard() {
   return {
     schemaVersion: 2,
+    review: {},
     note: { content: '', updatedAt: 0 },
     notes: [],
     checklists: [],
@@ -56,6 +60,7 @@ function normalize(value) {
     .map(item => ({
       id: item.id,
       title: String(item.title || `Checklist ${Number(item.id.slice(2))}`).trim().slice(0, 80),
+      goal: String(item.goal || '').slice(0, 4000),
       createdAt: Number(item.createdAt) || now,
       updatedAt: Number(item.updatedAt) || 0,
     }));
@@ -71,6 +76,7 @@ function normalize(value) {
   const primaryNote = notes[0] || { content: '', updatedAt: 0 };
   return {
     schemaVersion: 2,
+    review: source.review || {},
     note: { content: primaryNote.content, updatedAt: primaryNote.updatedAt },
     notes,
     checklists,
@@ -78,6 +84,8 @@ function normalize(value) {
       ...item,
       text: String(item.text).slice(0, 500),
       done: item.done === true,
+      kind: item.kind === 'question' ? 'question' : 'task',
+      answer: String(item.answer || '').slice(0, 4000),
       checklistId: checklistIds.has(item.checklistId) ? item.checklistId : defaultChecklistId,
     })),
     nextNoteNumber: Math.max(highestNote + 1, Number(source.nextNoteNumber) || 1),
@@ -95,6 +103,18 @@ function loadLocal() {
 
 function saveLocal() {
   try { localStorage.setItem(LOCAL_KEY, JSON.stringify(board)); } catch { /* storage unavailable */ }
+}
+
+function loadBase() {
+  try {
+    const value = JSON.parse(localStorage.getItem(BASE_KEY) || 'null');
+    return value ? normalize(value) : null;
+  } catch { return null; }
+}
+
+function rememberSynced(value) {
+  syncedBoard = normalize(value);
+  try { localStorage.setItem(BASE_KEY, JSON.stringify(syncedBoard)); } catch { /* storage unavailable */ }
 }
 
 function setLocalDirty(value) {
@@ -120,6 +140,7 @@ async function readLegacyBoard() {
 
 function applyBoard(value, source, force = false) {
   const incoming = normalize(value);
+  rememberSynced(incoming);
   if (force || incoming.updatedAt >= board.updatedAt || !board.updatedAt) board = incoming;
   syncLabel = source;
   saveLocal();
@@ -141,27 +162,35 @@ export async function updateCanvasBoard() {
     const generation = localGeneration;
     const dirtyAtStart = localDirty;
     const localSnapshot = normalize(board);
+    const baseSnapshot = syncedBoard;
     try {
       const rawRemote = await request('/api/board');
       const modernApi = rawRemote?.schemaVersion >= 2 && Array.isArray(rawRemote.notes) && Array.isArray(rawRemote.checklists);
       let remote = normalize(rawRemote);
       apiAvailable = true;
       if (dirtyAtStart) {
-        if (!modernApi) {
+        if (!modernApi || (rawRemote.reviewVersion !== 1 && (board.checklists.some(item => item.goal) || board.tasks.some(item => item.kind === 'question')))) {
           apiAvailable = false;
           syncLabel = 'Local · restart to sync';
           renderCanvasBoard();
           return;
         }
         try {
-          remote = normalize(await request('/api/board', 'PUT', { board: localSnapshot, revision: localSnapshot.revision }));
-        } catch {
-          syncLabel = 'Sync conflict';
+          remote = normalize(await request('/api/board', 'PUT', { board: localSnapshot, revision: localSnapshot.revision, base: baseSnapshot }));
+        } catch (error) {
+          syncLabel = error.status === 409 ? `Sync conflict · ${error.message}` : '저장 실패 · 재시도 중';
           renderCanvasBoard();
           return;
         }
         if (generation !== localGeneration) {
-          board.revision = remote.revision;
+          try { board = normalize(mergeBoardChanges(localSnapshot, normalize(board), remote)); }
+          catch (error) {
+            syncLabel = `Sync conflict · ${error.message}`;
+            saveLocal();
+            renderCanvasBoard();
+            return;
+          }
+          rememberSynced(remote);
           syncLabel = 'Syncing…';
           saveLocal();
           renderCanvasBoard();
@@ -267,7 +296,22 @@ export function createCanvasBoardFrame(type, boardId, frame) {
       </label>`
     : `<section class="canvas-checklist" aria-label="Checklist">
         <header><span data-canvas-task-count>0 open</span><span data-canvas-board-sync>Local</span></header>
+        <label class="canvas-board-field">목표 · 완료 기준
+          <textarea data-canvas-goal maxlength="4000" rows="2" placeholder="무엇이 되면 완료인가요?"></textarea>
+        </label>
+        <details class="canvas-board-review">
+          <summary>전체 보드 관리 · <span data-review-state>자동 확인 꺼짐</span></summary>
+          <form data-review-form>
+            <label>관리 세션 <input name="target" placeholder="ai1" autocomplete="off"></label>
+            <label>확인 간격(분) <input name="minutes" type="number" min="1" max="1440" value="5" required></label>
+            <button type="submit">설정 저장</button>
+            <button type="button" data-review-stop>자동 확인 끄기</button>
+          </form>
+          <small>모든 체크리스트·목표·질문 답변을 확인합니다. 새 항목도 포함되며, AI 확인 전에는 중복 알림을 보내지 않습니다.</small>
+          <p data-review-feedback role="status"></p>
+        </details>
         <form data-canvas-task-form>
+          <select name="kind" aria-label="항목 종류"><option value="task">할 일</option><option value="question">질문</option></select>
           <input name="task" maxlength="500" autocomplete="off" placeholder="새 태스크…" aria-label="New checklist task">
           <button type="submit" title="Add task" aria-label="Add task">+</button>
         </form>
@@ -306,6 +350,19 @@ function hydrateCanvasBoardFrame(root) {
   const item = ensureCanvasBoardItem(type, boardId);
   const textarea = root.querySelector('[data-canvas-note]');
   if (textarea && document.activeElement !== textarea) textarea.value = item?.content || '';
+  const goal = root.querySelector('[data-canvas-goal]');
+  if (goal && document.activeElement !== goal) goal.value = item?.goal || '';
+  const reviewState = root.querySelector('[data-review-state]');
+  if (reviewState) {
+    const review = board.review || {};
+    reviewState.textContent = review.status === 'complete' ? '목표 달성 보고됨' : !review.termId || review.status === 'stopped' ? '자동 확인 꺼짐' : review.pendingSince
+      ? 'AI 확인 대기' : `${review.intervalMinutes}분마다 확인${review.lastReviewedAt ? ` · 최근 ${new Date(review.lastReviewedAt).toLocaleTimeString()}` : ''}`;
+    const form = root.querySelector('[data-review-form]');
+    if (!form.contains(document.activeElement)) {
+      form.elements.target.value = review.alias || review.termId || '';
+      form.elements.minutes.value = review.intervalMinutes || 5;
+    }
+  }
   root.querySelectorAll('[data-canvas-board-sync]').forEach(sync => {
     if (sync.textContent !== syncLabel) sync.textContent = syncLabel;
   });
@@ -321,13 +378,18 @@ function hydrateCanvasBoardFrame(root) {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-9"/></svg>
       </button>
       <button type="button" class="canvas-task-id" data-action="canvas-task-copy" data-taskid="${esc(task.id)}" title="Copy task ID">${esc(task.id)}</button>
-      <span class="canvas-task-text">${esc(task.text)}</span>
+      <div class="canvas-task-text">${task.kind === 'question' ? '<strong>질문</strong> ' : ''}${esc(task.text)}
+        ${task.kind === 'question' ? `<label class="canvas-board-field">답변
+          <textarea data-task-answer="${esc(task.id)}" maxlength="4000" rows="2" placeholder="답변을 남기면 관리 세션이 확인합니다.">${esc(task.answer || '')}</textarea>
+        </label>` : ''}
+      </div>
       <button type="button" class="canvas-task-delete" data-action="canvas-task-delete" data-taskid="${esc(task.id)}" title="Delete ${esc(task.id)}" aria-label="Delete ${esc(task.id)}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg>
         <span>Delete</span>
       </button>
     </div>`).join('') || '<p>태스크 없음</p>';
-    if (list._cockpitRenderHtml !== html) {
+    const editingAnswer = document.activeElement?.matches('[data-task-answer]') && list.contains(document.activeElement);
+    if (list._cockpitRenderHtml !== html && !editingAnswer) {
       const scrollTop = list.scrollTop;
       list.innerHTML = html;
       list._cockpitRenderHtml = html;
@@ -349,7 +411,7 @@ function localTouch() {
   renderCanvasBoard();
 }
 
-async function addTask(text, checklistId) {
+async function addTask(text, checklistId, kind = 'task') {
   const clean = text.trim();
   if (!clean || !findBoardItem('checklist', checklistId)) return;
   const now = Date.now();
@@ -357,6 +419,8 @@ async function addTask(text, checklistId) {
     id: `T-${String(board.nextTaskNumber++).padStart(4, '0')}`,
     text: clean,
     done: false,
+    kind,
+    answer: '',
     checklistId,
     createdAt: now,
     updatedAt: now,
@@ -402,9 +466,50 @@ function setupBoardEvents(root) {
     const input = event.currentTarget.elements.task;
     const text = input.value;
     input.value = '';
-    addTask(text, boardId);
+    addTask(text, boardId, event.currentTarget.elements.kind.value);
     input.focus();
   });
+  root.querySelector('[data-canvas-goal]')?.addEventListener('input', event => {
+    const checklist = findBoardItem('checklist', boardId);
+    if (!checklist) return;
+    checklist.goal = event.target.value;
+    checklist.updatedAt = Date.now();
+    localTouch();
+    clearTimeout(noteSaveTimer);
+    noteSaveTimer = setTimeout(updateCanvasBoard, 450);
+  });
+  root.querySelector('[data-canvas-task-list]')?.addEventListener('input', event => {
+    const id = event.target.dataset.taskAnswer;
+    const task = board.tasks.find(item => item.id === id);
+    if (!task) return;
+    task.answer = event.target.value;
+    task.updatedAt = Date.now();
+    localTouch();
+    clearTimeout(noteSaveTimer);
+    noteSaveTimer = setTimeout(updateCanvasBoard, 450);
+  });
+  const reviewForm = root.querySelector('[data-review-form]');
+  async function saveReview(target) {
+    const feedback = root.querySelector('[data-review-feedback]');
+    feedback.textContent = '저장 중…';
+    try {
+      if (target) {
+        await updateCanvasBoard();
+        if (localDirty || !apiAvailable) throw new Error('보드 동기화 후 다시 시도하세요.');
+      }
+      const saved = await request('/api/board/review', 'PUT', {
+        target, intervalMinutes: target ? Number(reviewForm.elements.minutes.value) : (board.review.intervalMinutes || 5),
+      });
+      if (!localDirty) applyBoard(saved, 'Synced', true);
+      else { board.review = saved.review; saveLocal(); }
+      feedback.textContent = target ? '자동 확인을 설정했습니다.' : '자동 확인을 껐습니다.';
+    } catch (error) { feedback.textContent = error.message; }
+  }
+  reviewForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    saveReview(reviewForm.elements.target.value.trim());
+  });
+  root.querySelector('[data-review-stop]')?.addEventListener('click', () => saveReview(''));
   root.querySelector('[data-canvas-note]')?.addEventListener('input', event => {
     const content = event.currentTarget.value;
     const now = Date.now();

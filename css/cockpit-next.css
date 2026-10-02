@@ -1198,7 +1198,7 @@ body.terminal-first-shell header::after {
   box-shadow: var(--shadow-md);
 }
 
-#terminal-view .canvas-board-checklist { min-width: 380px; min-height: 280px; }
+#terminal-view .canvas-board-checklist { min-width: min(380px, calc(100vw - 24px)); min-height: 280px; }
 
 #terminal-view .canvas-board-window.selected {
   border-color: var(--border-active);
@@ -1221,9 +1221,10 @@ body.terminal-first-shell header::after {
   cursor: grab;
 }
 
-#terminal-view .canvas-board-window-icon {
+#terminal-view .canvas-board-window .canvas-board-window-icon {
   width: 15px;
   height: 15px;
+  flex: none;
   color: var(--accent-bright);
 }
 
@@ -1320,7 +1321,29 @@ body.terminal-first-shell header::after {
   font: 400 0.58rem/1 var(--mono);
 }
 
-#terminal-view .canvas-checklist { height: 100%; display: flex; flex-direction: column; }
+#terminal-view .canvas-checklist { height: 100%; display: flex; flex-direction: column; overflow: auto; }
+
+#terminal-view .canvas-board-field { display: grid; gap: 5px; margin: 8px 0; color: var(--text-1); font-size: 0.8rem; }
+#terminal-view .canvas-board-field textarea,
+#terminal-view .canvas-board-review input,
+#terminal-view [data-canvas-task-form] select {
+  min-width: 0; width: 100%; box-sizing: border-box; color: var(--text-1); background: var(--bg-1);
+  border: 1px solid var(--border-hover); border-radius: 4px; padding: 7px; font: inherit;
+}
+#terminal-view .canvas-board-field textarea { resize: vertical; }
+#terminal-view .canvas-board-field textarea::placeholder { color: var(--text-2); }
+#terminal-view .canvas-board-review { flex: none; margin-bottom: 10px; font-size: 0.8rem; color: var(--text-1); }
+#terminal-view .canvas-board-review summary { padding: 8px 0; cursor: pointer; }
+#terminal-view [data-review-form] { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+#terminal-view [data-review-form] label { min-width: 0; display: grid; gap: 5px; }
+#terminal-view [data-review-form] button { min-height: 34px; padding: 6px; color: var(--text-1); background: var(--bg-surface); border: 1px solid var(--border-hover); border-radius: 4px; cursor: pointer; }
+#terminal-view [data-review-form] button:hover { border-color: var(--accent); }
+#terminal-view .canvas-board-review small { color: var(--text-2); line-height: 1.5; }
+#terminal-view [data-review-feedback]:empty { display: none; }
+#terminal-view .canvas-checklist :is(input, textarea, select, button, summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (pointer: coarse) {
+  #terminal-view .canvas-checklist :is(input, select, button, summary) { min-height: 44px; }
+}
 
 #terminal-view .canvas-checklist > header {
   height: 26px;
@@ -1338,8 +1361,9 @@ body.terminal-first-shell header::after {
 
 #terminal-view [data-canvas-task-form] {
   height: 42px;
+  flex: none;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
+  grid-template-columns: 70px minmax(0, 1fr) 34px;
   border: 1px solid var(--border-hover);
   border-radius: 4px;
   overflow: hidden;
@@ -1365,7 +1389,7 @@ body.terminal-first-shell header::after {
 }
 
 #terminal-view .canvas-task-list {
-  min-height: 0;
+  min-height: 100px;
   flex: 1;
   margin-top: 6px;
   overflow: auto;

@@ -29,8 +29,9 @@ import { initBatch } from './lib/batch-service.js';
 import { logger } from './lib/logger.js';
 import { cleanupOrphanMcpProcesses } from './lib/orphan-cleaner.js';
 import { listNotes, getNote, createNote, updateNote, deleteNote } from './lib/notes-service.js';
-import { getBoard, replaceBoardIfRevision, updateBoardNote, appendBoardNote, addBoardTask, updateBoardTask, deleteBoardTask } from './lib/board-service.js';
-import { detectAgentProcess } from './lib/process-agent.js';
+import { getBoard, updateBoardReview, replaceBoardIfRevision, updateBoardNote, appendBoardNote, addBoardTask, updateBoardTask, deleteBoardTask } from './lib/board-service.js';
+import { detectTerminalAgent } from './lib/process-agent.js';
+import { agentPermissionCommand } from './js/agent-permissions.js';
 import { listAiAccounts, resolveAiAccountLaunch } from './lib/ai-accounts-service.js';
 import { listStoredAccounts, createStoredAccount, deleteStoredAccount, resolveStoredLaunch, setAccountBudget, checkStoredAccountLogin } from './lib/ai-accounts-store.js';
 import { startAiAccountWatcher } from './lib/ai-accounts-watcher.js';
@@ -39,8 +40,8 @@ import {
   finishDelegatedRun, isValidDelegateStatus, touchDelegatedRun, withDelegatedRun,
 } from './lib/delegate-status.js';
 import {
-  durableTerminalCwd, durableTerminalExists, durableTerminalsAvailable,
-  ensureDurableTerminal, killDurableTerminal,
+  durableTerminalCwd, durableTerminalExists, durableTerminalsAvailable, durableTerminalScreen,
+  ensureDurableTerminal, killDurableTerminal, retainDurableTerminal, restartDurableAgent, validateRecoveryCommand,
 } from './lib/durable-terminal.js';
 
 // Route modules
@@ -862,7 +863,7 @@ const routeCtx = {
   join, resolve, normalize, spawn, execFile, randomBytes, timingSafeEqual, tmpdir,
   poller, devServers, LAN_TOKEN,
   listAiAccounts, listStoredAccounts, createStoredAccount, deleteStoredAccount, setAccountBudget, checkStoredAccountLogin,
-  resolveTerminalRef, terminalSummaryList, readTerminalScreen,
+  resolveTerminalRef, terminalSummaryList, readTerminalScreen, terminalAgent, prepareBoardRecovery, recoverBoardSupervisor,
   listNotes, getNote, createNote, updateNote, deleteNote,
   durableTerminalsEnabled: () => DURABLE_TERMINALS,
   requestServerRestart,
@@ -1032,6 +1033,9 @@ try {
         createTerminal: (projectId, command) => {
           const project = getProjectById(projectId);
           if (!project) return null;
+          // Read the saved policy before creating any process. A broken board
+          // must neither leave an unregistered PTY nor silently change permissions.
+          const launchPermissions = ['claude', 'codex'].includes(command) ? getBoard().review.launchPermissions : undefined;
           const termId = 'agent-' + Date.now();
           const spec = terminalSpawnSpec(termId, project.path);
           const term = pty.spawn(spec.shell, spec.args, {
@@ -1055,6 +1059,7 @@ try {
               && !/[&|<>^;`$]/.test(command)) {
             safeCommand = command;
           }
+          safeCommand = agentPermissionCommand(safeCommand, launchPermissions);
           terminals.set(termId, {
             pty: term, projectId, _bufArr: [], _bufLen: 0, command: safeCommand,
             cols: 120, rows: 30, durableId: spec.durableId,
@@ -1278,31 +1283,70 @@ function stopTerminal(entry, permanent = false) {
   try { entry?.pty?.kill(); } catch { /* process already exited */ }
 }
 
-function requestServerRestart() {
+async function requestServerRestart() {
   if (_restartRequested || _shuttingDown) throw new Error('서버 재시작이 이미 진행 중입니다.');
-  if (!DURABLE_TERMINALS) throw new Error('이 환경에서는 터미널 세션 보존을 지원하지 않습니다.');
-  if (!_terminalsRestored) throw new Error('터미널 복원이 아직 완료되지 않아 재시작을 취소했습니다.');
-  const unprotected = [...terminals.values()].filter(terminal => !terminal.durableId).length;
-  if (unprotected) {
-    throw new Error(`현재 터미널 ${unprotected}개는 아직 세션 보존 대상이 아닙니다. 작업을 마친 뒤 처음 한 번만 수동 재시작해 주세요.`);
-  }
-  const unavailable = [...terminals.values()].filter(
-    terminal => terminal.durableId && !durableTerminalExists(terminal.durableId),
-  ).length;
-  if (unavailable) {
-    throw new Error(`현재 터미널 ${unavailable}개의 tmux 연결을 찾지 못해 재시작을 중단했습니다. 기존 세션 연결을 먼저 복구해 주세요.`);
-  }
-  const terminalCount = saveTerminalStateNow(true);
-  const helper = spawn(process.execPath, [join(__dirname, 'scripts', 'restart-server.mjs'), String(process.pid), join(__dirname, 'server.js')], {
-    cwd: __dirname,
-    env: process.env,
-    detached: true,
-    stdio: 'ignore',
-  });
-  helper.unref();
+  const ensureProtected = () => {
+    if (_shuttingDown) throw new Error('서버 종료가 이미 진행 중입니다.');
+    if (!DURABLE_TERMINALS) throw new Error('이 환경에서는 터미널 세션 보존을 지원하지 않습니다.');
+    if (!_terminalsRestored) throw new Error('터미널 복원이 아직 완료되지 않아 재시작을 취소했습니다.');
+    if (devServers.size) throw new Error('콕핏에서 실행한 개발 서버가 있어 재시작을 취소했습니다. 개발 서버 작업을 마친 뒤 다시 시도하세요.');
+    const unprotected = [...terminals.values()].filter(terminal => !terminal.durableId).length;
+    if (unprotected) {
+      throw new Error(`현재 터미널 ${unprotected}개는 아직 세션 보존 대상이 아닙니다. 작업을 마친 뒤 처음 한 번만 수동 재시작해 주세요.`);
+    }
+    const unavailable = [...terminals.values()].filter(
+      terminal => terminal.durableId && !durableTerminalExists(terminal.durableId),
+    ).length;
+    if (unavailable) {
+      throw new Error(`현재 터미널 ${unavailable}개의 tmux 연결을 찾지 못해 재시작을 중단했습니다. 기존 세션 연결을 먼저 복구해 주세요.`);
+    }
+  };
+  ensureProtected();
+  saveTerminalStateNow(true);
   _restartRequested = true;
-  setTimeout(() => onShutdown('RESTART'), 250).unref();
-  return { terminalCount };
+  let helper;
+  try {
+    helper = spawn(process.execPath, [join(__dirname, 'scripts', 'restart-server.mjs'), String(process.pid), join(__dirname, 'server.js')], {
+      cwd: __dirname, env: process.env, detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+    });
+    await new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = error => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        if (error) { try { helper.kill(); } catch {} reject(error); }
+        else resolve();
+      };
+      const timeout = setTimeout(() => finish(new Error('재시작 도우미가 준비되지 않아 기존 서버를 유지합니다.')), 7000);
+      helper.once('error', error => finish(error));
+      helper.once('exit', () => finish(new Error('재시작 도우미가 종료돼 기존 서버를 유지합니다.')));
+      helper.once('message', message => finish(message?.type === 'ready' ? null : new Error('재시작 준비 응답이 올바르지 않습니다.')));
+    });
+    // Sessions can change while the helper starts. Check and checkpoint again
+    // before committing to disconnecting any terminal clients.
+    ensureProtected();
+    const terminalCount = saveTerminalStateNow(true);
+    helper.disconnect();
+    helper.unref();
+    setTimeout(() => {
+      try {
+        if (helper.exitCode != null || helper.signalCode != null) throw new Error('재시작 도우미가 종료됐습니다.');
+        ensureProtected();
+        saveTerminalStateNow(true);
+        onShutdown('RESTART');
+      } catch (error) {
+        try { helper.kill(); } catch {}
+        _restartRequested = false;
+        logger.warn('server', `재시작을 취소하고 기존 서버를 유지합니다: ${error.message}`);
+      }
+    }, 250).unref();
+    return { terminalCount };
+  } catch (error) {
+    try { helper?.kill(); } catch {}
+    _restartRequested = false;
+    throw error;
+  }
 }
 
 // Track active PTY processes: Map<termId, { pty, projectId, buffer, command }>
@@ -1331,11 +1375,49 @@ function claimPtySize(entry, client, cols, rows) {
   return true;
 }
 function terminalAgent(entry) {
-  const detected = detectAgentProcess(entry.pty?.pid);
+  const detected = detectTerminalAgent(entry);
   if (detected.available) return detected.kind || '';
+  if (entry.durableId) return null;
   // 스캔 불가 플랫폼(Windows pty 등)에서는 실행 커맨드로만 판단하고, 그 외엔
   // null(모름)을 반환 — ''(스캔 결과 없음)와 구분해야 클라이언트 출력 휴리스틱이 살아남음
   return /^(claude|codex|opencode)\b/.exec(entry.command || '')?.[1] ?? null;
+}
+
+function prepareBoardRecovery(found) {
+  if (!DURABLE_TERMINALS || !found.entry.durableId) throw new Error('자동 복구는 tmux로 보존되는 터미널에서 사용할 수 있습니다.');
+  validateRecoveryCommand(found.entry.command);
+  if (/^codex\b/.test(found.entry.command) && !found.entry.command.split(' ').includes('--no-daemon')) {
+    throw new Error('Codex 자동 복구는 --no-daemon으로 실행한 세션에서 지원합니다. 아래 권한 프리셋으로 새 Codex를 실행하거나 codex --no-daemon을 사용하세요.');
+  }
+  if (found.entry.command.split(' ')[0] !== terminalAgent(found.entry)) throw new Error('초기 실행 명령과 현재 AI가 다릅니다. 해당 AI를 콕핏에서 새로 실행한 뒤 지정하세요.');
+  return terminalStateEntries().find(entry => entry.termId === found.id);
+}
+
+function recoverBoardSupervisor(review, { interrupt = false } = {}) {
+  if (_shuttingDown || !_terminalsRestored) throw new Error('서버 터미널 복원이 끝나지 않았습니다.');
+  if (review.runUntil && review.runUntil <= Date.now()) throw new Error('야간 운영 종료 시각이 지나 자동 복구를 취소했습니다.');
+  if (JSON.stringify(getBoard().review) !== JSON.stringify(review)) throw new Error('감독 설정이 바뀌어 자동 복구를 취소했습니다.');
+  const saved = review.recoveryTerminal;
+  if (!saved || saved.termId !== review.termId || !saved.durableId) throw new Error('저장된 감독 실행 정보가 없습니다. 설정을 다시 적용하세요.');
+  validateRecoveryCommand(saved.command);
+  let found = resolveTerminalRef(review.termId);
+  if (!found) {
+    const result = tryRestoreTerminal(saved, true);
+    if (!result.ok) throw new Error('감독 터미널을 복원하지 못했습니다.');
+    found = resolveTerminalRef(review.termId);
+    if (!found) throw new Error('복원된 터미널의 고정 ID가 감독 설정과 다릅니다. 감독을 다시 지정하세요.');
+    retainDurableTerminal(found.entry.durableId);
+    const payload = JSON.stringify({ type: 'terminals', active: activeTerminalsPayload() });
+    for (const client of wss.clients) { try { client.send(payload); } catch { /* client disconnected */ } }
+    saveTerminalState();
+    // A new pane already schedules the saved command; do not start it twice.
+    if (!result.resumed) return;
+  }
+  const agent = terminalAgent(found.entry);
+  if (agent && !interrupt) return;
+  if (agent === null) throw new Error('감독 프로세스 상태를 확인할 수 없습니다.');
+  if (agent && agent !== saved.command.split(' ')[0]) throw new Error('현재 실행 중인 AI가 감독 실행 정보와 달라 중단하지 않았습니다.');
+  restartDurableAgent(found.entry.durableId, saved.command, { allowRunning: Boolean(agent && interrupt), deadline: review.runUntil });
 }
 const agentScanTimer = setInterval(() => {
   for (const [termId, entry] of terminals) {
@@ -1393,10 +1475,13 @@ function terminalSummaryList() {
 }
 // TUI 스피너·프레임으로 범람하는 줄 걸러내기 (블록/점자/공백만으로 이뤄진 줄)
 const SCREEN_JUNK_LINE = /^[\s■⬝▀▄█░▒▓⠀-⠿◦•·│┃┌┐└┘├┤┬┴┼─═]*$/;
-function readTerminalScreen(ref, lines = 50) {
+function readTerminalScreen(ref, lines = 50, current = false) {
   const found = resolveTerminalRef(ref);
   if (!found) return null;
-  const clean = stripAnsi(bufRead(found.entry));
+  const visible = Boolean(current && found.entry.durableId);
+  const screen = visible ? durableTerminalScreen(found.entry.durableId) : bufRead(found.entry);
+  if (screen === null) return null;
+  const clean = stripAnsi(screen);
   const all = [];
   for (const raw of clean.split('\n')) {
     const line = raw.trimEnd();
@@ -1407,7 +1492,7 @@ function readTerminalScreen(ref, lines = 50) {
     all.push(line);
   }
   const max = Math.min(Math.max(1, lines || 50), 500);
-  return { termId: found.id, alias: found.entry.alias || '', lines: all.slice(-max), truncated: all.length > max };
+  return { termId: found.id, alias: found.entry.alias || '', lines: all.slice(-max), truncated: all.length > max, current: visible };
 }
 
 // Optimized buffer: append to array, join on read
@@ -1502,6 +1587,7 @@ function terminalStateEntries() {
         id: terminal.account.id, name: terminal.account.name, provider: terminal.account.provider,
       } : null,
       durableId: terminal.durableId || '',
+      supervisor: terminal.supervisor === true,
     });
   }
   return state;
@@ -1553,7 +1639,14 @@ function loadTerminalState() {
   } catch { return null; /* corrupt state file — skip restore */ }
 }
 
-function tryRestoreTerminal(entry) {
+function tryRestoreTerminal(entry, preserveId = false) {
+  // A watchdog recovery can win before a deferred checkpoint is retried.
+  // Reuse that registration instead of attaching the same pane a second time.
+  for (const [termId, terminal] of terminals) {
+    if (termId === entry.termId || (entry.durableId && terminal.durableId === entry.durableId)) {
+      return { ok: true, termId, projectId: terminal.projectId, resumed: true };
+    }
+  }
   const canResumeDurable = Boolean(
     DURABLE_TERMINALS && entry.durableId && durableTerminalExists(entry.durableId),
   );
@@ -1573,7 +1666,7 @@ function tryRestoreTerminal(entry) {
 
   const reusableTermId = typeof entry.termId === 'string' && /^[\w.-]{1,200}$/.test(entry.termId)
     && !terminals.has(entry.termId);
-  const newTermId = canResumeDurable && reusableTermId
+  const newTermId = ((DURABLE_TERMINALS && entry.durableId) || preserveId) && reusableTermId
     ? entry.termId
     : `${entry.projectId}-${randomBytes(6).toString('hex')}`;
   let accountLaunch = null;
@@ -1631,17 +1724,24 @@ function tryRestoreTerminal(entry) {
   terminals.set(newTermId, {
     pty: term, projectId: entry.projectId, _bufArr: [], _bufLen: 0,
     command: entry.command || '', account: displayAccount, cols: 120, rows: 30,
-    durableId: spec.durableId, alias: entry.alias || nextTerminalAlias(),
+    durableId: spec.durableId, alias: entry.alias || nextTerminalAlias(), supervisor: preserveId,
   });
 
   if (!spec.resumed) {
     const restoreCommand = entry.command || accountLaunch?.command || '';
     if (restoreCommand) setTimeout(() => {
-      try { term.write(restoreCommand + '\r'); } catch { /* term already gone */ }
+      try {
+        if (preserveId) {
+          const review = getBoard().review;
+          if (!review.autoRecover || review.termId !== newTermId || ['stopped', 'complete'].includes(review.status)
+              || (review.runUntil && review.runUntil <= Date.now())) return;
+        }
+        term.write(restoreCommand + '\r');
+      } catch (error) { logger.warn('state', `Deferred agent launch failed: ${error.message}`); }
     }, 500);
   }
 
-  return { ok: true, termId: newTermId, projectId: entry.projectId };
+  return { ok: true, termId: newTermId, projectId: entry.projectId, resumed: spec.resumed };
 }
 
 function restoreTerminals() {
@@ -1650,14 +1750,16 @@ function restoreTerminals() {
 
   const idMap = {};
   const restored = [];
+  const review = getBoard().review;
 
   for (const entry of saved.terminals) {
-    const result = tryRestoreTerminal(entry);
+    const supervisor = entry.supervisor === true || review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId;
+    const result = tryRestoreTerminal(entry, supervisor);
     if (result.ok) {
       idMap[entry.termId] = result.termId;
       restored.push({ termId: result.termId, projectId: result.projectId });
     } else if (result.defer) {
-      deferredTerminalRestores.push(entry);
+      deferredTerminalRestores.push({ ...entry, supervisor });
     }
   }
 
@@ -1668,16 +1770,18 @@ function restoreTerminals() {
 // 프로젝트 등록/account 복구 등으로 매칭 조건이 나중에 충족되면 대기 항목을 되살린다.
 function flushDeferredTerminalRestores() {
   if (deferredTerminalRestores.length === 0) return 0;
+  const review = getBoard().review;
   const pending = deferredTerminalRestores.splice(0);
   const idMap = {};
   let restoredCount = 0;
   for (const entry of pending) {
-    const result = tryRestoreTerminal(entry);
+    const supervisor = entry.supervisor === true || review.termId === entry.termId || review.recoveryTerminal?.termId === entry.termId;
+    const result = tryRestoreTerminal(entry, supervisor);
     if (result.ok) {
       idMap[entry.termId] = result.termId;
       restoredCount++;
     } else if (result.defer) {
-      deferredTerminalRestores.push(entry);
+      deferredTerminalRestores.push({ ...entry, supervisor });
     }
   }
   if (restoredCount > 0) {
@@ -1790,6 +1894,14 @@ wss.on('connection', (ws) => {
             return;
           }
         }
+        let launchPermissions;
+        try {
+          const command = msg.loginMode && accountLaunch ? '' : (accountLaunch?.command || msg.command);
+          if (['claude', 'codex'].includes(command)) launchPermissions = getBoard().review.launchPermissions;
+        } catch (error) {
+          ws.send(JSON.stringify({ type: 'error', message: `실행 권한을 읽지 못했습니다: ${error.message}` }));
+          return;
+        }
         let spec;
         try {
           spec = terminalSpawnSpec(termId, termPath, accountLaunch);
@@ -1839,6 +1951,7 @@ wss.on('connection', (ws) => {
         if (msg.loginMode && (accountLaunch?.provider === 'claude' || accountLaunch?.provider === 'codex')) {
           safeCommand = `${accountLaunch.provider} login`;
         }
+        safeCommand = agentPermissionCommand(safeCommand, launchPermissions);
 
         terminals.set(termId, {
           pty: term, projectId: msg.projectId, _bufArr: [], _bufLen: 0,
@@ -1910,6 +2023,8 @@ wss.on('connection', (ws) => {
         const t = terminals.get(msg.termId);
         if (t) {
           try {
+            // Closing the supervisor explicitly must not resurrect it through the watchdog.
+            if (getBoard().review.termId === msg.termId) updateBoardReview({ status: 'stopped', autoRecover: false, pendingSince: 0, recoveryAfter: 0 });
             stopTerminal(t, true);
           } catch (error) {
             logger.error('terminal', `Close failed for ${msg.termId}`, error.message);
@@ -2004,6 +2119,13 @@ wss.on('connection', (ws) => {
 // interface (e.g. the Tailscale 100.x IP) to drop physical-LAN exposure to a lever.
 const BIND_ADDR = process.env.COCKPIT_BIND || '0.0.0.0';
 server.listen(PORT, BIND_ADDR, () => {
+  // An opted-in supervisor must resume without waiting for a browser WebSocket.
+  try {
+    const startupReview = getBoard().review;
+    if (startupReview.termId && !['stopped', 'complete'].includes(startupReview.status) && !_terminalsRestored) {
+      restoreTerminals(); _terminalsRestored = true; saveTerminalStateNow();
+    }
+  } catch (error) { logger.error('state', 'Supervisor startup restore failed', error.message); }
   logger.info('server', `Claude Code Dashboard v${PKG_VERSION}`);
   logger.info('server', `http://localhost:${PORT} (bind ${BIND_ADDR})`);
   logger.info('server', `Shell: ${_defaultShell}, PID: ${process.pid}`);

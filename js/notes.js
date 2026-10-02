@@ -13,6 +13,8 @@ let _saveTimer = null;
 let _mode = 'edit'; // edit | preview
 let _search = '';
 let _boardOpen = true;
+let _floatingOpening = false;
+const floatingOffset = { x: 0, y: 0 };
 
 function $(id) { return document.getElementById(id); }
 
@@ -163,9 +165,12 @@ async function openNote(id) {
 }
 
 async function openSupervision() {
-  if (_boardOpen && $('notes-editor')?.querySelector('.supervision')) return;
+  const existingBoard = () => document.querySelector('#notes-editor > .supervision, #supervision-floating .supervision');
+  if (_boardOpen && existingBoard()) return;
   await flushSave();
   if (_dirty) return;
+  // A delayed Notes request or another click may have opened it while saving.
+  if (_boardOpen && existingBoard()) return;
   _boardOpen = true;
   _currentId = null;
   $('docs-toc').hidden = true;
@@ -183,10 +188,59 @@ function closeFloatingSupervision(returnFocus = false) {
   if (returnFocus) $('supervision-fab').focus();
 }
 
+function moveFloatingSupervision(dx = 0, dy = 0) {
+  const panel = $('supervision-floating');
+  if (!panel?.open || !panel.getClientRects().length) return;
+  const rect = panel.getBoundingClientRect();
+  const bounds = $('terminal-view').getBoundingClientRect();
+  const scale = rect.width / panel.offsetWidth || 1;
+  const left = Math.max(8, bounds.left + 8);
+  const top = Math.max(8, bounds.top + 8);
+  const right = Math.max(left, Math.min(innerWidth, bounds.right) - rect.width - 8);
+  const bottom = Math.max(top, Math.min(innerHeight, bounds.bottom) - rect.height - 8);
+  floatingOffset.x += (Math.max(left, Math.min(right, rect.left + dx)) - rect.left) / scale;
+  floatingOffset.y += (Math.max(top, Math.min(bottom, rect.top + dy)) - rect.top) / scale;
+  panel.style.translate = `${floatingOffset.x}px ${floatingOffset.y}px`;
+}
+
+window.addEventListener('resize', () => moveFloatingSupervision());
+
+function bindFloatingDrag(panel) {
+  const head = panel.querySelector('.supervision-floating-head');
+  let pointer = null;
+  head.onpointerdown = event => {
+    if (event.button !== 0 || !event.isPrimary || event.target.closest('button')) return;
+    event.preventDefault();
+    head.focus({ preventScroll: true });
+    pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    head.setPointerCapture(event.pointerId);
+    head.classList.add('dragging');
+  };
+  head.onpointermove = event => {
+    if (!pointer || event.pointerId !== pointer.id) return;
+    moveFloatingSupervision(event.clientX - pointer.x, event.clientY - pointer.y);
+    pointer.x = event.clientX; pointer.y = event.clientY;
+  };
+  head.onpointerup = head.onpointercancel = head.onlostpointercapture = () => {
+    if (pointer && head.hasPointerCapture(pointer.id)) head.releasePointerCapture(pointer.id);
+    pointer = null;
+    head.classList.remove('dragging');
+  };
+  head.onkeydown = event => {
+    if (event.target !== head || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    event.preventDefault(); event.stopPropagation();
+    const step = event.shiftKey ? 40 : 10;
+    moveFloatingSupervision(event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0,
+      event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0);
+  };
+}
+
 async function toggleFloatingSupervision() {
+  if (_floatingOpening) return;
   const panel = $('supervision-floating');
   if (panel.open) { closeFloatingSupervision(true); return; }
   const button = $('supervision-fab');
+  _floatingOpening = true;
   button.disabled = true;
   try {
     await openSupervision();
@@ -195,11 +249,13 @@ async function toggleFloatingSupervision() {
     // Move the existing form so drafts, focus handlers and polling stay intact.
     panel.querySelector('.supervision-floating-body').append(board);
     panel.show();
+    moveFloatingSupervision();
+    bindFloatingDrag(panel);
     button.setAttribute('aria-expanded', 'true');
     panel.onkeydown = event => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeFloatingSupervision(true); }
     };
-  } finally { button.disabled = false; }
+  } finally { button.disabled = false; _floatingOpening = false; }
 }
 
 async function createNewNote() {

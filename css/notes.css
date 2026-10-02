@@ -242,6 +242,9 @@
 }
 .supervision-floating[open] { display: flex; flex-direction: column; }
 .supervision-floating-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.supervision-floating-head { cursor: grab; touch-action: none; user-select: none; }
+.supervision-floating-head.dragging { cursor: grabbing; }
+.supervision-floating-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 .supervision-floating-head strong { font-size: .82rem; }
 .supervision-floating-head .btn { min-height: 44px; flex: none; }
 .supervision-floating-body { display: flex; min-height: 0; flex: 1; }

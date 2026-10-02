@@ -262,7 +262,9 @@ test('supervision pins workers, backs off unanswered checks, persists reports an
       progress: [{ termId: 'worker', artifact: '/tmp/login-test.log', version: '3-passed', result: '로그인 회귀 테스트 3개 통과' }] });
     time += 86_400_000; tick();
     assert.equal(messages.length, 3);
-    assert.equal(createBoardService(file).getBoard().review.reports.length, 2);
+    const savedReports = createBoardService(file).getBoard().review.reports;
+    assert.equal(savedReports.filter(report => !report.text.startsWith('진전 확인 필요:')).length, 2);
+    assert.equal(savedReports.filter(report => report.text.startsWith('진전 확인 필요:')).length, 1);
     assert.equal(createBoardService(file).getBoard().review.status, 'complete');
     await configure([{ target: 'ai2', goal: '재검증' }]);
     tick();

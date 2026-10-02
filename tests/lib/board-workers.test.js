@@ -64,7 +64,7 @@ test('busy, approval, paused, typed input, unknown and stale screens never recei
     'Conversation interrupted – tell the model what to do differently.\n› Ask Codex to do anything',
   ]) {
     h.screens.one = screen; h.screens.two = screen;
-    h.tick(); h.advance(700_000); h.tick();
+    h.tick(); h.advance(120_000); h.tick();
     assert.equal(h.messages.filter(item => item.id !== 'manager').length, 0, screen);
   }
   assert.equal(workerScreenState({ current: false, lines: ['› Ask Codex to do anything'] }, 'codex'), 'unknown');
@@ -81,7 +81,7 @@ test('unchanged blockers sleep; a new answer wakes only eligible workers and pre
   h.tick(); h.advance(); h.tick();
   h.report('one', 'blocked', { blocker: '사용자 정보 필요', alternatives: '다른 남은 조건도 같은 정보에 의존함', remaining: [{ condition: '첫 목표 완료', blocker: '사용자 정보 필요', nextAction: '정보를 반영해 구현' }] });
   h.screens.two = 'Goal paused (/goal resume)\n› Ask Codex to do anything';
-  h.advance(700_000); h.tick(); h.advance(); h.tick();
+  h.advance(15_000); h.tick(); h.advance(); h.tick();
   assert.equal(h.messages.filter(item => item.id === 'one').length, 1);
   h.service.updateBoardTask(question.id, { answer: '결정 완료' });
   h.tick();
@@ -212,7 +212,7 @@ test('running with a paused native goal is observed as busy without automaticall
 test('busy stall queues one check, wakes supervisor repeatedly, survives restart and never counts as progress', t => {
   const h = setup(t);
   h.screens.one = 'Waiting for agents\nWorking (30m • esc to interrupt)\n› Ask Codex to do anything\nGPT-6-Astra high';
-  h.tick(); h.advance(1_800_000); h.tick();
+  h.tick(); h.advance(300_000); h.tick();
   assert.equal(h.messages.filter(m => m.id === 'one').length, 1);
   assert.match(h.messages.find(m => m.id === 'one').text, /정체 점검/);
   assert.equal(h.worker('one').lastProgressAt, 0);
@@ -227,7 +227,7 @@ test('stall checks never submit a draft or an approval, including a last-moment 
     const h = setup(t);
     h.screens.one = 'Working (30m • esc to interrupt)\n› ' + (mode === 'draft' ? 'user draft' : 'Ask Codex to do anything');
     if (mode === 'approval') h.screens.one = 'Would you like to run the following command?\n1. Yes\n› Ask Codex to do anything';
-    h.tick(); h.advance(1_800_000);
+    h.tick(); h.advance(300_000);
     let reads = 0;
     h.inspect(id => { if (mode === 'race' && id === 'one' && ++reads === 2) h.screens.one = 'Would you like to run the following command?\n1. Yes'; });
     h.tick();
@@ -241,7 +241,11 @@ test('whole-worker blocking requires every remaining condition and gets a bounde
   assert.throws(() => h.report('one', 'blocked', { blocker: '한 설치 승인', alternatives: '대기' }), /remaining/);
   assert.throws(() => h.supervisor([{ termId: 'one', workState: 'blocked', blocker: '한 설치 승인' }]), /remaining/);
   h.report('one', 'blocked', { blocker: '정보 필요', alternatives: '남은 조건 전부 같은 정보 필요', remaining: [{ condition: '첫 목표', blocker: '정보 필요', nextAction: '정보 반영' }] });
-  h.advance(899_000); h.tick(); h.advance(15_000); h.tick();
+  const review = h.service.getBoard().review;
+  h.service.updateBoardReview({ workerProgress: review.workerProgress.map(w => w.termId === 'one' ? { ...w, run: { ...w.run, attempts: 4 } } : w) });
+  h.tick(); h.advance(119_999); h.tick();
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 1);
+  h.advance(1); h.tick();
   assert.equal(h.messages.filter(m => m.id === 'one').length, 2);
   assert.match(h.messages.filter(m => m.id === 'one')[1].text, /같은 외부 실패나 시험을 다시 실행하라는 뜻이 아닙니다/);
 });
@@ -261,7 +265,7 @@ test('supervisor ready updates preserve in-flight worker reporting identity', t 
 test('a stall check deferred for a draft is delivered once the busy composer becomes empty', t => {
   const h = setup(t);
   h.screens.one = 'Working (30m • esc to interrupt)\n› user draft';
-  h.tick(); h.advance(1_800_000); h.tick();
+  h.tick(); h.advance(300_000); h.tick();
   assert.equal(h.messages.filter(m => m.id === 'one').length, 0);
   h.screens.one = 'Working (35m • esc to interrupt)\n› Ask Codex to do anything';
   h.advance(300_000); h.tick();

@@ -1,4 +1,4 @@
-export const WORKER_PROGRESS_DEADLINE = 30 * 60_000;
+export const WORKER_PROGRESS_DEADLINE = 5 * 60_000;
 
 // This detects missing new reported evidence, not whether the evidence is true.
 export function stalledWorkerProgress(review, now = Date.now()) {

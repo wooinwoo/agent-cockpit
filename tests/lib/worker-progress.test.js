@@ -16,7 +16,7 @@ function setup(t) {
   t.mock.method(Date, 'now', () => time);
   const file = join(directory, 'board.json');
   const service = createBoardService(file);
-  service.updateBoardReview({ termId: 'manager', intervalMinutes: 5,
+  service.updateBoardReview({ termId: 'manager', intervalMinutes: 1,
     watched: [{ termId: 'one', alias: 'ai1', goal: '로그인 검증' }, { termId: 'two', alias: 'ai2', goal: '보고서' }] });
   const messages = [];
   const routes = {};
@@ -36,13 +36,13 @@ function setup(t) {
 
 const evidence = (termId, version) => ({ termId, artifact: `/tmp/${termId}.txt`, version, result: '검증 결과' });
 
-test('heartbeat reports do not hide a 30-minute stall; warnings persist once and reach supervisor prompts', async t => {
+test('heartbeat reports do not hide a 5-minute stall; warnings persist once and reach supervisor prompts', async t => {
   const h = setup(t);
   const baseline = h.service.getBoard().review.workerProgress[0].startedAt;
-  for (let index = 0; index < 6; index++) {
+  for (let index = 0; index < 5; index++) {
     h.tick();
     assert.equal((await h.report()).status, 200);
-    h.advance(5);
+    h.advance(1);
   }
   assert.equal(h.service.getBoard().review.workerProgress[0].startedAt, baseline);
   h.tick();
@@ -64,13 +64,13 @@ test('only a new artifact version updates one worker; wording and A/B/A replay d
   const h = setup(t);
   h.tick(); await h.report([evidence('one', 'A')]);
   const firstAt = h.service.getBoard().review.workerProgress[0].lastProgressAt;
-  h.advance(5); h.tick(); await h.report([{ ...evidence('one', 'A'), result: '계속 잘 진행 중' }]);
+  h.advance(1); h.tick(); await h.report([{ ...evidence('one', 'A'), result: '계속 잘 진행 중' }]);
   assert.equal(h.service.getBoard().review.workerProgress[0].lastProgressAt, firstAt);
-  h.advance(5); h.tick(); await h.report([evidence('one', 'B')]);
+  h.advance(1); h.tick(); await h.report([evidence('one', 'B')]);
   const secondAt = h.service.getBoard().review.workerProgress[0].lastProgressAt;
-  h.advance(5); h.tick(); await h.report([evidence('one', 'A')]);
+  h.advance(1); h.tick(); await h.report([evidence('one', 'A')]);
   assert.equal(h.service.getBoard().review.workerProgress[0].lastProgressAt, secondAt);
-  h.advance(25); h.tick();
+  h.advance(5); h.tick();
   assert.equal(stalledWorkerProgress(h.service.getBoard().review).length, 2);
   await h.report([evidence('one', 'C')]);
   assert.deepEqual(stalledWorkerProgress(h.service.getBoard().review).map(worker => worker.termId), ['two']);
@@ -78,7 +78,7 @@ test('only a new artifact version updates one worker; wording and A/B/A replay d
   const restored = createBoardService(h.file);
   restored.updateBoardReview({ cycleStartedAt: 0, recoveryAttempts: 1, pendingSince: 0 });
   assert.deepEqual(restored.getBoard().review.workerProgress, h.service.getBoard().review.workerProgress);
-  h.advance(30); h.tick();
+  h.advance(5); h.tick();
   assert.equal(h.service.getBoard().review.reports.filter(item => item.text.includes('진전 확인 필요')).length, 2);
 });
 
@@ -130,4 +130,11 @@ test('offline CLI task edits preserve progress and duplicate evidence history', 
   assert.equal(child.status, 0, child.stderr || child.error?.message);
   assert.deepEqual(createBoardService(h.file).getBoard().review.workerProgress, before);
   assert.equal(h.service.getBoard().tasks.at(-1).text, '오프라인 작업');
+});
+
+
+test('progress detection starts at five minutes, not before', () => {
+  const review = { watched: [{ termId: 'one', goal: 'goal' }], workerProgress: [{ termId: 'one', goal: 'goal', startedAt: 1000, lastProgressAt: 0 }] };
+  assert.equal(stalledWorkerProgress(review, 300_999).length, 0);
+  assert.equal(stalledWorkerProgress(review, 301_000).length, 1);
 });

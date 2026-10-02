@@ -29,6 +29,7 @@ try {
   const panelRect=await page.locator('#supervision-floating').boundingBox();
   const buttonRect=await page.locator('#supervision-fab').boundingBox();
   assert.ok(panelRect.y>=0 && panelRect.y+panelRect.height<=buttonRect.y-8,'panel must fit above shortcut');
+  assert.ok(Math.abs(buttonRect.y-panelRect.y-panelRect.height-8)<1,'panel opens directly above its button with an 8px gap');
   assert.equal(await page.locator('#terminal-view').evaluate(e=>e.classList.contains('active')),true);
   assert.equal(await page.locator('#supervision-floating').evaluate(e=>e.matches(':modal')),false);
   assert.equal(await page.locator('.supervision [role=tab]').count(),4);

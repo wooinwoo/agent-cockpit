@@ -318,8 +318,7 @@ body.terminal-first-shell header::after {
 .terminal-first-shell #notify-toggle,
 .terminal-first-shell [data-action="open-notif-settings"],
 .terminal-first-shell [data-action="hard-refresh"],
-.terminal-first-shell [data-action="toggle-theme"],
-.terminal-first-shell [data-action="show-mobile-connect"] {
+.terminal-first-shell [data-action="toggle-theme"] {
   display: none;
 }
 

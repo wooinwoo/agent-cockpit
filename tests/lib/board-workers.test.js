@@ -17,9 +17,10 @@ function setup(t) {
     watched: [{ termId: 'one', goal: '첫 목표 완료' }, { termId: 'two', goal: '둘째 목표 완료' }] });
   const screens = { one: '› Ask Codex to do anything', two: '› Ask Codex to do anything' };
   const messages = [];
+  const held = new Set();
   let inspect = () => {};
   const options = { ...service, now: () => time,
-    resolveTerminalRef: id => ({ id, entry: { pty: { write: text => messages.push({ id, text }) } } }), terminalAgent: () => 'codex',
+    resolveTerminalRef: id => ({ id, entry: { conversationHeld: held.has(id), pty: { write: text => messages.push({ id, text }) } } }), terminalAgent: () => 'codex',
     readTerminalScreen: id => { inspect(id); return { current: true, lines: (screens[id] || '').split('\n') }; } };
   let tick = createBoardReviewer(options);
   const worker = id => service.getBoard().review.workerProgress.find(item => item.termId === id);
@@ -28,10 +29,51 @@ function setup(t) {
     service.updateBoardReview({ pendingSince: time });
     service.reportBoardReview(time, { report: '결과 대조', progress });
   };
-  return { service, screens, messages, worker, report, supervisor,
+  return { service, screens, messages, worker, report, supervisor, held,
     tick: () => tick(), advance: (ms = 15_000) => { time += ms; }, inspect: fn => { inspect = fn; },
     restart: () => { tick = createBoardReviewer({ ...options, ...createBoardService(file) }); } };
 }
+
+test('conversation protection isolates a worker, suppresses stall and resume input, and resumes current goals after release', t => {
+  const h = setup(t);
+  h.held.add('one');
+  h.tick(); h.advance(900_000); h.tick();
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 0);
+  assert.equal(h.messages.filter(m => m.id === 'two').length, 1);
+  assert.equal(h.worker('one').run.interventionAt, 0);
+  h.screens.one = '› Ask Codex to do anything\nGPT-6-Astra Goal paused';
+  h.service.resumeBoardWorker({ termId: 'one' }); h.tick();
+  assert.equal(h.messages.filter(m => m.id === 'one').length, 0);
+  h.service.updateBoardReview({ watched: [{ termId: 'one', goal: '사용자와 정한 새 목표' }, { termId: 'two', goal: '둘째 목표 완료' }] });
+  h.screens.one = '› Ask Codex to do anything';
+  h.held.delete('one'); h.tick(); h.advance(); h.tick();
+  assert.match(h.messages.find(m => m.id === 'one').text, /사용자와 정한 새 목표/);
+});
+
+test('a protected supervisor receives no reminder or recovery while independent workers continue', t => {
+  const h = setup(t);
+  h.held.add('manager');
+  h.service.updateBoardReview({ nextDueAt: 0, autoRecover: true, stallMinutes: 5, cycleStartedAt: 1 });
+  h.tick(); h.advance(600_000); h.tick();
+  assert.equal(h.messages.filter(m => m.id === 'manager').length, 0);
+  assert.equal(h.messages.filter(m => m.id !== 'manager').length, 2);
+  assert.equal(h.service.getBoard().review.recoveryAttempts, 0);
+  h.service.updateBoardReview({ cycleStartedAt: 0 });
+  h.held.delete('manager'); h.tick();
+  assert.equal(h.messages.filter(m => m.id === 'manager').length, 1);
+});
+
+test('saved supervisor protection survives normalization and restart even when its terminal is missing', t => {
+  const h = setup(t);
+  h.service.updateBoardReview({ termId: 'manager', nextDueAt: 0, autoRecover: true,
+    recoveryTerminal: { termId: 'manager', command: 'codex --no-daemon', durableId: 'saved', conversationHeld: true } });
+  h.restart();
+  assert.equal(h.service.getBoard().review.recoveryTerminal.conversationHeld, true);
+  let recovered = 0;
+  createBoardReviewer({ ...h.service, resolveTerminalRef: () => null, terminalAgent: () => '', recoverSupervisor: () => recovered++ })();
+  assert.equal(recovered, 0);
+  assert.equal(h.service.getBoard().review.recoveryAttempts, 0);
+});
 
 test('each idle worker receives its own full goal without waiting for the supervisor, then continues after a partial result', t => {
   const h = setup(t);

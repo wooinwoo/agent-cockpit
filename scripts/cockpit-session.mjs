@@ -83,6 +83,7 @@ function usage() {
 
   cockpit-session list                    세션 목록 (별칭 ai1.., 프로젝트, 계정)
   cockpit-session me                      내 세션 별칭 확인
+  cockpit-session conversation <대상> on|off  사용자 대화 보호 / 대화 끝·재개
   cockpit-session say <대상> <메시지...>   대상 세션에 메시지 주입 (자동 서명)
   cockpit-session read <대상> [줄수=20]    대상 세션 화면 끝부분 읽기
   cockpit-session read <대상> --new        직전 확인 이후 변화가 없으면 한 줄만 반환 (폴링용 — 토큰 절약)
@@ -109,7 +110,7 @@ try {
     const me = process.env.COCKPIT_TERM_ID;
     for (const t of list) {
       const account = t.account ? ` · ${t.account.provider}:${t.account.name}` : '';
-      const mark = t.termId === me ? ' ← 나' : '';
+      const mark = (t.termId === me ? ' ← 나' : '') + (t.conversationHeld ? ' · 사용자 대화 보호 중' : '');
       console.log(`${(t.alias || '??').padEnd(5)} ${t.projectId}${account}${t.command ? ` · ${t.command}` : ''}${mark}`);
     }
     process.exit(0);
@@ -118,6 +119,15 @@ try {
   if (cmd === 'me') {
     const me = mySession(await sessions());
     console.log(me ? `${me.alias} (${me.termId})` : '이 셸은 콕핏 터미널이 아닙니다 (COCKPIT_TERM_ID 없음)');
+    process.exit(0);
+  }
+
+  if (cmd === 'conversation') {
+    if (!target || rest.length !== 1 || !['on', 'off'].includes(rest[0])) {
+      throw new Error('사용법: cockpit-session conversation <대상> on|off');
+    }
+    const result = await request(`/api/terminals/${encodeURIComponent(target)}/conversation`, 'PUT', { held: rest[0] === 'on' });
+    console.log(`${result.termId}: ${result.conversationHeld ? '사용자 대화 보호 중' : '대화 종료 · 최신 보드로 감독 재개'}`);
     process.exit(0);
   }
 

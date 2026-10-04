@@ -94,6 +94,8 @@ let agentEvents = [];
 let summaries = {}; // termId → { text, at } — 서버 LLM이 요약한 "지금 뭐 하는 중"
 let activityBoard = null;
 let activityBoardAt = 0;
+let conversationStates = new Map();
+let conversationEpoch = 0;
 const ciByProject = new Map();
 const ciFetchedAt = new Map();
 const popout = new URLSearchParams(location.search).get('agent-wall') === 'popout';
@@ -404,14 +406,47 @@ function renderSessionActivity() {
   for (const [termId, term] of app.termMap) {
     const container = term.element.closest('.terminal-canvas-frame, .split-leaf');
     if (!container) continue;
+    let conversation = container.querySelector('.session-conversation');
+    if (!conversation) {
+      conversation = document.createElement('div');
+      conversation.className = 'session-conversation';
+      conversation.innerHTML = '<button type="button" aria-pressed="false">대화 보호</button><span role="status"></span>';
+      const button = conversation.firstElementChild;
+      button.addEventListener('click', async () => {
+        const held = conversationStates.get(termId);
+        if (typeof held !== 'boolean' || conversation._saving) return;
+        conversation._saving = true;
+        conversation._error = '';
+        conversationEpoch++;
+        renderSessionActivity();
+        try {
+          const result = await fetchJson(`/api/terminals/${encodeURIComponent(termId)}/conversation`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ held: !held }),
+          });
+          conversationStates.set(termId, result.conversationHeld);
+        } catch (error) { conversation._error = error.message; }
+        finally { conversationEpoch++; conversation._saving = false; renderSessionActivity(); }
+      });
+      const head = container.querySelector('.canvas-frame-head, .term-head');
+      if (head) head.after(conversation);
+      else container.prepend(conversation);
+      added = true;
+    }
+    const held = conversationStates.get(termId);
+    const button = conversation.firstElementChild;
+    if (conversation.dataset.held !== String(held === true)) added = true;
+    conversation.dataset.held = String(held === true);
+    button.disabled = conversation._saving || typeof held !== 'boolean';
+    button.setAttribute('aria-pressed', String(held === true));
+    button.textContent = conversation._saving ? '저장 중…' : typeof held !== 'boolean' ? '확인 중…' : held ? '대화 끝 · 재개' : '대화 보호';
+    conversation.lastElementChild.textContent = conversation._error || (typeof held !== 'boolean' ? '대화 보호 상태를 확인하고 있습니다.' : held
+      ? '사용자 대화 중 · AI 메시지와 자동 지시 차단' : '다른 AI 개입을 잠시 막고 대화하기');
     let panel = container.querySelector('.session-activity');
     if (!panel) {
-      const head = container.querySelector('.canvas-frame-head, .term-head');
       panel = document.createElement('details');
       panel.className = 'session-activity';
       panel.addEventListener('toggle', () => notify('fitAllTerminals'));
-      if (head) head.after(panel);
-      else container.prepend(panel);
+      conversation.after(panel);
       added = true;
     }
     const activity = activityFor(termId, term);
@@ -609,16 +644,20 @@ export function updateAgentWall() {
       const terminalView = document.getElementById('terminal-view');
       const wallVisible = Boolean(stage && stage.offsetParent !== null);
       if (!wallVisible && (!terminalView || terminalView.offsetParent === null)) return;
-      const [nextDecisions, nextAgentEvents, nextSummaries, nextBoard] = await Promise.all([
+      const epoch = conversationEpoch;
+      const [nextDecisions, nextAgentEvents, nextSummaries, nextBoard, nextTerminals] = await Promise.all([
         fetchJson('/api/supervisor/recent?n=30', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/agents', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/summaries', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/board', { timeoutMs: 3000 }).catch(() => null),
+        fetchJson('/api/terminals', { timeoutMs: 3000 }).catch(() => null),
       ]);
       if (Array.isArray(nextDecisions)) decisions = nextDecisions;
       if (Array.isArray(nextAgentEvents)) agentEvents = nextAgentEvents;
       if (nextSummaries && typeof nextSummaries === 'object') summaries = nextSummaries;
       if (nextBoard?.review) { activityBoard = nextBoard; activityBoardAt = Date.now(); }
+      if (epoch === conversationEpoch && Array.isArray(nextTerminals?.terminals)) conversationStates = new Map(nextTerminals.terminals
+        .map(terminal => [terminal.termId, terminal.conversationHeld === true]));
       render();
       if (!wallVisible) return;
       const projectIds = [...new Set([...app.termMap.entries()]

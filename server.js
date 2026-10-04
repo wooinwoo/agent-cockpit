@@ -864,6 +864,7 @@ const routeCtx = {
   poller, devServers, LAN_TOKEN,
   listAiAccounts, listStoredAccounts, createStoredAccount, deleteStoredAccount, setAccountBudget, checkStoredAccountLogin,
   resolveTerminalRef, terminalSummaryList, readTerminalScreen, terminalAgent, prepareBoardRecovery, recoverBoardSupervisor,
+  saveTerminalStateNow, updateBoardReview,
   listNotes, getNote, createNote, updateNote, deleteNote,
   durableTerminalsEnabled: () => DURABLE_TERMINALS,
   requestServerRestart,
@@ -1026,7 +1027,7 @@ try {
         },
         writeTerminalInput: (termId, data) => {
           const t = terminals.get(termId);
-          if (!t) return false;
+          if (!t || t.conversationHeld) return false;
           t.pty.write(data);
           return true;
         },
@@ -1398,9 +1399,10 @@ function recoverBoardSupervisor(review, { interrupt = false } = {}) {
   if (review.runUntil && review.runUntil <= Date.now()) throw new Error('야간 운영 종료 시각이 지나 자동 복구를 취소했습니다.');
   if (JSON.stringify(getBoard(review.id).review) !== JSON.stringify(review)) throw new Error('감독 설정이 바뀌어 자동 복구를 취소했습니다.');
   const saved = review.recoveryTerminal;
+  let found = resolveTerminalRef(review.termId);
+  if (found ? found.entry.conversationHeld : saved?.conversationHeld) throw new Error('사용자 대화 보호 중에는 감독을 자동 복구하지 않습니다.');
   if (!saved || saved.termId !== review.termId || !saved.durableId) throw new Error('저장된 감독 실행 정보가 없습니다. 설정을 다시 적용하세요.');
   validateRecoveryCommand(saved.command);
-  let found = resolveTerminalRef(review.termId);
   if (!found) {
     const result = tryRestoreTerminal(saved, true);
     if (!result.ok) throw new Error('감독 터미널을 복원하지 못했습니다.');
@@ -1469,6 +1471,7 @@ function terminalSummaryList() {
       termId: id, alias: t.alias || '', projectId: t.projectId, command: t.command || '',
       account: t.account ? { id: t.account.id, name: t.account.name, provider: t.account.provider } : null,
       durable: Boolean(t.durableId),
+      conversationHeld: t.conversationHeld === true,
     });
   }
   return list;
@@ -1588,6 +1591,7 @@ function terminalStateEntries() {
       } : null,
       durableId: terminal.durableId || '',
       supervisor: terminal.supervisor === true,
+      conversationHeld: terminal.conversationHeld === true,
     });
   }
   return state;
@@ -1725,6 +1729,7 @@ function tryRestoreTerminal(entry, preserveId = false) {
     pty: term, projectId: entry.projectId, _bufArr: [], _bufLen: 0,
     command: entry.command || '', account: displayAccount, cols: 120, rows: 30,
     durableId: spec.durableId, alias: entry.alias || nextTerminalAlias(), supervisor: preserveId,
+    conversationHeld: entry.conversationHeld === true,
   });
 
   if (!spec.resumed) {

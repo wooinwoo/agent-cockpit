@@ -70,3 +70,7 @@ src-tauri/icons/ios/
 
 # Public demo assets captured from the isolated sample project
 !docs/media/*.png
+
+# Local-only notes and caches (never publish)
+docs/_local/
+__pycache__/

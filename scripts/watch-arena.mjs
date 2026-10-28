@@ -1,10 +1,17 @@
 // 아레나 경기 감시: 참가 패널들의 출력 스트림에서 턴 이벤트만 추출해 한 줄씩 출력
 import WebSocket from 'ws';
 
-const WATCH = {
-  'insuniverse-server-ba6d56f712f8': 'SERVER(claude)',
-  'scraper-engine-8912cfa730d0': 'SCRAPER(codex)',
-};
+// 사용법: node scripts/watch-arena.mjs <termId>=<라벨> [<termId>=<라벨> ...]
+const WATCH = Object.fromEntries(
+  process.argv.slice(2).map(arg => {
+    const at = arg.indexOf('=');
+    return at > 0 ? [arg.slice(0, at), arg.slice(at + 1)] : [arg, arg];
+  }),
+);
+if (!Object.keys(WATCH).length) {
+  console.error('사용법: node scripts/watch-arena.mjs <termId>=<라벨> [...]');
+  process.exit(1);
+}
 const ws = new WebSocket('ws://127.0.0.1:3847');
 const state = {}; // termId → { lastOut, busy, buf }
 

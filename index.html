@@ -59,6 +59,8 @@
     <link rel="stylesheet" href="/css/autopilot.css" />
     <link rel="stylesheet" href="/css/ai-accounts.css" />
     <link rel="stylesheet" href="/css/notes.css" />
+    <link rel="stylesheet" href="/css/reports.css" />
+    <link rel="stylesheet" href="/css/aws-connect.css" />
     <link rel="stylesheet" href="/css/mobile.css" />
     <link rel="stylesheet" href="/css/workflows.css" />
     <link rel="stylesheet" href="/css/xterm-skin.css" />
@@ -102,7 +104,7 @@
         </svg>
         <span class="logo-word">Cockpit</span>
       </div>
-      <div class="nav-tabs" role="tablist" aria-label="Dashboard navigation">
+      <div class="nav-tabs" id="cockpit-navigation" role="tablist" aria-label="Dashboard navigation">
         <button class="nav-tab" role="tab" aria-selected="false" aria-controls="dashboard-view" title="Overview (Ctrl+1)" data-action="switch-view" data-view="dashboard">
           <svg viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -173,6 +175,14 @@
           <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
           <span class="tab-label">Notes</span>
         </button>
+        <button class="nav-tab" role="tab" aria-selected="false" aria-controls="reports-view" title="보고서 관리" data-action="switch-view" data-view="reports">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>
+          <span class="tab-label">보고서</span>
+        </button>
+        <button class="nav-tab" role="tab" aria-selected="false" aria-controls="aws-connect-view" title="AWS 연결 · MFA 인증과 DB 터널" data-action="switch-view" data-view="aws-connect">
+          <svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6z"/><path d="m8 12 3 3 5-6"/></svg>
+          <span class="tab-label">AWS 연결</span>
+        </button>
         <div class="nav-more-wrap" id="nav-more-wrap">
           <button class="nav-tab nav-more-btn" id="nav-more-btn" data-action="toggle-nav-more" title="More tabs">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
@@ -182,6 +192,9 @@
         </div>
       </div>
       <div class="header-right">
+        <button class="deck-action nav-rail-toggle" type="button" data-action="toggle-nav-rail" aria-controls="cockpit-navigation" aria-expanded="true" aria-label="메뉴 접기" title="메뉴 접기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path data-nav-rail-arrow d="m15 9-3 3 3 3"/></svg>
+        </button>
         <div class="workspace-identity shrink-0" aria-label="Local workspace">
           <span class="workspace-label">WORKSPACE</span>
           <span class="workspace-name">Local</span>
@@ -319,7 +332,9 @@
 
     <div class="app">
       <!-- Dashboard View -->
-      <div class="view" id="dashboard-view" role="tabpanel">
+    <div class="view" id="reports-view" role="tabpanel" aria-label="보고서 관리"></div>
+    <div class="view" id="aws-connect-view" role="tabpanel" aria-label="AWS 연결"></div>
+    <div class="view" id="dashboard-view" role="tabpanel">
         <div class="smart-actions" id="smart-actions"></div>
         <section class="agent-wall-section" id="agent-wall-section" style="display:none">
           <div class="agent-wall-titlebar">
@@ -616,13 +631,15 @@
           <header class="ai-accounts-head">
             <div>
               <h1 id="ai-accounts-title">AI 계정</h1>
-              <p>계정과 작업 위치를 선택해 독립된 Claude·Codex 터미널을 엽니다.</p>
+              <p>기존 세션의 계정을 바꾸거나 새 Claude·Codex 터미널을 엽니다.</p>
             </div>
+          </header>
+          <details class="ai-account-settings">
+            <summary>계정 추가 · 새 터미널 설정</summary>
             <div class="ai-accounts-tools">
               <div class="ai-tools-group">
                 <label for="ai-account-project">작업 위치</label>
                 <select id="ai-account-project" aria-label="AI 계정 터미널 작업 위치"></select>
-                <button class="btn" data-action="refresh-ai-accounts" type="button">새로고침</button>
               </div>
               <div class="ai-tools-group">
                 <label for="ai-account-provider">새 계정</label>
@@ -631,14 +648,40 @@
                   <option value="codex">Codex</option>
                 </select>
                 <input type="text" id="ai-account-name" placeholder="계정 이름" maxlength="40" aria-label="새 AI 계정 이름">
-                <input type="text" id="ai-account-email" placeholder="이메일(선택)" maxlength="120" aria-label="새 AI 계정 이메일">
+                <input type="email" id="ai-account-email" placeholder="로그인할 이메일" maxlength="254" aria-label="새 AI 계정 이메일">
                 <button class="btn primary" data-action="add-ai-account" type="button">추가</button>
               </div>
             </div>
-          </header>
-          <div class="ai-accounts-status" id="ai-accounts-status" role="status">계정 정보를 불러오는 중…</div>
+          </details>
+          <div class="ai-accounts-bar">
+            <div class="ai-accounts-status" id="ai-accounts-status" role="status">계정 정보를 불러오는 중…</div>
+            <button class="btn" type="button" data-action="refresh-ai-accounts">새로고침</button>
+            <button class="btn primary ai-best-account" id="ai-best-account" type="button" data-action="open-ai-account-terminal" hidden>가장 여유 있는 계정으로 열기</button>
+          </div>
+          <div class="ai-accounts-costs" id="ai-accounts-costs" hidden></div>
+          <div class="ai-accounts-filter" role="toolbar" aria-label="계정 목록 필터">
+            <input type="search" id="ai-account-search" placeholder="이름·이메일 검색" aria-label="계정 검색">
+            <div class="ai-seg" role="group" aria-label="공급자">
+              <button type="button" data-action="ai-account-provider-filter" data-value="all">전체</button>
+              <button type="button" data-action="ai-account-provider-filter" data-value="claude">Claude</button>
+              <button type="button" data-action="ai-account-provider-filter" data-value="codex">Codex</button>
+            </div>
+            <label class="ai-alive-toggle"><input type="checkbox" id="ai-account-alive"> 사용 가능만</label>
+            <label class="ai-sort"><span>정렬</span>
+              <select id="ai-account-sort" aria-label="계정 정렬">
+                <option value="headroom">여유 많은 순</option>
+                <option value="reset">곧 풀리는 순</option>
+                <option value="name">이름순</option>
+                <option value="provider">공급자별</option>
+              </select>
+            </label>
+          </div>
+          <p class="ai-account-context" id="ai-account-context" role="status"></p>
+          <p class="ai-account-feedback" id="ai-account-feedback" role="alert" hidden></p>
+          <p class="ai-account-switch-note">기본 로그인은 저장값이며 실제 연결과 다를 수 있습니다. 전환은 같은 jcode 서버의 다른 세션에도 영향을 줄 수 있습니다.</p>
+          <div id="ai-account-switch-panel" hidden></div>
           <div class="ai-account-list" id="ai-account-list" aria-live="polite"></div>
-          <p class="ai-accounts-footnote">계정 전환은 새 터미널에만 적용됩니다. 기존 터미널과 전역 로그인은 바뀌지 않습니다.</p>
+          <p class="ai-accounts-footnote">세션 목록의 계정 버튼을 누르면 해당 계정에 초점을 맞춥니다. 작업·승인 중에는 전환을 보류합니다. 터미널 열기는 새 세션을 만듭니다.</p>
         </section>
       </div>
 
@@ -1430,6 +1473,7 @@
           <option value="claude --model sonnet">claude --model sonnet</option>
           <option value="codex">codex</option>
           <option value="opencode">opencode</option>
+          <option value="jcode">jcode</option>
         </select>
         <div id="nt-branch-section" style="display: none">
           <label

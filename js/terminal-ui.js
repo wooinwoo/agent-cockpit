@@ -9,11 +9,13 @@ import { startArenaPick } from './arena.js';
 import { copyText, esc, showToast, escapeHtml, fetchJson } from './utils.js';
 import { registerClickActions, registerInputActions } from './actions.js';
 import { updateAgentWall, WALL_ID } from './agent-wall.js';
+import { getRuntimeActivity } from './agent-wall-state.js';
 import { terminalGroupLayoutLabel, terminalGroupLayoutOptions, terminalGroupRects } from './terminal-group-layout.js';
 import {
   createCanvasBoardFrame, createCanvasBoardItem, deleteCanvasBoardItem,
   ensureCanvasBoardItem, updateCanvasBoard,
 } from './canvas-board.js';
+import { createSessionManagement } from './session-management.js';
 import { patchXtermImeComposition } from './xterm-ime-guard.js';
 
 // ─── Imports from terminal core (will be set via init) ───
@@ -300,7 +302,7 @@ function canvasFrameHTML(termId, term, frame) {
   const active = termId === app.activeTermId ? ' active' : '';
   const pair = getTerminalPair(termId);
   const tab = frame.tab === 'context' ? 'context' : 'terminal';
-  const state = app.state.projects.get(term.projectId)?.session?.state || 'idle';
+  const { state, label: stateLabel } = getRuntimeActivity(term.activity);
   const article = document.createElement('article');
   article.className = `terminal-canvas-frame${active}${canvas.activeItem === termId ? ' selected' : ''}${pair ? ` paired${pairToneClass(termId)}` : ''}`;
   article.dataset.canvasFrame = termId;
@@ -312,14 +314,14 @@ function canvasFrameHTML(termId, term, frame) {
   article.title = 'Alt + arrow: move · Alt + Shift + arrow: resize';
   article.style.cssText = `left:${frame.x}px;top:${frame.y}px;width:${frame.w}px;height:${frame.h}px;z-index:${canvas.activeItem === termId ? 4 : active ? 2 : 1}`;
   article.innerHTML = `<header class="canvas-frame-head" data-canvas-drag-item="${esc(termId)}">
-    <span class="canvas-frame-signal ${esc(state)}" aria-hidden="true"></span>
+    <span class="canvas-frame-signal ${esc(state)}" role="img" aria-label="${esc(stateLabel)}" title="${esc(stateLabel)}"></span>
     ${term.alias ? `<span class="canvas-frame-alias" title="세션 ${esc(term.alias)} · ${esc(termId)} — 다른 세션 제어: cockpit-session say ${esc(term.alias)} &quot;메시지&quot;">${esc(term.alias)}</span>` : ''}
     <span class="canvas-frame-name">${esc(term.label)}</span>
     ${term.account ? `<span class="term-account-tag ${esc(term.account.provider)}">${esc(term.account.name)}</span>` : ''}
     ${terminalTopicHTML(termId, term.topic, 'canvas-frame-topic')}
     <span class="canvas-frame-tabs" role="tablist" aria-label="${esc(term.label)} view">
-      <button role="tab" aria-selected="${tab === 'terminal'}" class="canvas-frame-tab${tab === 'terminal' ? ' active' : ''}" data-action="canvas-tab" data-termid="${esc(termId)}" data-tab="terminal">Terminal</button>
-      <button role="tab" aria-selected="${tab === 'context'}" class="canvas-frame-tab${tab === 'context' ? ' active' : ''}" data-action="canvas-tab" data-termid="${esc(termId)}" data-tab="context">Context</button>
+      <button role="tab" aria-selected="${tab === 'terminal'}" class="canvas-frame-tab${tab === 'terminal' ? ' active' : ''}" data-action="canvas-tab" data-termid="${esc(termId)}" data-tab="terminal">터미널</button>
+      <button role="tab" aria-selected="${tab === 'context'}" class="canvas-frame-tab${tab === 'context' ? ' active' : ''}" data-action="canvas-tab" data-termid="${esc(termId)}" data-tab="context">세션 관리</button>
     </span>
     <button class="canvas-frame-focus" data-action="canvas-focus" data-termid="${esc(termId)}" title="Focus terminal" aria-label="Focus ${esc(term.label)} terminal">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
@@ -342,12 +344,7 @@ function canvasFrameHTML(termId, term, frame) {
     }
   });
   if (tab === 'context') {
-    body.innerHTML = `<div class="canvas-context" data-canvas-context="${esc(termId)}">
-      <div class="canvas-context-status" data-context-status>상태 수집 중</div>
-      <section><h3>Goal</h3><p data-context-goal>첫 사용자 지시를 기다리는 중</p></section>
-      <section><h3>Now</h3><p data-context-task>현재 작업을 분석하는 중</p></section>
-      <footer>Agent hook · live context</footer>
-    </div>`;
+    body.replaceChildren(createSessionManagement(termId, term));
   } else {
     term.element.style.flex = '1';
     body.appendChild(term.element);
@@ -373,12 +370,7 @@ function setCanvasFrameTabContent(termId, tab) {
     button.setAttribute('aria-selected', String(active));
   });
   if (tab === 'context') {
-    body.innerHTML = `<div class="canvas-context" data-canvas-context="${esc(termId)}">
-      <div class="canvas-context-status" data-context-status>상태 수집 중</div>
-      <section><h3>Goal</h3><p data-context-goal>첫 사용자 지시를 기다리는 중</p></section>
-      <section><h3>Now</h3><p data-context-task>현재 작업을 분석하는 중</p></section>
-      <footer>Agent hook · live context</footer>
-    </div>`;
+    body.replaceChildren(createSessionManagement(termId, term));
     updateAgentWall();
     return true;
   }
@@ -762,6 +754,10 @@ function setCanvasTab(termId, tab) {
   canvas.frames[termId].tab = tab;
   saveCanvasState();
   setCanvasFrameTabContent(termId, tab);
+  if (tab === 'context') {
+    const viewport = document.querySelector('.terminal-canvas');
+    if (viewport) fitCanvasFocusGroupAt100(termId, null, getCanvasUsableBounds(viewport));
+  }
 }
 
 export function remapCanvasIds(idMap) {
@@ -811,8 +807,7 @@ function renderSessionTabs(container) {
     const pair = getTerminalPair(id);
     const groupNames = pair?.termIds.filter(termId => termId !== id).map(termId => app.termMap.get(termId)?.label || 'terminal') || [];
     const active = id === app.activeTermId ? ' active' : '';
-    const state = app.state.projects.get(t.projectId)?.session?.state;
-    const stateLabel = state === 'busy' ? 'running' : state === 'waiting' ? 'attention' : state === 'idle' ? 'idle' : '';
+    const { state, label: stateLabel } = getRuntimeActivity(t.activity);
     const signal = stateLabel
       ? `<span class="mob-tab-signal ${state}" title="${stateLabel}" aria-hidden="true"></span>`
       : '';
@@ -841,15 +836,14 @@ function syncSessionTabSelection(container) {
     tab.classList.toggle('active', active);
     if (tab.getAttribute('aria-selected') !== String(active)) tab.setAttribute('aria-selected', String(active));
     const term = app.termMap.get(tab.dataset.termid);
-    const state = app.state.projects.get(term?.projectId)?.session?.state;
-    const stateLabel = state === 'busy' ? 'running' : state === 'waiting' ? 'attention' : state === 'idle' ? 'idle' : '';
+    const { state, label: stateLabel } = getRuntimeActivity(term?.activity);
     const pair = getTerminalPair(tab.dataset.termid);
     const groupNames = pair?.termIds.filter(termId => termId !== tab.dataset.termid).map(termId => app.termMap.get(termId)?.label || 'terminal') || [];
     const pairLabel = pair ? `, grouped with ${groupNames.join(', ')}, ${terminalGroupLayoutLabel(pair)}` : '';
     const ariaLabel = `Session ${index + 1}: ${term?.label || 'terminal'}${stateLabel ? `, ${stateLabel}` : ''}${pairLabel}`;
     if (tab.getAttribute('aria-label') !== ariaLabel) tab.setAttribute('aria-label', ariaLabel);
     let signal = tab.querySelector('.mob-tab-signal');
-    if (['busy', 'waiting', 'idle'].includes(state)) {
+    if (term) {
       if (!signal) {
         signal = document.createElement('span');
         signal.setAttribute('aria-hidden', 'true');
@@ -1096,7 +1090,7 @@ function handleCanvasWheel(e) {
   if (!canvas.enabled || !e.target.closest('.terminal-canvas')) return;
   if (e.target.closest('[data-canvas-group-layout-menu]')) return;
   if (e.target.closest('.xterm, .xterm-wrap') && !e.shiftKey && !e.ctrlKey && !e.metaKey) return;
-  if (e.target.closest('.canvas-context, .session-activity') && !e.ctrlKey && !e.metaKey) return;
+  if (e.target.closest('.session-management, .session-activity') && !e.ctrlKey && !e.metaKey) return;
   if (e.target.closest('.canvas-session-list') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
   if (e.target.closest('.canvas-board-window') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
   if (e.target.closest('.canvas-side-rail') && !e.ctrlKey && !e.metaKey && !e.shiftKey) return;
@@ -1275,15 +1269,13 @@ function removeCanvasBoardWindow(el) {
   showToast(`${label} ${boardId} deleted`);
 }
 
-export function requestCloseTerminal(termId) {
+export function requestCloseTerminal(termId, intent) {
   const term = app.termMap.get(termId);
-  if (!term || !window.confirm(`Close ${term.label} terminal session? Running work in this terminal will stop.`)) return false;
-  _core.closeTerminal(termId);
-  requestAnimationFrame(() => {
-    const activeFrame = [...document.querySelectorAll('[data-canvas-frame]')]
-      .find(frame => frame.dataset.canvasFrame === app.activeTermId);
-    (activeFrame || document.querySelector('[data-canvas-board-frame]') || document.querySelector('[data-action="new-term"]'))?.focus();
-  });
+  const closeIntent = intent === undefined ? { termId, term, incarnation: term?.incarnation } : intent;
+  if (!term || !closeIntent || closeIntent.termId !== termId || closeIntent.term !== term
+    || closeIntent.incarnation !== term.incarnation
+    || !window.confirm(`Close ${term.label} terminal session? Running work in this terminal will stop.`)) return false;
+  if (_core.closeTerminal(termId, closeIntent) === false) return false;
   return true;
 }
 
@@ -1651,6 +1643,16 @@ function fmtDuration(ms) {
 }
 
 export function updateTermHeaders() {
+  syncSessionTabSelection(document.getElementById('mob-term-tabs'));
+  document.querySelectorAll('[data-canvas-frame]').forEach(frame => {
+    const term = app.termMap.get(frame.dataset.canvasFrame);
+    const signal = frame.querySelector('.canvas-frame-signal');
+    if (!term || !signal) return;
+    const { state, label } = getRuntimeActivity(term.activity);
+    signal.className = `canvas-frame-signal ${state}`;
+    signal.title = label;
+    signal.setAttribute('aria-label', label);
+  });
   document.querySelectorAll('.split-leaf').forEach(leaf => {
     const tid = leaf.dataset.termId;
     const t = app.termMap.get(tid);
@@ -1866,6 +1868,7 @@ export function showTermCtxMenu(e, termId) {
     const ca = fileInfo.column ? ` data-col="${fileInfo.column}"` : '';
     html += `<div class="ctx-label">File</div>`;
     html += `<div class="ctx-item" data-act="preview" data-path="${fp}"${la}>${_ic('file')}Preview</div>`;
+    if (/\.(?:md|markdown|html|htm)$/i.test(fileInfo.path)) html += `<div class="ctx-item" data-act="report" data-path="${fp}"${la}>${_ic('file')}보고서로 등록</div>`;
     html += `<div class="ctx-item" data-act="open-file-ide" data-ide="code" data-path="${fp}"${la}${ca}>${_ic('ide')}Open in IDE</div>`;
     html += `<div class="ctx-item" data-act="copy-path" data-path="${fp}">${_ic('copy')}Copy Path</div>`;
     html += `<div class="ctx-sep"></div>`;
@@ -2050,6 +2053,7 @@ export function showTermCtxMenu(e, termId) {
     const path = item.dataset.path;
     switch (item.dataset.act) {
       case 'preview': if (path) notify('openFilePreview', path); break;
+      case 'report': if (path) notify('registerReport', path); break;
       case 'open-file-ide': if (path) openInIde(path, item.dataset.ide, t.projectId, item.dataset.line, item.dataset.col); break;
       case 'copy-path': if (path) { copyText(path).then((ok) => showToast(ok ? 'Path copied' : 'Copy failed', ok ? 'success' : 'error')); } break;
       case 'copy': { const s = t.xterm.getSelection(); if (s) { copyText(s).then((ok) => { if (ok) { t.xterm.clearSelection(); showToast('Copied'); } else showToast('Copy failed', 'error'); }); } break; }
@@ -2149,9 +2153,14 @@ function switchTermAccount(termId, accountId, accountName) {
     return;
   }
   if (t.account?.id === accountId) { showToast('이미 이 계정으로 실행 중입니다.', 'info'); return; }
-  app._pendingAccountSwitch = { oldTermId: termId };
+  // Correlation only; never treat an unrelated create as replacement success.
+  const nonce = window.crypto?.randomUUID?.();
+  if (!nonce) { showToast('새 터미널 요청을 식별할 수 없어 기존 세션을 유지합니다.', 'warning'); return; }
+  const createRequestId = `switch:${nonce}`;
+  const closeIntent = { termId, term: t, incarnation: t.incarnation };
+  app._pendingAccountSwitch = { oldTermId: termId, closeIntent, createRequestId };
   app.ws.send(JSON.stringify({
-    type: 'create', projectId: t.projectId || '__home__', accountId,
+    type: 'create', projectId: t.projectId || '__home__', accountId, createRequestId,
     cols: t.xterm.cols || 120, rows: t.xterm.rows || 30,
   }));
   showToast(`'${accountName}' 계정으로 터미널을 다시 여는 중…`, 'info');

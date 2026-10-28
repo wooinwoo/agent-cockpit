@@ -27,3 +27,10 @@ export function unattendedCommandReady(command) {
   return ['network', 'full'].some(codex => command === agentPermissionCommand('codex', { codex }))
     || command === agentPermissionCommand('claude', { claude: 'full' });
 }
+
+export function agentRestoreCommand(command, observedKind) {
+  if (command) return command;
+  if (!['claude', 'codex', 'opencode', 'jcode'].includes(observedKind)) return '';
+  // Process kind cannot prove the permissions of a manually launched agent.
+  return observedKind === 'codex' ? 'codex --no-daemon' : observedKind;
+}

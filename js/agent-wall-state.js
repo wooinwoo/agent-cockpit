@@ -1,10 +1,21 @@
-import { WORKER_PROGRESS_DEADLINE } from './worker-progress.js';
+import { WORKER_PROGRESS_DEADLINE, jcodeScreenState } from './worker-progress.js';
+import { workerAssignment, workerDispatchEnabled, workerProgressAt } from './worker-settings.js';
+
+// A terminal's observed state must not inherit another session in its project.
+export function getRuntimeActivity(runtime, now = Date.now()) {
+  if (!runtime) return { state: 'unknown', label: '상태 확인 중' };
+  if (!Number.isFinite(runtime.observedAt) || now - runtime.observedAt > 15000) return { state: 'unknown', label: '관측 오래됨 · 연결 확인' };
+  const labels = { busy: '실행 중', idle: '입력 대기', approval: '승인·로그인 대기', offline: 'AI 실행 안 됨', unknown: '실행 상태 확인 불가', paused: '목표 일시정지', limited: '사용량·예산 제한', 'goal-blocked': '목표 막힘', interrupted: '실행 중단', restarting: '재시작 중' };
+  return { state: ['busy', 'idle', 'unknown', 'offline'].includes(runtime.state) ? runtime.state : 'waiting', label: labels[runtime.state] || labels.unknown };
+}
 
 export function getAgentKind(command, text) {
+  if (/^jcode\b/i.test(command || '')) return 'jcode';
   const value = `${command} ${text}`.toLowerCase();
   if (/\bcodex\b/.test(value)) return 'Codex';
   if (/\bclaude\b/.test(value)) return 'Claude';
   if (/\bopencode\b/.test(value)) return 'OpenCode';
+  if (/\bjcode\b/.test(value)) return 'jcode';
   return null;
 }
 
@@ -22,16 +33,12 @@ export function getAgentGoal(goal, lines) {
 }
 
 // Presentation only: reports are not proof that a process is making progress.
-export function getSessionActivity({ termId, board, summary = {}, lines = [], now = Date.now() }) {
+export function getSessionActivity({ termId, board, summary = {}, lines = [], runtime, now = Date.now() }) {
   const reviews = board?.supervisors || (board?.review ? [board.review] : []);
   const active = review => ['running', 'waiting'].includes(review.status);
-  const assignments = reviews.flatMap(review => {
-    const target = review.watched?.find(item => item.termId === termId);
-    const worker = target && review.workerProgress?.find(item => item.termId === termId && item.goal === target.goal);
-    return target ? [{ review, target, worker }] : [];
-  }).sort((a, b) => Number(active(b.review)) - Number(active(a.review))
-    || (b.worker?.run?.reportedAt || 0) - (a.worker?.run?.reportedAt || 0));
-  const { review, target, worker } = assignments[0] || {};
+  const review = workerAssignment(reviews, termId, now);
+  const target = review?.watched.find(item => item.termId === termId);
+  const worker = target && review.workerProgress?.find(item => item.termId === termId && item.goal === target.goal);
   const managed = reviews.filter(item => item.termId === termId).sort((a, b) => Number(active(b)) - Number(active(a))
     || (b.reports?.at(-1)?.at || 0) - (a.reports?.at(-1)?.at || 0))[0];
   const run = worker?.run || {};
@@ -42,8 +49,8 @@ export function getSessionActivity({ termId, board, summary = {}, lines = [], no
   const task = run.summary || report?.text || liveLine || summary.text || target?.goal || managed?.objective || '아직 작업 보고가 없습니다.';
   const source = run.summary || report?.text ? '최근 보고' : liveLine ? '최근 화면' : summary.text ? '화면 요약' : target?.goal || managed?.objective ? '목표' : '작업';
   const reportedAt = run.summary ? run.reportedAt : report?.text ? report.at : summary.text && !liveLine ? summary.at : 0;
-  const busy = lines.some(line => /^\s*[•◦]?\s*Working\s*\(/.test(line));
-  const paused = lines.some(line => /^\s*GPT-\S+.*Goal paused\b/.test(line));
+  const busy = lines.some(line => /^\s*[•◦]?\s*Working\s*\(/.test(line)) || jcodeScreenState(lines) === 'busy';
+  const paused = target?.paused || lines.some(line => /^\s*GPT-\S+.*Goal paused\b/.test(line));
   const composer = lines.findLastIndex(line => /^\s*[›❯>]\s*(?:Ask Codex to do anything)?\s*$/.test(line));
   const choice = lines.findLastIndex(line => /^\s*[›❯>]?\s*1\.\s*(?:Yes|Allow|Trust|Update)\b/i.test(line));
   // Ignore approval examples quoted above a later live composer.
@@ -51,20 +58,22 @@ export function getSessionActivity({ termId, board, summary = {}, lines = [], no
   let state = 'idle', label = '상태 확인 중';
   if (approval) { state = 'waiting'; label = '승인 대기'; }
   else if (busy) { state = 'busy'; label = '실행 중'; }
-  else if (paused || run.observed === 'paused') { state = 'waiting'; label = '목표 일시정지'; }
+  else if (paused || run.observed === 'paused') { state = 'waiting'; label = target?.paused ? '자동 지시 정지' : '목표 일시정지'; }
   else if (run.observed === 'approval') { state = 'waiting'; label = '승인·로그인 확인'; }
   else if (run.status === 'blocked') { state = 'waiting'; label = '막힘 보고'; }
   else if (run.status === 'reported') { label = '완료 검증 대기'; }
   else if (run.status === 'complete') { state = 'done'; label = '목표 완료 확인'; }
   else if (run.observed === 'idle' || lines.some(line => /^\s*[›❯>]\s*(?:Ask Codex to do anything)?\s*$/.test(line))) label = '입력 대기';
-  const progressAt = worker?.lastProgressAt || 0;
-  const stalled = Boolean(worker && !['complete', 'stopped'].includes(review.status) && run.status !== 'complete'
+  if (runtime) ({ state, label } = getRuntimeActivity(runtime, now));
+  const progressAt = workerProgressAt(worker);
+  const stalled = Boolean(worker && workerDispatchEnabled(review, now) && !target.paused && !['complete', 'reported'].includes(run.status)
     && now - (progressAt || worker.startedAt || now) >= WORKER_PROGRESS_DEADLINE);
   return {
     role: managed ? '감독' : target ? `작업자 · ${review.name || review.id}` : '개별 세션',
     state, label, task, source, reportedAt, progressAt, stalled,
+    priority: target ? target.priority || 2 : 0,
     blocker: run.status === 'blocked' ? run.blocker || worker?.blocker || '' : '',
-    nextAction: worker?.nextAction || '', evidence: worker?.evidence || '',
+    nextAction: run.nextAction || worker?.nextAction || '', evidence: worker?.evidence || '',
     goal: target?.goal || managed?.objective || summary.goal || '',
     supervisionStopped: Boolean((review || managed)?.status === 'stopped'),
   };

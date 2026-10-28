@@ -37,6 +37,21 @@ export {
 };
 
 let _splitTarget = null;
+const pendingTerminalCloses = new Map();
+let closeRequestSequence = 0;
+
+function clearPendingTerminalClose(id) {
+  if (!pendingTerminalCloses.has(id)) return false;
+  clearTimeout(pendingTerminalCloses.get(id).timer);
+  pendingTerminalCloses.delete(id);
+  return true;
+}
+
+function cancelPendingTerminalCloses() {
+  const hadPending = pendingTerminalCloses.size > 0;
+  for (const id of pendingTerminalCloses.keys()) clearPendingTerminalClose(id);
+  return hadPending;
+}
 
 // ─── Chat View 연결 (모드 = chat 일 때 PTY 데이터 카드 렌더) ───
 let _chatViewModule = null;
@@ -164,40 +179,54 @@ export function connectWS() {
   let ws;
   try {
     ws = new WebSocket(`ws://${location.host}`);
+    cancelPendingTerminalCloses();
     app.ws = ws;
   } catch (e) {
     console.error('[WS] constructor error', e);
     return;
   }
   ws.onopen = () => {
+    if (app.ws !== ws) return;
     app._wsBackoff = 1000;
     app._wsConnectedAt = Date.now();
     showDisconnectIndicator(false);
-    setTerminalInputEnabled(true);
+    // An open transport does not yet establish the current incarnation.
     if (app._termTimerInterval) clearInterval(app._termTimerInterval);
     app._termTimerInterval = setInterval(() => { if (app.termMap.size) updateTermHeaders(); }, 30000);
     // chat-view fs.watch 재구독 (재연결 시)
-    setTimeout(() => { if (typeof window.cvRewatchAll === 'function') window.cvRewatchAll(); }, 200);
+    setTimeout(() => { if (app.ws === ws && ws.readyState === WebSocket.OPEN && typeof window.cvRewatchAll === 'function') window.cvRewatchAll(); }, 200);
   };
+  // A queued pre-close snapshot is not a reopen. A new connection's first
+  // snapshot or an explicit created event is authoritative for reopening.
+  const closedIds = new Set();
+  const closeKey = terminal => `${terminal.termId}:${terminal.incarnation || ''}`;
   ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
+    if (app.ws !== ws) return;
     try {
+    const msg = JSON.parse(e.data);
     switch (msg.type) {
       case 'terminals': {
+        if ('closeReceipts' in msg) ws.closeReceiptsSupported = msg.closeReceipts === true;
+        if ('closeIncarnations' in msg) ws.closeIncarnationsSupported = msg.closeIncarnations === true;
         if (msg.idMap) { remapLayoutIds(msg.idMap); remapCanvasIds(msg.idMap); remapTerminalOrder(msg.idMap); remapTerminalPairs(msg.idMap); }
-        const activeIds = new Set(msg.active.map(t => t.termId));
+        const active = msg.active.filter(t => !closedIds.has(closeKey(t)));
+        const activeIds = new Set(active.map(t => t.termId));
         const staleIds = [...app.termMap.keys()].filter(id => !activeIds.has(id));
         if (staleIds.length) {
           for (const id of staleIds) discardLocalTerminal(id, true, true);
           app.layoutRoot = null;
         }
         let added = false;
-        msg.active.forEach(t => {
+        active.forEach(t => {
+          const previous = app.termMap.get(t.termId);
+          if (previous?.incarnation && previous.incarnation !== t.incarnation) discardLocalTerminal(t.termId, true, true);
           if (!app.termMap.has(t.termId)) {
             addTerminal(t.termId, t.projectId, false, t.command, t.account, t.durable);
             added = true;
             if (t.buffer) { const tm = app.termMap.get(t.termId); if (tm) tm.pendingBuffer = t.buffer; }
           }
+          app.termMap.get(t.termId).incarnation = t.incarnation;
+          notify('terminalIncarnation', { termId: t.termId, incarnation: t.incarnation });
           if (t.alias) { const tm = app.termMap.get(t.termId); if (tm) tm.alias = t.alias; }
           if ('agentCommand' in t) {
             app.termMap.get(t.termId).agentCommand = t.agentCommand || '';
@@ -213,18 +242,32 @@ export function connectWS() {
           if (msg.idMap) showToast(`Restored ${msg.active.length} terminal(s)`, 'success');
         }
         updateAgentWall();
+        ws.snapshotReady = true;
+        setTerminalInputEnabled(true);
         break;
       }
       case 'created': {
+        clearPendingTerminalClose(msg.termId);
+        const previous = app.termMap.get(msg.termId);
+        if (previous?.incarnation && previous.incarnation !== msg.incarnation) {
+          closedIds.add(closeKey({ termId: msg.termId, incarnation: previous.incarnation }));
+          discardLocalTerminal(msg.termId, true, true);
+        }
+        closedIds.delete(closeKey(msg));
         if (!app.termMap.has(msg.termId)) addTerminal(msg.termId, msg.projectId, true, msg.command, msg.account, msg.durable);
         const created = app.termMap.get(msg.termId);
+        if (created) created.incarnation = msg.incarnation;
+        notify('terminalIncarnation', { termId: msg.termId, incarnation: msg.incarnation });
+        notify('terminalCreated', msg.termId);
         if (created && msg.alias) created.alias = msg.alias;
         // 계정 전환: 새 터미널 확보되면 이전 계정 터미널 종료
-        if (app._pendingAccountSwitch && msg.termId !== app._pendingAccountSwitch.oldTermId) {
-          const { oldTermId } = app._pendingAccountSwitch;
+        if (app._pendingAccountSwitch && typeof msg.createRequestId === 'string' && msg.createRequestId.length > 0
+          && msg.createRequestId === app._pendingAccountSwitch.createRequestId
+          && msg.termId !== app._pendingAccountSwitch.oldTermId) {
+          const { oldTermId, closeIntent } = app._pendingAccountSwitch;
           app._pendingAccountSwitch = null;
           setTimeout(() => {
-            if (app.termMap.has(oldTermId)) requestCloseTerminal(oldTermId);
+            if (app.ws === ws && closeIntent) requestCloseTerminal(oldTermId, closeIntent);
           }, 600);
         }
         updateAgentWall();
@@ -238,7 +281,15 @@ export function connectWS() {
         if (t) { bufferWrite(t, msg.data, msg.termId); updateAgentWall(); }
         break;
       }
+      case 'closed': {
+        if (!msg.incarnation || app.termMap.get(msg.termId)?.incarnation !== msg.incarnation) break;
+        closedIds.add(closeKey(msg));
+        finishTerminalClose(msg.termId);
+        break;
+      }
       case 'exit': {
+        // Process exit alone is not proof of durable removal (checkpoint may fail).
+        // Only the server's explicit closed event or a close receipt removes UI.
         const t = app.termMap.get(msg.termId);
         if (t) {
           t.exited = true;
@@ -246,6 +297,15 @@ export function connectWS() {
           showToast(`Terminal "${t.label}" \u2014 process exited`, 'warning');
         }
         updateAgentWall();
+        break;
+      }
+      case 'kill-result': {
+        const pending = pendingTerminalCloses.get(msg.termId);
+        if (!pending || pending.term !== app.termMap.get(msg.termId)
+          || msg.requestId !== pending.requestId || msg.incarnation !== pending.incarnation) break;
+        clearPendingTerminalClose(msg.termId);
+        if (msg.accepted === true) { closedIds.add(closeKey(msg)); finishTerminalClose(msg.termId); }
+        else showToast(msg.error || '터미널 종료가 거부되었습니다. 세션을 유지합니다.', 'error');
         break;
       }
       case 'agent-status': {
@@ -259,16 +319,17 @@ export function connectWS() {
         break;
       }
       case 'input-result': {
-        getChatView().then(module => module.onInputResult(msg));
+        getChatView().then(module => { if (app.ws === ws) module.onInputResult(msg); });
         break;
       }
     }
     } catch (err) { console.error('[WS] message handler error', err); }
   };
-  ws.onerror = err => { console.error('[WS] error', err); };
+  ws.onerror = err => { if (app.ws === ws) console.error('[WS] error', err); };
   ws.onclose = (_ev) => {
     // Skip cleanup if a newer WS connection has already taken over
     if (app.ws !== ws) return;
+    if (cancelPendingTerminalCloses()) showToast('연결이 끊겨 종료 결과를 확인하지 못했습니다. 재연결 후 상태를 확인해 주세요.', 'warning');
     _chatViewModule?.onInputTransportClosed?.();
     setTerminalInputEnabled(false);
     showDisconnectIndicator(true);
@@ -597,7 +658,7 @@ export function addTerminal(termId, projectId, addToView, command = '', account 
       _cmdBuf += data;
     }
   });
-  app.termMap.set(termId, { xterm, fitAddon, searchAddon, projectId, command, account, durable, agentCommand: /^(claude|codex|opencode)\b/.exec(command)?.[1] || '', agentScanKnown: false, element, label: name, topic: '', color, opened: false, pendingBuffer: null, createdAt: Date.now() });
+  app.termMap.set(termId, { xterm, fitAddon, searchAddon, projectId, command, account, durable, agentCommand: /^(claude|codex|opencode|jcode)\b/.exec(command)?.[1] || '', agentScanKnown: false, element, label: name, topic: '', color, opened: false, pendingBuffer: null, createdAt: Date.now() });
   if (addToView) {
     if (_splitTarget) {
       const st = _splitTarget; _splitTarget = null;
@@ -687,25 +748,80 @@ export function arrangeTerminals(mode) {
 }
 
 // ─── Close/Fit ───
-export function closeTerminal(id) {
-  if (app.ws?.readyState === 1) app.ws.send(JSON.stringify({ type: 'kill', termId: id }));
+export function closeTerminal(id, intent) {
+  const term = app.termMap.get(id);
+  if (!term || (intent !== undefined && (!intent || intent.termId !== id
+    || intent.term !== term || intent.incarnation !== term.incarnation))) return false;
+  if (app.ws?.readyState !== WebSocket.OPEN) {
+    showToast('서버 연결이 끊겨 터미널을 종료할 수 없습니다. 재연결 후 다시 시도해 주세요.', 'warning');
+    return false;
+  }
+  if (pendingTerminalCloses.has(id)) return false;
+  const incarnation = intent === undefined ? term.incarnation : intent.incarnation;
+  if (!app.ws.snapshotReady || !app.ws.closeIncarnationsSupported || !/^[0-9a-f]{32}$/.test(incarnation || '')) {
+    showToast('현재 세션 incarnation을 확인할 수 없어 닫지 않았습니다. 서버·화면 버전을 확인하고 재연결하세요.', 'warning');
+    return false;
+  }
+  const pending = { term: app.termMap.get(id), incarnation, requestId: `close:${++closeRequestSequence}`, timer: null };
+  const timer = setTimeout(() => {
+    if (pendingTerminalCloses.get(id) !== pending) return;
+    pending.timer = null; // UNKNOWN: keep identity/receipt; never replay blindly.
+    showToast('터미널 종료 결과가 아직 확인되지 않았습니다. 세션을 유지하고 재연결 후 상태를 확인해 주세요.', 'warning');
+  }, 10000);
+  pending.timer = timer;
+  pendingTerminalCloses.set(id, pending);
+  try {
+    app.ws.send(JSON.stringify({ type: 'kill', termId: id, incarnation, requestId: pending.requestId, confirm: true }));
+    return true;
+  } catch {
+    clearPendingTerminalClose(id);
+    showToast('터미널 종료 요청을 보내지 못했습니다. 세션을 유지합니다.', 'error');
+    return false;
+  }
+}
+
+function finishTerminalClose(id) {
+  const term = app.termMap.get(id);
+  if (!term) return;
+  const closed = { termId: id, incarnation: term.incarnation };
+  const wasActive = app.activeTermId === id;
   discardLocalTerminal(id);
+  // Keep legacy ID-only consumers intact; generation-aware views use this
+  // separate authoritative event even before their first snapshot arrives.
+  notify('terminalClosedIncarnation', closed);
+  notify('terminalClosed', id);
   renderLayout(); updateTermHeaders();
+  updateAgentWall();
+  if (wasActive) {
+    const nextActive = app.activeTermId;
+    requestAnimationFrame(() => {
+      if (app.activeTermId !== nextActive) return;
+      const activeFrame = [...document.querySelectorAll('[data-canvas-frame]')]
+        .find(frame => frame.dataset.canvasFrame === nextActive);
+      (activeFrame || document.querySelector('[data-canvas-board-frame]') || document.querySelector('[data-action="new-term"]'))?.focus();
+    });
+  }
 }
 
 function discardLocalTerminal(id, preserveLayout = false, preserveSessionMetadata = false) {
+  clearPendingTerminalClose(id);
   const t = app.termMap.get(id);
   if (t) {
     if (!preserveSessionMetadata) unpairTerminal(id);
     if (app.pairSourceTermId === id) app.pairSourceTermId = '';
     if (t._wheelFallbackTimer) clearTimeout(t._wheelFallbackTimer);
+    if (t._fitRestoreTimer) clearTimeout(t._fitRestoreTimer);
+    if (t._fitRestoreFrame) cancelAnimationFrame(t._fitRestoreFrame);
     t.xterm.dispose(); t.element.remove(); app.termMap.delete(id);
   }
   const wb = app.writeBuffers.get(id);
   if (wb) { if (wb.timer) cancelAnimationFrame(wb.timer); app.writeBuffers.delete(id); }
   app._headCache.delete(id);
   // chat-view 폴링/watch 정리 (메모리 누수 방지)
-  import('./chat-view.js').then(m => m.cleanupChatView?.(id));
+  // The module's cleanup API is ID-only: never run deferred cleanup against a
+  // replacement incarnation. If already loaded, release the old view now.
+  if (_chatViewModule) _chatViewModule.cleanupChatView?.(id);
+  else import('./chat-view.js').then(m => { if (!app.termMap.has(id)) m.cleanupChatView?.(id); });
   if (!preserveLayout) removeFromLayoutTree(id);
   if (app.activeTermId === id) { const first = getOrderedTerminalIds()[0]; app.activeTermId = first || null; }
 }
@@ -760,8 +876,15 @@ export function fitTerminal(termId, preservedDistanceFromBottom, forcePtyResize 
   // fit()/리플로우는 비동기로 끝나므로 rAF에서 1회 재적용. 그 뒤엔 맹목적 재시도
   // 대신 어긋났을 때만 보상한다 — 4연속 복원이 서로 덮어씌워 덜컹거리던 원인 제거.
   // 앵커는 현재 것으로 재계산하므로 fit 사이 새 출력이 와도(스트리밍 중) 따라간다.
-  requestAnimationFrame(() => restoreTerminalViewport(t));
-  setTimeout(() => {
+  if (t._fitRestoreFrame) cancelAnimationFrame(t._fitRestoreFrame);
+  t._fitRestoreFrame = requestAnimationFrame(() => {
+    t._fitRestoreFrame = null;
+    if (app.termMap.get(termId) === t) restoreTerminalViewport(t);
+  });
+  if (t._fitRestoreTimer) clearTimeout(t._fitRestoreTimer);
+  t._fitRestoreTimer = setTimeout(() => {
+    t._fitRestoreTimer = null;
+    if (app.termMap.get(termId) !== t) return;
     try {
       const anchor = t._resizeScrollAnchor;
       if (!anchor || Date.now() > anchor.expiresAt) return;

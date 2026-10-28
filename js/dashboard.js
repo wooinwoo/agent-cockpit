@@ -525,6 +525,8 @@ function restoreScrollTree(root) {
 }
 
 export function switchView(name) {
+  // Retired links or saved view names must never select a removed panel.
+  if (name === 'work-overview') name = 'terminal';
   if (['agent', 'company', 'supervisor'].includes(name)) name = 'dashboard';
   const currentView = document.querySelector('.view.active');
   const currentName = currentView?.id?.replace('-view', '');
@@ -550,11 +552,14 @@ export function switchView(name) {
   const safeInit = (fn) => { try { const r = fn(); if (r?.catch) r.catch(e => console.error('[View]', name, e)); } catch (e) { console.error('[View]', name, e); } };
   // Cleanup timers from views we're leaving
   if (name !== 'ports') try { notify('destroyPorts'); } catch { /* cleanup failed */ }
+  if (name !== 'aws-connect') notify('destroyAwsConnect');
   // Always-refresh views (need update on every visit)
   if (name === 'terminal') { safeInit(() => notify('renderLayout')); setTimeout(() => notify('fitAllTerminals'), 200); }
   if (name === 'diff') safeInit(() => notify('loadDiff'));
   if (name === 'ai-accounts') safeInit(() => notify('initAiAccounts'));
   if (name === 'notes') safeInit(() => notify('initNotes'));
+  if (name === 'reports') safeInit(() => notify('initReports'));
+  if (name === 'aws-connect') safeInit(() => notify('initAwsConnect'));
   // First-visit-only init views (each module also has internal guards)
   const viewInitMap = { pr: 'initPR', cicd: 'initCicd', workflows: 'initWorkflows', ports: 'initPorts', autopilot: 'initAutopilotView' };
   if (name in viewInitMap) {
@@ -723,6 +728,31 @@ export function onVisibilityChange() {
 }
 
 // ─── Tab Overflow "More" Dropdown ───
+function setNavRailCollapsed(collapsed) {
+  document.body.classList.toggle('nav-rail-collapsed', collapsed);
+  const button = document.querySelector('[data-action="toggle-nav-rail"]');
+  if (!button) return;
+  const label = collapsed ? '메뉴 펼치기' : '메뉴 접기';
+  button.setAttribute('aria-expanded', String(!collapsed));
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.querySelector('[data-nav-rail-arrow]').setAttribute('d', collapsed ? 'm12 9 3 3-3 3' : 'm15 9-3 3 3 3');
+}
+
+export function initNavRail() {
+  let collapsed = false;
+  try { collapsed = localStorage.getItem('dl-nav-rail-collapsed') === 'true'; } catch { /* storage unavailable */ }
+  setNavRailCollapsed(collapsed);
+}
+
+export function toggleNavRail() {
+  const collapsed = !document.body.classList.contains('nav-rail-collapsed');
+  setNavRailCollapsed(collapsed);
+  try { localStorage.setItem('dl-nav-rail-collapsed', String(collapsed)); } catch { /* storage unavailable */ }
+  closeNavMore();
+  requestAnimationFrame(() => notify('fitAllTerminals'));
+}
+
 export function setupNavOverflow() {
   const wrap = document.getElementById('nav-more-wrap');
   if (!wrap) return;
@@ -1131,6 +1161,7 @@ registerClickActions({
     switchView(el.dataset.view);
   },
   'toggle-nav-more': toggleNavMore,
+  'toggle-nav-rail': toggleNavRail,
   'toggle-notifications': toggleNotifications,
   'toggle-theme': toggleTheme,
   'set-project-filter': (el) => setProjectFilter(el.dataset.filterVal),

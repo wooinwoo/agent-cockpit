@@ -19,7 +19,7 @@
 .ai-accounts-head h1 {
   margin: 0;
   color: var(--text-0);
-  font-size: 1rem;
+  font-size: 22px;
   font-weight: 650;
 }
 
@@ -27,8 +27,26 @@
 .ai-accounts-footnote {
   margin: 3px 0 0;
   color: var(--text-2);
-  font-size: .8rem;
+  font-size: 14px;
+  line-height: 1.6;
 }
+
+.ai-account-context { margin: 0; padding: 12px 0 4px; color: var(--text-0); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.ai-account-feedback { padding: 12px; border: 1px solid var(--red); color: var(--red); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+#ai-accounts-view :is(input:not([type="checkbox"]),select) { min-height: 44px; max-width: 100%; font-size: 16px; }
+#ai-accounts-view :is(button, input, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ai-account-switch-note { margin: 0; padding: 8px 0; color: var(--text-2); font-size: .8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-account-linked-sessions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ai-account-linked-sessions .btn { min-height: 44px; min-width: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+.ai-account-settings summary { display: flex; align-items: center; min-height: 44px; color: var(--text-1); font-size: .8rem; cursor: pointer; }
+.ai-account-settings summary::before { content: '▸'; margin-right: 8px; }
+.ai-account-settings[open] summary::before { content: '▾'; }
+.ai-account-settings summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ai-account-row.login-focused { outline: 1px solid var(--accent); outline-offset: -1px; background: var(--bg-surface); }
+.ai-account-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ai-account-meta .ai-account-default { color: var(--accent-bright); border-color: var(--accent); }
+.ai-account-action .ai-account-switch-row { min-height: 44px; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 
 .ai-accounts-tools {
   display: flex;
@@ -42,7 +60,9 @@
   flex: none;
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
   gap: 8px;
   padding: 5px 8px;
   background: var(--bg-1);
@@ -85,12 +105,71 @@
   box-shadow: 0 0 0 1px var(--accent);
 }
 
+.ai-accounts-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 6px;
+}
+.ai-accounts-bar > [data-action="refresh-ai-accounts"] { min-height: 44px; margin-left: auto; }
+
 .ai-accounts-status {
-  min-height: 38px;
+  min-height: 30px;
   display: flex;
   align-items: center;
   color: var(--text-2);
-  font: .64rem/1.4 var(--mono);
+  font-size: 14px;
+  line-height: 1.5;
+  flex-wrap: wrap;
+  column-gap: 4px;
+}
+.ai-accounts-status b { font-weight: 600; }
+.ai-accounts-status b.ok { color: var(--green); }
+.ai-accounts-status b.bad { color: var(--red); }
+
+.ai-best-account { min-height: 30px; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 목록 필터 — 검색 · 공급자 · 사용 가능만 · 정렬 */
+.ai-accounts-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 0 0 12px;
+}
+.ai-accounts-filter input[type="search"] {
+  width: 200px;
+  height: 28px;
+  padding: 0 8px;
+  color: var(--text-1);
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+.ai-accounts-filter input[type="search"]:focus,
+.ai-accounts-filter select:focus { border-color: var(--accent); outline: none; }
+.ai-seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; }
+.ai-seg button {
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--text-2);
+  background: transparent;
+  border: 0;
+  font-size: .72rem;
+  cursor: pointer;
+}
+.ai-seg button + button { border-left: 1px solid var(--border); }
+.ai-seg button:hover { color: var(--text-0); }
+.ai-seg button[aria-pressed="true"] { color: var(--text-0); background: var(--bg-3); }
+.ai-alive-toggle { display: inline-flex; align-items: center; gap: 6px; color: var(--text-1); font-size: .74rem; cursor: pointer; }
+.ai-sort { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: var(--text-2); font-size: .72rem; }
+.ai-sort select {
+  height: 28px;
+  padding: 0 6px;
+  color: var(--text-1);
+  background: var(--bg-0);
+  border: 1px solid var(--border);
 }
 
 .ai-account-list {
@@ -99,11 +178,10 @@
 
 .ai-account-row {
   display: grid;
-  grid-template-columns: minmax(190px, 1.1fr) minmax(150px, .7fr) minmax(320px, 1.6fr) 128px;
+  grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.7fr) 150px;
   align-items: center;
-  gap: 18px;
-  min-height: 112px;
-  padding: 16px 12px;
+  gap: 20px;
+  padding: 14px 12px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -116,9 +194,15 @@
 .ai-account-identity {
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
 }
+.ai-account-identity > div { min-width: 0; }
+
+/* 소진·미로그인 계정 — 흐리게 + 사유 표시 */
+.ai-account-row.blocked .ai-account-identity h2,
+.ai-account-row.blocked .ai-account-metric { opacity: .55; }
+.ai-account-blocker { margin-top: 6px; color: var(--red); font-size: .72rem; }
 
 .ai-account-mark {
   width: 34px;
@@ -135,13 +219,15 @@
 
 .ai-account-row.claude .ai-account-mark { color: var(--yellow); }
 .ai-account-row.codex .ai-account-mark { color: var(--accent-bright); }
-.ai-account-identity h2 { margin: 0; color: var(--text-0); font-size: .8rem; font-weight: 650; }
-.ai-account-identity p { margin: 2px 0 0; overflow: hidden; color: var(--text-2); font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+.ai-account-identity h2 { margin: 0; overflow: hidden; color: var(--text-0); font-size: 16px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.ai-account-identity p { margin: 2px 0 0; overflow: hidden; color: var(--text-2); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 
 .ai-account-meta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 4px 6px;
+  margin-top: 6px;
 }
 
 .ai-account-meta span,
@@ -158,20 +244,25 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
+.ai-account-usage-query { grid-column: 1 / -1; margin: 0; color: var(--yellow); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 
 .ai-account-metric > div:first-child {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   color: var(--text-2);
-  font-size: .58rem;
+  font-size: .72rem;
 }
 
-.ai-account-metric strong { color: var(--text-0); font-family: var(--mono); font-size: .8rem; }
-.ai-account-meter { height: 3px; margin: 7px 0 5px; overflow: hidden; background: var(--bg-4); }
+.ai-account-metric strong { color: var(--text-0); font-family: var(--mono); font-size: 1.05rem; }
+.ai-account-metric.high strong { color: var(--green); }
+.ai-account-metric.mid strong { color: var(--yellow); }
+.ai-account-metric.low strong { color: var(--red); }
+.ai-account-meter { height: 5px; border-radius: 3px; margin: 7px 0 5px; overflow: hidden; background: var(--bg-4); }
 .ai-account-meter span { display: block; height: 100%; background: var(--green); }
-.ai-account-meter span.session { background: var(--accent); }
-.ai-account-metric small { color: var(--text-3); font-size: .58rem; }
+.ai-account-metric.mid .ai-account-meter span { background: var(--yellow); }
+.ai-account-metric.low .ai-account-meter span { background: var(--red); }
+.ai-account-metric small { color: var(--text-2); font-size: .68rem; }
 .ai-account-metric small .abs { opacity: .72; font-style: normal; }
 
 .ai-account-usage {
@@ -210,20 +301,22 @@
   gap: 9px;
 }
 
-.ai-account-state {
+.ai-account-meta .ai-account-state {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 5px;
   color: var(--text-1);
-  font-size: .58rem;
+  font-size: .62rem;
 }
 
 .ai-account-state i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); }
 .ai-account-state.ready i { background: var(--green); }
 .ai-account-state.warning i { background: var(--yellow); }
 .ai-account-state.login i { background: var(--red); }
-.ai-account-action .btn { min-height: 32px; }
+.ai-account-action .btn { min-height: 44px; }
+.ai-account-subactions { display: flex; gap: 6px; }
+.ai-account-subactions .btn { flex: 1; min-height: 44px; padding: 0 6px; color: var(--text-2); font-size: 13px; }
+.ai-account-subactions .btn.danger:hover { color: var(--red); border-color: var(--red); }
 .ai-account-action .btn.primary {
   color: #0b1418;
   background: var(--accent-bright);
@@ -262,14 +355,24 @@
 .ai-account-test {
   grid-column: 1 / -1;
   display: grid;
-  gap: 3px;
-  padding: 8px 10px;
-  font: .66rem/1.5 var(--mono);
+  gap: 5px;
+  padding: 10px 12px;
+  font-size: .74rem;
+  line-height: 1.45;
+  color: var(--text-1);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
   border-radius: var(--radius-s);
 }
-.ai-account-test.pass { color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); }
-.ai-account-test.fail { color: var(--red); background: color-mix(in srgb, var(--red) 8%, transparent); }
-.ai-account-test b { margin-right: 4px; }
+.ai-account-test.fail { border-left-color: var(--red); }
+/* 줄마다 결과색 — 통과 줄까지 빨갛게 칠하지 않음 */
+.ai-account-test > div { display: grid; grid-template-columns: 14px max-content 1fr; gap: 8px; align-items: baseline; }
+.ai-account-test b { font-weight: 700; }
+.ai-account-test .ok b { color: var(--green); }
+.ai-account-test .bad b, .ai-account-test .bad em { color: var(--red); }
+.ai-account-test span { color: var(--text-2); font-family: var(--mono); }
+.ai-account-test em { font-style: normal; }
 
 /* 인라인 예산 편집 */
 .ai-account-budget-edit {
@@ -308,8 +411,7 @@
 .ai-accounts-empty span { font-size: .8rem; }
 
 @media (max-width: 920px) {
-  .ai-account-row { grid-template-columns: minmax(180px, 1fr) minmax(280px, 1.5fr) 120px; }
-  .ai-account-meta { grid-column: 1 / -1; }
+  .ai-account-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 130px; }
 }
 
 @media (max-width: 600px) {
@@ -321,8 +423,22 @@
   .ai-tools-group #ai-account-email { width: auto; flex: 1; }
   .ai-accounts-tools .btn,
   .ai-account-action .btn { min-height: 44px; }
-  .ai-account-row { grid-template-columns: 1fr; gap: 12px; }
+  .ai-account-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ai-accounts-bar { align-items: center; flex-wrap: wrap; }
+  .ai-accounts-status { flex: 1; min-width: 0; }
+  .ai-best-account { flex: 1 1 100%; max-width: none; min-height: 44px; }
+  .ai-accounts-filter input[type="search"] { width: 100%; }
+  .ai-sort { margin-left: 0; }
   .ai-account-limits { grid-template-columns: 1fr 1fr; }
-  .ai-account-action { align-items: flex-start; flex-direction: row; }
-  .ai-account-action .btn { flex: 1; }
+  .ai-account-action { align-items: stretch; flex-direction: row; flex-wrap: wrap; }
+  .ai-account-action > .btn { flex: 1 1 100%; }
+  .ai-account-subactions { flex: 1 1 100%; }
 }
+.ai-accounts-costs { margin-bottom: 16px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); overflow-wrap: anywhere; }
+.ai-accounts-costs > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; }
+.ai-accounts-costs strong, .ai-account-cost strong { font-size: 13px; font-weight: 600; }
+.ai-accounts-costs b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.ai-accounts-costs p { margin: 8px 0 0; color: var(--text-2); font-size: 12px; line-height: 1.6; }
+.ai-account-cost { grid-column: 1 / -1; display: grid; gap: 5px; padding-bottom: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.ai-account-cost span { font-size: 14px; font-variant-numeric: tabular-nums; }
+.ai-account-cost small { color: var(--text-2); font-size: 12px; }

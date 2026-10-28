@@ -13,7 +13,7 @@ import {
   setProjectFilter, fetchAllProjects, pullAllProjects, updateScrollIndicators,
   onVisibilityChange,
   setProjectTag, renderTagFilters,
-  setupNavOverflow, updateEmptyProjectState,
+  setupNavOverflow, initNavRail, updateEmptyProjectState,
   changeViewZoom, resetViewZoom,
 } from './dashboard.js';
 
@@ -82,6 +82,8 @@ import { initPorts, destroyPorts, refreshPorts, togglePortPause, filterPortSearc
 import { initAutopilotView } from './autopilot-view.js';
 import { initAiAccounts } from './ai-accounts.js';
 import { initNotes } from './notes.js';
+import { initReports, openReportRegister } from './reports.js';
+import { initAwsConnect, destroyAwsConnect } from './aws-connect.js';
 
 
 // ─── README Content ───
@@ -842,6 +844,10 @@ subscribe('initPorts', () => initPorts());
 subscribe('initNotes', () => initNotes());
 subscribe('initAutopilotView', () => initAutopilotView());
 subscribe('initAiAccounts', () => initAiAccounts());
+subscribe('initReports', () => initReports());
+subscribe('initAwsConnect', () => initAwsConnect());
+subscribe('destroyAwsConnect', () => destroyAwsConnect());
+subscribe('registerReport', path => { switchView('reports'); openReportRegister(path); });
 subscribe('aiAccountsChanged', () => initAiAccounts());
 subscribe('destroyPorts', () => destroyPorts());
 
@@ -857,7 +863,7 @@ async function showMobileConnect() {
     }
     // Prefer Tailscale (works anywhere), fallback to LAN
     const primary = info.ips[0]; // already sorted: tailscale first
-    const url = `http://${primary.ip}:${info.port}?token=${info.token}`;
+    const url = `http://${primary.host || primary.ip}:${info.port}?token=${info.token}`;
     const label = primary.type === 'tailscale' ? 'Tailscale (anywhere)' : 'LAN (same WiFi)';
 
     const urlEl = document.getElementById('mobile-connect-url');
@@ -1139,6 +1145,7 @@ setupCtxMenuListeners();
 // ─── Init ───
 async function init() {
   applyTheme(app.currentTheme);
+  initNavRail();
   renderSkeletons(6);
   window.addEventListener('resize', setupNavOverflow);
   setupNavOverflow();

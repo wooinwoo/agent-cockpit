@@ -1,0 +1,20 @@
+[Unit]
+Description=Cockpit native managed server
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+WorkingDirectory=/home/rst010/projects/personal/claude-code-cockpit
+ExecStart=/home/rst010/projects/personal/claude-code-cockpit/scripts/start-cockpit.sh
+Environment="PATH=%h/.local/bin:%h/.cargo/bin:%h/.nvm/versions/node/v24.15.0/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="SHELL=/bin/bash"
+KillMode=process
+TimeoutStopSec=30
+Restart=on-abnormal
+RestartSec=5
+StandardOutput=append:/tmp/cockpit.log
+StandardError=append:/tmp/cockpit.log
+
+[Install]
+WantedBy=default.target

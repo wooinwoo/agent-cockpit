@@ -74,3 +74,4 @@ src-tauri/icons/ios/
 # Local-only notes and caches (never publish)
 docs/_local/
 __pycache__/
+graphify-out/

@@ -14,6 +14,8 @@ const toIndex = args.indexOf('--to');
 const questionTo = toIndex >= 0 ? args.splice(toIndex, 2)[1] : 'user';
 const supervisorIndex = args.indexOf('--supervisor');
 const supervisorId = supervisorIndex >= 0 ? args.splice(supervisorIndex, 2)[1] : undefined;
+const sessionIndex = args.indexOf('--session');
+const termId = sessionIndex >= 0 ? args.splice(sessionIndex, 2)[1] : undefined;
 const boardPath = supervisorId ? `/api/board?supervisorId=${encodeURIComponent(supervisorId)}` : '/api/board';
 
 async function request(path, method = 'GET', body) {
@@ -43,7 +45,7 @@ async function backend() {
       list: () => request(boardPath),
       note: content => request('/api/board/note', 'PUT', { content }),
       append: content => request('/api/board/note/append', 'POST', { content }),
-      add: (text, kind = 'task') => request('/api/board/tasks', 'POST', { text, kind, checklistId, supervisorId, ...(kind === 'question' ? { questionTo } : {}) }),
+      add: (text, kind = 'task') => request('/api/board/tasks', 'POST', { text, kind, checklistId, supervisorId, termId, ...(kind === 'question' ? { questionTo } : {}) }),
       review: pendingSince => request('/api/board/review', 'POST', { pendingSince, supervisorId }),
       update: (id, updates) => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'PATCH', updates),
       delete: id => request(`/api/board/tasks/${encodeURIComponent(id)}`, 'DELETE'),
@@ -76,7 +78,7 @@ async function backend() {
     list: () => service.getBoard(supervisorId),
     note: content => service.updateBoardNote(content),
     append: content => service.appendBoardNote(content),
-    add: (text, kind = 'task') => service.addBoardTask(text, checklistId, kind, questionTo, supervisorId),
+    add: (text, kind = 'task') => service.addBoardTask(text, checklistId, kind, questionTo, supervisorId, termId),
     review: () => { throw new Error('확인 기록에는 실행 중인 Cockpit 서버가 필요합니다.'); },
     update: (id, updates) => service.updateBoardTask(id, updates),
     delete: id => service.deleteBoardTask(id),
@@ -97,7 +99,7 @@ function usage() {
   cockpit-board question add <text> --checklist <C-ID> [--to user|supervisor]
   cockpit-board question answer <T-ID> <text>
   cockpit-board review <pendingSince>
-  task add also accepts --checklist <C-ID>
+  task add also accepts --checklist <C-ID> and --session <fixed-term-ID>
   list, task add, question add and review accept --supervisor <S-ID>`;
 }
 

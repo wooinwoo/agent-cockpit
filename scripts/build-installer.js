@@ -6,6 +6,17 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 
+if (process.platform === 'linux') {
+  const { buildNativeInstaller } = await import('./build-native-installer.mjs');
+  buildNativeInstaller();
+  process.exit(0);
+}
+if (process.platform === 'win32') {
+  const { buildWslInstaller } = await import('./build-wsl-installer.mjs');
+  buildWslInstaller();
+  process.exit(0);
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const TAURI_CONF = join(ROOT, 'src-tauri', 'tauri.conf.json');

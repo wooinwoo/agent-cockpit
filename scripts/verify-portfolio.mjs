@@ -5,14 +5,22 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import { startPortfolioServer } from '../tests/helpers/portfolio-server.js';
+import { rustBuildProfile } from '../tests/helpers/rust-server.js';
 
 const capture = process.argv.includes('--capture');
+const rust = process.argv.includes('--rust');
+const runtime = rust ? 'rust' : 'node';
+const shellQuote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const media = fileURLToPath(new URL('../docs/media/', import.meta.url));
-const fixture = await startPortfolioServer();
+const localReports = fileURLToPath(new URL('../docs/_local/', import.meta.url));
+let fixture;
 let plainFixture;
 let browser;
 let page;
+let result;
+let failure;
 try {
+  fixture = await startPortfolioServer({ runtime });
   const executablePath = process.env.CHROME_BIN || chromium.executablePath();
   assert.ok(existsSync(executablePath), 'Install Chromium: npx playwright-core install chromium (or set CHROME_BIN)');
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
@@ -72,12 +80,19 @@ try {
       && (rects[0].right <= rects[1].left || rects[1].right <= rects[0].left);
   });
   await chapter('2 / 8  두 터미널을 그룹으로 묶고 가로로 배치했습니다.');
-  const input = async (id, data) => page.evaluate(async ({ id, data }) => {
-    const { app } = await import('/js/state.js');
-    app.ws.send(JSON.stringify({ type: 'input', termId: id, data }));
-  }, { id, data });
+  const input = async (id, data) => {
+    await page.waitForFunction(id => {
+      const entry = window.portfolioApp.termMap.get(id);
+      return entry?.opened && !entry._replaying;
+    }, id);
+    await page.evaluate(async ({ id, data }) => {
+      const { app } = await import('/js/state.js');
+      app.ws.send(JSON.stringify({ type: 'input', termId: id, data }));
+    }, { id, data });
+  };
   const waitOutput = async (id, text) => page.waitForFunction(({ id, text }) => {
-    const term = window.portfolioApp.termMap.get(id)?.xterm;
+    const entry = window.portfolioApp.termMap.get(id);
+    const term = entry?.xterm;
     if (!term) return false;
     const buffer = term.buffer.active;
     return Array.from({ length: buffer.length }, (_, i) => {
@@ -118,13 +133,16 @@ try {
   });
   assert.deepEqual(after, before, 'Group, order and split layout survive restart and browser reload');
   // A shell-local variable proves this is the original process, not a new shell at the same path.
-  await input(ids[0], "printf '\\nRESTORED:%s:%s\\n' \"$PORTFOLIO_MARKER\" \"$PWD\"\r");
-  await waitOutput(ids[0], `RESTORED:survives_restart:${join(fixture.project, 'src')}`);
+  // Check complete values inside the original shell. tmux cursor redraws can
+  // split a long path without preserving xterm's wrapped-line metadata.
+  // Assemble the short marker at runtime so the echoed command cannot match it.
+  await input(ids[0], `if [ "$PORTFOLIO_MARKER" = survives_restart ] && [ "$PWD" = ${shellQuote(join(fixture.project, 'src'))} ]; then printf '\\nRESTORED_%s_%s\\n' STATE OK; else printf '\\nRESTORE_FAILED\\n'; fi\r`);
+  await waitOutput(ids[0], '\nRESTORED_STATE_OK');
   const restartMs = Math.round(performance.now() - restartAt);
   await chapter('5 / 8  동일한 셸 변수·작업 경로·터미널 그룹·순서·분할 배치를 검증했습니다.');
   if (capture) await page.screenshot({ path: join(media, 'restored-terminals.png'), style: '#portfolio-caption { visibility: hidden; }' });
   // tmux uses the alternate buffer. Verify ordinary-shell scrollback separately.
-  plainFixture = await startPortfolioServer({ durable: false });
+  plainFixture = await startPortfolioServer({ durable: false, runtime });
   await page.goto(plainFixture.url);
   await page.evaluate(async () => { window.portfolioApp = (await import('/js/state.js')).app; });
   await page.waitForFunction(() => window.portfolioApp.ws?.readyState === 1);
@@ -149,28 +167,45 @@ try {
   assert.ok(scrollAfter.top < scrollBefore.top, 'Browser wheel moves ordinary-shell scrollback upward');
   await chapter('8 / 8  복원과 일반 버퍼 휠 검증 완료. 실제 OS 한글 입력기는 별도 수동 검증 대상입니다.');
   assert.deepEqual(errors, [], 'No uncaught browser errors');
-  const result = { checkedAt: new Date().toISOString(), node: process.version, browser: browser.version(),
+  result = { checkedAt: new Date().toISOString(), node: process.version, browser: browser.version(),
     terminals: 2, sameShellAndCwd: true, groupOrderAndLayout: true, restartMs, scrollMode: 'ordinary PTY (tmux disabled)',
     scrollBefore: scrollBefore.top, scrollAfter: scrollAfter.top, browserErrors: errors.length,
     note: 'Isolated sample project; one local run, not a performance benchmark. Native OS IME input is not exercised.',
   };
+  if (rust) Object.assign(result, { runtime: 'rust', managed: true, productionReady: false });
   if (capture) {
     await writeFile(join(media, 'verification.json'), JSON.stringify(result, null, 2) + '\n');
   }
-  console.log(JSON.stringify(result, null, 2));
+  if (!rust) console.log(JSON.stringify(result, null, 2));
   const video = page.video();
   await context.close();
   if (capture) await video.saveAs(join(media, 'cockpit-demo.webm'));
 } catch (error) {
+  failure = error;
   if (page && !page.isClosed()) {
-    console.error(await page.evaluate(() => [...window.portfolioApp.termMap].map(([id, { xterm }]) => ({
-      id, output: Array.from({ length: xterm.buffer.active.length }, (_, i) => xterm.buffer.active.getLine(i)?.translateToString(true)).join('\n').slice(-4000),
-    }))));
-    await page.screenshot({ path: '/tmp/cockpit-portfolio-failure.png' });
+    console.error(JSON.stringify(await page.evaluate(() => [...window.portfolioApp.termMap].map(([id, { xterm }]) => ({
+      id, cols: xterm.cols, rows: xterm.rows, bufferType: xterm.buffer.active.type, bufferLength: xterm.buffer.active.length,
+      lines: Array.from({ length: Math.max(xterm.rows, xterm.buffer.active.length) }, (_, i) => {
+        const line = xterm.buffer.active.getLine(i);
+        return { i, wrapped: line?.isWrapped, text: line?.translateToString(true) };
+      }).slice(-50),
+    }))), null, 2));
+    // A slow failure screenshot must not replace the original error.
+    await page.screenshot({ path: '/tmp/cockpit-portfolio-failure.png', timeout: 5000 }).catch(() => {});
   }
   throw error;
 } finally {
-  await browser?.close();
-  await plainFixture?.cleanup();
-  await fixture.cleanup();
+  const cleanup = await Promise.allSettled([browser?.close(), plainFixture?.cleanup(), fixture?.cleanup()]);
+  const cleanupErrors = cleanup.filter(value => value.status === 'rejected').map(value => value.reason);
+  if (rust) {
+    const passed = !failure && cleanupErrors.length === 0 && result !== undefined;
+    const report = { ...result, checkedAt: new Date().toISOString(), runtime: 'rust', buildProfile: rustBuildProfile, managed: true,
+      productionReady: false, status: passed ? 'passed' : 'failed', managedChildrenReaped: passed,
+      ...(!passed ? { errors: [failure, ...cleanupErrors].filter(Boolean).map(error => String(error.message || error)) } : {}),
+    };
+    await mkdir(localReports, { recursive: true });
+    await writeFile(join(localReports, 'rust-browser-verification.json'), JSON.stringify(report, null, 2) + '\n');
+    if (passed) console.log(JSON.stringify(report, null, 2));
+  }
+  if (cleanupErrors.length) throw new AggregateError([failure, ...cleanupErrors].filter(Boolean), 'Portfolio fixture cleanup failed');
 }

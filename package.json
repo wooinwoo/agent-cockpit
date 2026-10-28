@@ -1,21 +1,23 @@
 {
-  "name": "claude-code-dashboard",
+  "name": "agent-cockpit",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "node scripts/start-cockpit.mjs",
+    "start:node": "node server.js",
     "ui:build": "tailwindcss -i ./ui/cockpit.css -o ./css/cockpit.css --minify",
     "ui:watch": "tailwindcss -i ./ui/cockpit.css -o ./css/cockpit.css --watch",
     "test": "node --test tests/lib/*.test.js tests/routes/*.test.js",
     "test:watch": "node --watch-path=lib --watch-path=routes --watch-path=tests --test tests/lib/*.test.js tests/routes/*.test.js",
     "bundle": "ncc build server.js -o dist --minify",
-    "build": "npm run ui:build && npm run bundle && node scripts/build-installer.js",
+    "build": "npm run ui:build && node scripts/build-installer.js",
     "tauri": "tauri",
     "test:e2e": "node scripts/e2e-wheel-test.mjs",
     "test:integration": "node scripts/verify-portfolio.mjs",
     "demo:capture": "node scripts/verify-portfolio.mjs --capture"
   },
   "dependencies": {
+    "@1jehuang/jcode-sdk": "1.1.0",
     "@langchain/core": "^1.1.26",
     "@langchain/google-genai": "^2.1.19",
     "@langchain/langgraph": "^1.1.5",

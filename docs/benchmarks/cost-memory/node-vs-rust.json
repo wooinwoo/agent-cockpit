@@ -1,0 +1,138 @@
+{
+  "measurementScript": "scripts/measure-cost-memory.mjs",
+  "memoryUnit": "KiB",
+  "productionTouched": false,
+  "interpretationLimit": "이 측정만으로 live heap 누수와 allocator가 해제된 메모리를 보유하는 현상을 구별할 수 없습니다.",
+  "comparisons": [
+    {
+      "name": "large-content-rows",
+      "startedAt": "2026-10-08T11:19:26.137Z",
+      "checkedAt": "2026-10-08T11:22:34.810Z",
+      "commandArguments": ["--release"],
+      "config": { "contentMiB": 8, "lineKiB": 1024, "files": 4, "cycles": 3, "intervalMs": 31000, "sampleMs": 100 },
+      "node": {
+        "baseline": { "VmRSSKiB": 74608, "VmHWMKiB": 74712, "RssAnonKiB": 23152, "threads": 11 },
+        "cycles": [
+          {
+            "cycle": 1, "bytes": 8391064, "rows": 8,
+            "before": { "VmRSSKiB": 81952, "VmHWMKiB": 81952, "RssAnonKiB": 25248, "threads": 11 },
+            "after": { "VmRSSKiB": 90796, "VmHWMKiB": 92392, "RssAnonKiB": 33708, "threads": 11 },
+            "sampledPeakKiB": 90796,
+            "totals": { "messages": 8, "sessions": 4, "inputTokens": 800, "outputTokens": 160, "apiEquivCost": 0.0048 }
+          },
+          {
+            "cycle": 2, "bytes": 12586600, "rows": 12,
+            "before": { "VmRSSKiB": 90796, "VmHWMKiB": 92392, "RssAnonKiB": 33708, "threads": 11 },
+            "after": { "VmRSSKiB": 109172, "VmHWMKiB": 109172, "RssAnonKiB": 52084, "threads": 11 },
+            "sampledPeakKiB": 109172,
+            "totals": { "messages": 12, "sessions": 4, "inputTokens": 1200, "outputTokens": 240, "apiEquivCost": 0.007199999999999999 }
+          },
+          {
+            "cycle": 3, "bytes": 16782140, "rows": 16,
+            "before": { "VmRSSKiB": 109428, "VmHWMKiB": 109428, "RssAnonKiB": 52340, "threads": 11 },
+            "after": { "VmRSSKiB": 117548, "VmHWMKiB": 121704, "RssAnonKiB": 60460, "threads": 11 },
+            "sampledPeakKiB": 117548,
+            "totals": { "messages": 16, "sessions": 4, "inputTokens": 1600, "outputTokens": 320, "apiEquivCost": 0.0096 }
+          }
+        ],
+        "cleanupCompleted": true
+      },
+      "rust": {
+        "buildProfile": "release",
+        "baseline": { "VmRSSKiB": 13520, "VmHWMKiB": 13520, "RssAnonKiB": 1232, "threads": 5 },
+        "managerBaseline": { "VmRSSKiB": 11464, "VmHWMKiB": 11464, "RssAnonKiB": 968, "threads": 3 },
+        "cycles": [
+          {
+            "cycle": 1, "bytes": 8391064, "rows": 8,
+            "before": { "VmRSSKiB": 13904, "VmHWMKiB": 13904, "RssAnonKiB": 1232, "threads": 7 },
+            "after": { "VmRSSKiB": 16052, "VmHWMKiB": 22224, "RssAnonKiB": 3380, "threads": 7 },
+            "sampledPeakKiB": 18988,
+            "totals": { "messages": 8, "sessions": 4, "inputTokens": 800, "outputTokens": 160, "apiEquivCost": 0.0048 }
+          },
+          {
+            "cycle": 2, "bytes": 12586600, "rows": 12,
+            "before": { "VmRSSKiB": 16308, "VmHWMKiB": 22224, "RssAnonKiB": 3508, "threads": 7 },
+            "after": { "VmRSSKiB": 18568, "VmHWMKiB": 24584, "RssAnonKiB": 5768, "threads": 7 },
+            "sampledPeakKiB": 22236,
+            "totals": { "messages": 12, "sessions": 4, "inputTokens": 1200, "outputTokens": 240, "apiEquivCost": 0.007199999999999999 }
+          },
+          {
+            "cycle": 3, "bytes": 16782140, "rows": 16,
+            "before": { "VmRSSKiB": 18568, "VmHWMKiB": 24584, "RssAnonKiB": 5768, "threads": 7 },
+            "after": { "VmRSSKiB": 18708, "VmHWMKiB": 24840, "RssAnonKiB": 5908, "threads": 7 },
+            "sampledPeakKiB": 21512,
+            "totals": { "messages": 16, "sessions": 4, "inputTokens": 1600, "outputTokens": 320, "apiEquivCost": 0.0096 }
+          }
+        ],
+        "cleanupCompleted": true
+      },
+      "totalsMatchAcrossRuntimes": true,
+      "exitCode": 0
+    },
+    {
+      "name": "many-small-content-rows",
+      "startedAt": "2026-10-08T11:25:02.976Z",
+      "checkedAt": "2026-10-08T11:28:14.940Z",
+      "commandArguments": ["--release", "--line-kib=1"],
+      "config": { "contentMiB": 8, "lineKiB": 1, "files": 4, "cycles": 3, "intervalMs": 31000, "sampleMs": 100 },
+      "node": {
+        "baseline": { "VmRSSKiB": 74676, "VmHWMKiB": 74676, "RssAnonKiB": 23220, "threads": 11 },
+        "cycles": [
+          {
+            "cycle": 1, "bytes": 10950484, "rows": 8192,
+            "before": { "VmRSSKiB": 81596, "VmHWMKiB": 81596, "RssAnonKiB": 24892, "threads": 11 },
+            "after": { "VmRSSKiB": 100364, "VmHWMKiB": 101052, "RssAnonKiB": 43404, "threads": 11 },
+            "sampledPeakKiB": 101052,
+            "totals": { "messages": 8192, "sessions": 4, "inputTokens": 819200, "outputTokens": 163840, "apiEquivCost": 4.915200000000278 }
+          },
+          {
+            "cycle": 2, "bytes": 10955832, "rows": 8196,
+            "before": { "VmRSSKiB": 100364, "VmHWMKiB": 101052, "RssAnonKiB": 43404, "threads": 11 },
+            "after": { "VmRSSKiB": 103468, "VmHWMKiB": 105096, "RssAnonKiB": 46508, "threads": 11 },
+            "sampledPeakKiB": 105096,
+            "totals": { "messages": 8196, "sessions": 4, "inputTokens": 819600, "outputTokens": 163920, "apiEquivCost": 4.917600000000279 }
+          },
+          {
+            "cycle": 3, "bytes": 10961180, "rows": 8200,
+            "before": { "VmRSSKiB": 103724, "VmHWMKiB": 105096, "RssAnonKiB": 46764, "threads": 11 },
+            "after": { "VmRSSKiB": 107860, "VmHWMKiB": 107860, "RssAnonKiB": 50900, "threads": 11 },
+            "sampledPeakKiB": 107860,
+            "totals": { "messages": 8200, "sessions": 4, "inputTokens": 820000, "outputTokens": 164000, "apiEquivCost": 4.920000000000281 }
+          }
+        ],
+        "cleanupCompleted": true
+      },
+      "rust": {
+        "buildProfile": "release",
+        "baseline": { "VmRSSKiB": 13384, "VmHWMKiB": 13384, "RssAnonKiB": 1224, "threads": 6 },
+        "managerBaseline": { "VmRSSKiB": 11188, "VmHWMKiB": 11188, "RssAnonKiB": 948, "threads": 3 },
+        "cycles": [
+          {
+            "cycle": 1, "bytes": 10950484, "rows": 8192,
+            "before": { "VmRSSKiB": 13768, "VmHWMKiB": 13768, "RssAnonKiB": 1352, "threads": 6 },
+            "after": { "VmRSSKiB": 32940, "VmHWMKiB": 34528, "RssAnonKiB": 20524, "threads": 6 },
+            "sampledPeakKiB": 32940,
+            "totals": { "messages": 8192, "sessions": 4, "inputTokens": 819200, "outputTokens": 163840, "apiEquivCost": 4.915200000000278 }
+          },
+          {
+            "cycle": 2, "bytes": 10955832, "rows": 8196,
+            "before": { "VmRSSKiB": 33068, "VmHWMKiB": 34528, "RssAnonKiB": 20524, "threads": 6 },
+            "after": { "VmRSSKiB": 53512, "VmHWMKiB": 53512, "RssAnonKiB": 40968, "threads": 6 },
+            "sampledPeakKiB": 53512,
+            "totals": { "messages": 8196, "sessions": 4, "inputTokens": 819600, "outputTokens": 163920, "apiEquivCost": 4.917600000000279 }
+          },
+          {
+            "cycle": 3, "bytes": 10961180, "rows": 8200,
+            "before": { "VmRSSKiB": 53512, "VmHWMKiB": 53512, "RssAnonKiB": 40968, "threads": 6 },
+            "after": { "VmRSSKiB": 74376, "VmHWMKiB": 74376, "RssAnonKiB": 61832, "threads": 6 },
+            "sampledPeakKiB": 74376,
+            "totals": { "messages": 8200, "sessions": 4, "inputTokens": 820000, "outputTokens": 164000, "apiEquivCost": 4.920000000000281 }
+          }
+        ],
+        "cleanupCompleted": true
+      },
+      "totalsMatchAcrossRuntimes": true,
+      "exitCode": 0
+    }
+  ]
+}

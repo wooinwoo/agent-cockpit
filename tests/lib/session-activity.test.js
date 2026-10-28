@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getSessionActivity } from '../../js/agent-wall-state.js';
+import { getRuntimeActivity, getSessionActivity } from '../../js/agent-wall-state.js';
+
+test('session indicators use fresh per-terminal observations and expire stale running states', () => {
+  const now = 50000;
+  const busy = { state: 'busy', observedAt: now };
+  const idle = { state: 'idle', observedAt: now };
+  assert.deepEqual(getRuntimeActivity(busy, now), { state: 'busy', label: '실행 중' });
+  assert.deepEqual(getRuntimeActivity(idle, now), { state: 'idle', label: '입력 대기' });
+  assert.equal(getRuntimeActivity({ state: 'approval', observedAt: now }, now).state, 'waiting');
+  assert.equal(getRuntimeActivity(busy, now + 15001).state, 'unknown');
+  assert.equal(getRuntimeActivity({ state: 'busy' }, now).state, 'unknown');
+  assert.equal(getRuntimeActivity(undefined, now).state, 'unknown');
+  assert.equal(getSessionActivity({ termId: 'one', runtime: idle, lines: ['Working (old output)'], now }).state, 'idle');
+  assert.equal(getSessionActivity({ termId: 'two', runtime: busy, lines: ['❯'], now }).state, 'busy');
+});
 
 const now = 1_000_000;
 function board() {

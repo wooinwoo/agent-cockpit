@@ -1,0 +1,7254 @@
+[
+  {
+    "input": {
+      "name": "ordinary LAN",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "empty interfaces",
+      "groups": [],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "unavailable interfaces",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false,
+      "interfaceThrows": true
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "WSL host when Linux interfaces unavailable",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "interfaceThrows": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "Windows host preferred",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "CLI not installed",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "execThrows": true
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "not WSL never runs the command",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "LAN duplicate addresses retained",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "eth1",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "tailscale stable first partition",
+      "groups": [
+        [
+          "e0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.90.1.1"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "192.168.0.1"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.100.0.2"
+            }
+          ]
+        ],
+        [
+          "e1",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.100.0.3"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.90.1.1",
+          "type": "tailscale"
+        },
+        {
+          "ip": "100.100.0.2",
+          "type": "tailscale"
+        },
+        {
+          "ip": "100.100.0.3",
+          "type": "tailscale"
+        },
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "192.168.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.2",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows list reverses new addresses and deduplicates",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            },
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.90.1.1\",\"100.90.1.2\",\"100.90.1.3\",\"100.90.1.2\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.90.1.3",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "100.90.1.2",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "100.90.1.1",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "duplicate native address keeps native metadata",
+      "groups": [
+        [
+          "tailscale0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.89.45.85"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "type": "tailscale"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "integer interface name enumeration",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "10",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.10"
+            }
+          ]
+        ],
+        [
+          "2",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ],
+        [
+          "01",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.3"
+            }
+          ]
+        ],
+        [
+          "4294967294",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.4"
+            }
+          ]
+        ],
+        [
+          "4294967295",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.5"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.2",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.10",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.4",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.3",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.5",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group null",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          null
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group false",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          false
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group 1",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          1
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group {}",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          {}
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group \"string\"",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          "string"
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.2",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "invalid interface group []",
+      "groups": [
+        [
+          "before",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            }
+          ]
+        ],
+        [
+          "invalid",
+          []
+        ],
+        [
+          "after",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        },
+        {
+          "ip": "10.0.0.2",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "null address entry stops remaining enumeration",
+      "groups": [
+        [
+          "first",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.1"
+            },
+            null,
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.2"
+            }
+          ]
+        ],
+        [
+          "later",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "10.0.0.3"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "10.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv6\",1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv6",
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [4,1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": 4,
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"ipv4\",1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "ipv4",
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [null,1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": null,
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [false,1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": false,
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",true]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": true,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",false]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.90.1.1",
+          "type": "tailscale"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",\"\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": "",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.90.1.1",
+          "type": "tailscale"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",\"false\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": "false",
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",0]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": 0,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.90.1.1",
+          "type": "tailscale"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "family/internal [\"IPv4\",1]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": 1,
+              "address": "100.90.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"0.0.0.0\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "0.0.0.0"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "0.0.0.0",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"0.0.0.0\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"0.0.0.0\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"255.255.255.255\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "255.255.255.255"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "255.255.255.255",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"255.255.255.255\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"255.255.255.255\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"127.0.0.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "127.0.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "127.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"127.0.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"127.0.0.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"169.254.0.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "169.254.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "169.254.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"169.254.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"169.254.0.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"224.0.0.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "224.0.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "224.0.0.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"224.0.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"224.0.0.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.63.255.255\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.63.255.255"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.63.255.255",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.63.255.255\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.63.255.255\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.0.0\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.0.0"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.64.0.0",
+          "type": "tailscale"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.0.0\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.0.0\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.64.0.0",
+          "host": "host.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.127.255.255\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.127.255.255"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.127.255.255",
+          "type": "tailscale"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.127.255.255\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.127.255.255\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.127.255.255",
+          "host": "host.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.128.0.0\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.128.0.0"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.128.0.0",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.128.0.0\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.128.0.0\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"99.64.1.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "99.64.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "99.64.1.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"99.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"99.64.1.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"101.64.1.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "101.64.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "101.64.1.1",
+          "type": "lan"
+        }
+      ],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"101.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"101.64.1.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"010.0.0.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "010.0.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"010.0.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"010.0.0.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.064.0.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.064.0.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.064.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.064.0.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.01.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.01.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.01.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.01.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.1.001\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.1.001"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.1.001\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.1.001\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.1.256\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.1.256"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.1.256\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.1.256\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"256.64.1.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "256.64.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"256.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"256.64.1.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"1.2.3\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "1.2.3"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"1.2.3\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"1.2.3\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"1.2.3.4.5\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "1.2.3.4.5"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"1.2.3.4.5\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"1.2.3.4.5\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"1.2.3.4\\n\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "1.2.3.4\n"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"1.2.3.4\\n\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"1.2.3.4\\n\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \" 1.2.3.4\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": " 1.2.3.4"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \" 1.2.3.4\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\" 1.2.3.4\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"+1.2.3.4\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "+1.2.3.4"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"+1.2.3.4\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"+1.2.3.4\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"-1.2.3.4\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "-1.2.3.4"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"-1.2.3.4\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"-1.2.3.4\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"0x64.64.1.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "0x64.64.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"0x64.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"0x64.64.1.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"::1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "::1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"::1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"::1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"::ffff:100.64.1.1\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "::ffff:100.64.1.1"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"::ffff:100.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"::ffff:100.64.1.1\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.1.1/32\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.1.1/32"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.1.1/32\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.1.1/32\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"100.64.1.1:80\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "100.64.1.1:80"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"100.64.1.1:80\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"100.64.1.1:80\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"\\ud800\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "\ud800"
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"\\ud800\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"\\ud800\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 \"\"",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": ""
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 \"\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[\"\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 null",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": null
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 null",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[null]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 true",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": true
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 true",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[true]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 1",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": 1
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 1",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[1]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 {}",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": {}
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 {}",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[{}]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 []",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": []
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 []",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[[]]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "IPv4 [\"100.64.1.1\"]",
+      "groups": [
+        [
+          "test",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": [
+                "100.64.1.1"
+              ]
+            }
+          ]
+        ]
+      ],
+      "wsl": false
+    },
+    "expected": {
+      "value": [],
+      "calls": []
+    }
+  },
+  {
+    "input": {
+      "name": "Windows IPv4 [\"100.64.1.1\"]",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"host.ts.net.\",\"TailscaleIPs\":[[\"100.64.1.1\"]]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"foo.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "foo.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"foo.ts.net.\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "foo.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"FOO.TS.NET.\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"FOO.TS.NET.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "foo.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"foo.bar.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.bar.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "foo.bar.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \".ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\".ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"-a.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"-a.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a-.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a-.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a-b.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a-b.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "a-b.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net..\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net..\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a..ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a..ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net/path\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net/path\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net:443\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net:443\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net?x=1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net?x=1\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net#frag\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net#frag\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"<script>.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"<script>.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \" a.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\" a.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net \"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net \",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net\\n\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net\\n\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net\\r\\n\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net\\r\\n\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net.\\n\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net.\\n\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net \"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net \",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"a.ts.net\\u0000\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"a.ts.net\\u0000\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"example.com\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"example.com\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"localhost\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"localhost\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"127.0.0.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"127.0.0.1\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"한글.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"한글.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"K.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"K.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "k.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"İ.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"İ.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"\\ud800.ts.net\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"\\ud800.ts.net\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS \"\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS null",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":null,\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS false",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":false,\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS 42",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":42,\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS {}",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":{},\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS []",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":[],\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "MagicDNS [\"foo.ts.net\"]",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":[\"foo.ts.net\"],\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend \"Stopped\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Stopped\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend \"NeedsLogin\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"NeedsLogin\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend \"running\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend \"\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend null",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":null,\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend true",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":true,\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend 1",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":1,\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "backend \"Running\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"Desktop.tail123.ts.net.\",\"TailscaleIPs\":[\"100.89.45.85\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.89.45.85",
+          "host": "desktop.tail123.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs null",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":null}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs false",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":false}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs \"\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":\"\"}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs \"100.64.1.1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":\"100.64.1.1\"}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs 5",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":5}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs {}",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":{}}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs []",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":[]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "TailscaleIPs [null,\"100.64.1.1\",{},\"100.64.1.2\"]",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\",\"TailscaleIPs\":[null,\"100.64.1.1\",{},\"100.64.1.2\"]}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "100.64.1.2",
+          "host": "foo.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "100.64.1.1",
+          "host": "foo.ts.net",
+          "type": "tailscale"
+        },
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": ""
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"{broken\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{broken"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"permission denied\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "permission denied"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"null\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "null"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"[]\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "[]"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"{}\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"false\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "false"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"1\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "1"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"{\\\"BackendState\\\":\\\"Running\\\",\\\"Self\\\":null}\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":null}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "raw status \"{\\\"BackendState\\\":\\\"Running\\\",\\\"Self\\\":{\\\"DNSName\\\":\\\"foo.ts.net\\\"}}\"",
+      "groups": [
+        [
+          "eth0",
+          [
+            {
+              "family": "IPv4",
+              "internal": false,
+              "address": "172.26.1.2"
+            }
+          ]
+        ]
+      ],
+      "wsl": true,
+      "output": "{\"BackendState\":\"Running\",\"Self\":{\"DNSName\":\"foo.ts.net\"}}"
+    },
+    "expected": {
+      "value": [
+        {
+          "ip": "172.26.1.2",
+          "type": "lan"
+        }
+      ],
+      "calls": [
+        {
+          "program": "/mnt/c/Program Files/Tailscale/tailscale.exe",
+          "args": [
+            "status",
+            "--json"
+          ],
+          "options": {
+            "encoding": "utf8",
+            "timeout": 3000,
+            "stdio": [
+              "ignore",
+              "pipe",
+              "ignore"
+            ],
+            "windowsHide": true
+          }
+        }
+      ]
+    }
+  }
+]

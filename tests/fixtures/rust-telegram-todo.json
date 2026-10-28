@@ -1,0 +1,2640 @@
+[
+  {
+    "input": {
+      "action": "list"
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "next"
+    },
+    "expected": {
+      "value": null,
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": ""
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": ""
+    },
+    "expected": {
+      "value": null,
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": ""
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": "\n  \n"
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": "\n  \n"
+    },
+    "expected": {
+      "value": null,
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": "\n  \n"
+    },
+    "expected": {
+      "value": [],
+      "rows": []
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n"
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        }
+      ],
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n"
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "pending",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        }
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n"
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": "﻿ \n{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n\n "
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        }
+      ],
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": "﻿ \n{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n\n "
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "pending",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        }
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": "﻿ \n{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n\n "
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": "{\"id\":1,\"status\":\"pending\"}\r\n\r\n"
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 1,
+          "status": "pending"
+        }
+      ],
+      "rows": [
+        {
+          "id": 1,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": "{\"id\":1,\"status\":\"pending\"}\r\n\r\n"
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": "{\"id\":1,\"status\":\"pending\"}\r\n\r\n"
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 1,
+          "status": "pending"
+        }
+      ],
+      "rows": [
+        {
+          "id": 1,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "raw": "{\"id\":4,\"status\":\"done\"}\n"
+    },
+    "expected": {
+      "value": [],
+      "rows": [
+        {
+          "id": 4,
+          "status": "done"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "next",
+      "raw": "{\"id\":4,\"status\":\"done\"}\n"
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": 4,
+          "status": "done"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "includeDone": true,
+      "raw": "{\"id\":4,\"status\":\"done\"}\n"
+    },
+    "expected": {
+      "value": [
+        {
+          "id": 4,
+          "status": "done"
+        }
+      ],
+      "rows": [
+        {
+          "id": 4,
+          "status": "done"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "",
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": "",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": "",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": "",
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": "",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": "",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "  do not trim  ",
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": "  do not trim  ",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": "  do not trim  ",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": "  do not trim  ",
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": "  do not trim  ",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": "  do not trim  ",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "\ud800😀\udc00\nsecond line",
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": "\ud800😀\udc00\nsecond line",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": "\ud800😀\udc00\nsecond line",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": "\ud800😀\udc00\nsecond line",
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": "\ud800😀\udc00\nsecond line",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": "\ud800😀\udc00\nsecond line",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": null,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": null,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": null,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": null,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": null,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": null,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": true,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": true,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": true,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": true,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": true,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": true,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": false,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": false,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": false,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": false,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": false,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": false,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": 0,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": 0,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": 0,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": 0,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": 0,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": 0,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": -1.5,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": -1.5,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": -1.5,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": -1.5,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": -1.5,
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": -1.5,
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": [
+        "a",
+        null
+      ],
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": [
+          "a",
+          null
+        ],
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": [
+            "a",
+            null
+          ],
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": [
+        "a",
+        null
+      ],
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": [
+          "a",
+          null
+        ],
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": [
+            "a",
+            null
+          ],
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": {
+        "nested": "\udc00"
+      },
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "2026-10-08T08:00:00.000Z",
+        "text": {
+          "nested": "\udc00"
+        },
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "2026-10-08T08:00:00.000Z",
+          "text": {
+            "nested": "\udc00"
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "text": {
+        "nested": "\udc00"
+      },
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 10,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": {
+          "nested": "\udc00"
+        },
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        },
+        {
+          "id": 10,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": {
+            "nested": "\udc00"
+          },
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "1970-01-01T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "1970-01-01T00:00:00.001Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "1970-01-01T00:00:00.001Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "1969-12-31T23:59:59.999Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "1969-12-31T23:59:59.999Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "1969-12-31T23:59:59.999Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "1969-12-31T23:59:59.999Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": -62167219200000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "0000-01-01T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "0000-01-01T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": -62167219200000
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "0000-01-01T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "0000-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": 253402300800000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "+010000-01-01T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "+010000-01-01T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 253402300800000
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "+010000-01-01T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "+010000-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": -62198755200000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "-000001-01-01T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "-000001-01-01T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": -62198755200000
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "-000001-01-01T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "-000001-01-01T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": 8640000000000000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "+275760-09-13T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "+275760-09-13T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 8640000000000000
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "+275760-09-13T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "+275760-09-13T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": -8640000000000000
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "-271821-04-20T00:00:00.000Z",
+        "text": "Date boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "ts": "-271821-04-20T00:00:00.000Z",
+          "text": "Date boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": -8640000000000000
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "-271821-04-20T00:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "-271821-04-20T00:00:00.000Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "text": "Date boundary",
+      "now": 8640000000000001
+    },
+    "expected": {
+      "error": "Invalid time value"
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 8640000000000001
+    },
+    "expected": {
+      "error": "Invalid time value"
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "text": "첫 번째\ud800😀",
+        "status": "done",
+        "ts": "2026-01-01T00:00:00.000Z",
+        "future": {
+          "nested": "\udc00"
+        },
+        "doneAt": "2026-10-08T08:00:00.123Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "done",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          },
+          "doneAt": "2026-10-08T08:00:00.123Z"
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 2,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": {
+        "id": 2,
+        "text": "완료",
+        "status": "done",
+        "doneAt": "2026-10-08T08:00:00.123Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-10-08T08:00:00.123Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 9,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": {
+        "id": 9,
+        "text": "다음",
+        "status": "done",
+        "doneAt": "2026-10-08T08:00:00.123Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "done",
+          "doneAt": "2026-10-08T08:00:00.123Z"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 3,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": {
+        "id": 3,
+        "text": "다른 상태",
+        "status": "done",
+        "custom": [
+          null,
+          true,
+          2
+        ],
+        "doneAt": "2026-10-08T08:00:00.123Z"
+      },
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "done",
+          "custom": [
+            null,
+            true,
+            2
+          ],
+          "doneAt": "2026-10-08T08:00:00.123Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 999,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 0,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": -1,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":7,\"text\":\"첫 번째\\ud800😀\",\"status\":\"pending\",\"ts\":\"2026-01-01T00:00:00.000Z\",\"future\":{\"nested\":\"\\udc00\"}}\n{\"id\":2,\"text\":\"완료\",\"status\":\"done\",\"doneAt\":\"2026-01-02T00:00:00.000Z\"}\n{\"id\":9,\"text\":\"다음\",\"status\":\"pending\"}\n{\"id\":3,\"text\":\"다른 상태\",\"status\":\"archived\",\"custom\":[null,true,2]}\n",
+      "id": 7.5,
+      "now": 1791446400123
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": 7,
+          "text": "첫 번째\ud800😀",
+          "status": "pending",
+          "ts": "2026-01-01T00:00:00.000Z",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": 2,
+          "text": "완료",
+          "status": "done",
+          "doneAt": "2026-01-02T00:00:00.000Z"
+        },
+        {
+          "id": 9,
+          "text": "다음",
+          "status": "pending"
+        },
+        {
+          "id": 3,
+          "text": "다른 상태",
+          "status": "archived",
+          "custom": [
+            null,
+            true,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":0,\"status\":\"pending\"}\n",
+      "text": "Numeric ID boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Numeric ID boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 0,
+          "status": "pending"
+        },
+        {
+          "id": 1,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Numeric ID boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":0,\"status\":\"pending\"}\n",
+      "id": 0,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 0,
+        "status": "done",
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": 0,
+          "status": "done",
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":-3,\"status\":\"pending\"}\n{\"id\":-5}\n",
+      "text": "Numeric ID boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": -2,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Numeric ID boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": -3,
+          "status": "pending"
+        },
+        {
+          "id": -5
+        },
+        {
+          "id": -2,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Numeric ID boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":-3,\"status\":\"pending\"}\n{\"id\":-5}\n",
+      "id": -3,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": -3,
+        "status": "done",
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": -3,
+          "status": "done",
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        },
+        {
+          "id": -5
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":1.5,\"status\":\"pending\"}\n",
+      "text": "Numeric ID boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 2.5,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Numeric ID boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1.5,
+          "status": "pending"
+        },
+        {
+          "id": 2.5,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Numeric ID boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":1.5,\"status\":\"pending\"}\n",
+      "id": 1.5,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 1.5,
+        "status": "done",
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": 1.5,
+          "status": "done",
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":1,\"status\":\"pending\"}\n{\"id\":1,\"status\":\"pending\",\"marker\":\"second\"}\n",
+      "text": "Numeric ID boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 2,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Numeric ID boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "status": "pending"
+        },
+        {
+          "id": 1,
+          "status": "pending",
+          "marker": "second"
+        },
+        {
+          "id": 2,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Numeric ID boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":1,\"status\":\"pending\"}\n{\"id\":1,\"status\":\"pending\",\"marker\":\"second\"}\n",
+      "id": 1,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 1,
+        "status": "done",
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": 1,
+          "status": "done",
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        },
+        {
+          "id": 1,
+          "status": "pending",
+          "marker": "second"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "raw": "{\"id\":9007199254740990,\"status\":\"pending\"}\n",
+      "text": "Numeric ID boundary",
+      "now": 0
+    },
+    "expected": {
+      "value": {
+        "id": 9007199254740991,
+        "ts": "1970-01-01T00:00:00.000Z",
+        "text": "Numeric ID boundary",
+        "status": "pending"
+      },
+      "rows": [
+        {
+          "id": 9007199254740990,
+          "status": "pending"
+        },
+        {
+          "id": 9007199254740991,
+          "ts": "1970-01-01T00:00:00.000Z",
+          "text": "Numeric ID boundary",
+          "status": "pending"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "raw": "{\"id\":9007199254740990,\"status\":\"pending\"}\n",
+      "id": 9007199254740990,
+      "now": 1
+    },
+    "expected": {
+      "value": {
+        "id": 9007199254740990,
+        "status": "done",
+        "doneAt": "1970-01-01T00:00:00.001Z"
+      },
+      "rows": [
+        {
+          "id": 9007199254740990,
+          "status": "done",
+          "doneAt": "1970-01-01T00:00:00.001Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "done",
+      "id": 1,
+      "now": 0
+    },
+    "expected": {
+      "value": null,
+      "rows": []
+    }
+  }
+]

@@ -30,7 +30,7 @@ function createMockReq({ body = null, params = {}, query = {}, remoteAddress = '
   };
 }
 
-function setup({ written = [], ref = null, summaries = [], screen = null, board = { supervisors: [] }, save = () => {} } = {}) {
+function setup({ written = [], ref = null, summaries = [], screen = null, board = { supervisors: [] }, save = () => {}, agent = () => null } = {}) {
   const routes = {};
   const terminals = new Map();
   if (ref) terminals.set(ref.id, { alias: ref.alias, projectId: 'p1', command: '', pty: { write: d => written.push(d) } });
@@ -53,6 +53,7 @@ function setup({ written = [], ref = null, summaries = [], screen = null, board 
     getBoard: () => board,
     updateBoardReview: (updates, expected) => Object.assign(expected, updates),
     saveTerminalStateNow: save,
+    terminalAgent: agent,
     readTerminalScreen: (r, lines) => screen && (r === ref.id || r.toLowerCase() === (ref.alias || '').toLowerCase())
       ? { termId: ref.id, alias: ref.alias || '', lines: screen.slice(0, lines), truncated: false }
       : null,
@@ -62,6 +63,30 @@ function setup({ written = [], ref = null, summaries = [], screen = null, board 
 }
 
 describe('routes/terminals.js', () => {
+  it('replacement launcher registration verifies current process, rejects stale updates, and rolls back failed saves', async () => {
+    let current = 'claude', fail = false, saved = 0;
+    const written = [];
+    const board = { supervisors: [{ termId:'worker', autoRecover:true, recoveryTerminal:{command:'codex'} }] };
+    const routes = setup({ ref: { id:'worker' }, written, board, agent:()=>current, save:()=>{ if (fail) throw Error('disk full'); saved++; } });
+    const command = 'jcode --provider=claude --model=claude-opus-5-5 --resume=session_example';
+    const call = async (body, remoteAddress='127.0.0.1') => {
+      const res = createMockRes();
+      await routes['PUT /api/terminals/:ref/launcher'](createMockReq({params:{ref:'worker'},body,remoteAddress}),res);
+      return res;
+    };
+    assert.equal((await call({command,expected:''},'192.0.2.1'))._status,403);
+    assert.equal((await call({command:'jcode; rm -rf /',expected:''}))._status,400);
+    assert.equal((await call({command,expected:''}))._status,409);
+    current='jcode';
+    assert.equal((await call({command,expected:''}))._status,409,'old watchdog command cannot survive a successful registration');
+    board.supervisors[0].autoRecover=false; fail=true;
+    assert.equal((await call({command,expected:''}))._status,500);
+    fail=false;
+    assert.equal((await call({command,expected:''}))._status,200);
+    assert.equal((await call({command,expected:''}))._status,409);
+    assert.equal(saved,1);
+    assert.deepEqual(written,[]);
+  });
   it('conversation hold rejects peer messages and raw keys; release reschedules only related active boards', async () => {
     const active = { id: 'S-1', termId: 'manager', status: 'running', pendingSince: 7, retryAt: 100,
       watched: [{ termId: 'worker' }], workerProgress: [{ termId: 'worker', run: { token: 'existing', resumeSentAt: 3, attempts: 4 } }] };
@@ -137,6 +162,24 @@ describe('routes/terminals.js', () => {
     assert.equal(res._status, 200);
     assert.deepEqual(written, ['npm test\r']);
     assert.equal(parseBody(res).alias, 'ai2');
+  });
+
+  it('scheduled supervision input rechecks stop, reassignment, new reports and deadline at delivery', async () => {
+    const written = [];
+    const review = { id: 'S-1', termId: 'manager', status: 'running', lastReviewedAt: 10 };
+    const routes = setup({ written, ref: { id: 'manager' }, board: { supervisors: [review] } });
+    const supervision = { id: 'S-1', until: Date.now() + 60000, reviewedAt: 10 };
+    const send = async watch => {
+      const res = createMockRes();
+      await routes['POST /api/terminals/:ref/input'](createMockReq({ params: { ref: 'manager' }, body: { data: '진전 확인', supervision: watch } }), res);
+      return res._status;
+    };
+    assert.equal(await send(supervision), 200);
+    review.status = 'stopped'; assert.equal(await send(supervision), 409);
+    review.status = 'running'; review.termId = 'other'; assert.equal(await send(supervision), 409);
+    review.termId = 'manager'; review.lastReviewedAt = 11; assert.equal(await send(supervision), 409);
+    review.lastReviewedAt = 10; assert.equal(await send({ ...supervision, until: Date.now() - 1 }), 409);
+    assert.equal(written.length, 1);
   });
 
   it('POST input honors enter=false and rejects bad data', async () => {

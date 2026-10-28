@@ -1,0 +1,2395 @@
+[
+  {
+    "input": {
+      "name": "empty monitor snapshot",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": []
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "no scrum boards",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "kanban"
+              },
+              {
+                "id": 2,
+                "type": "simple"
+              },
+              {
+                "id": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "issue pages request remaining maximum",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-0",
+                "id": "0",
+                "fields": {
+                  "summary": "작업 0"
+                }
+              },
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              },
+              {
+                "key": "FIX-2",
+                "id": "2",
+                "fields": {
+                  "summary": "작업 2"
+                }
+              },
+              {
+                "key": "FIX-3",
+                "id": "3",
+                "fields": {
+                  "summary": "작업 3"
+                }
+              },
+              {
+                "key": "FIX-4",
+                "id": "4",
+                "fields": {
+                  "summary": "작업 4"
+                }
+              },
+              {
+                "key": "FIX-5",
+                "id": "5",
+                "fields": {
+                  "summary": "작업 5"
+                }
+              },
+              {
+                "key": "FIX-6",
+                "id": "6",
+                "fields": {
+                  "summary": "작업 6"
+                }
+              }
+            ],
+            "nextPageToken": "next-8"
+          }
+        },
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-7",
+                "id": "7",
+                "fields": {
+                  "summary": "작업 7"
+                }
+              },
+              {
+                "key": "FIX-8",
+                "id": "8",
+                "fields": {
+                  "summary": "작업 8"
+                }
+              },
+              {
+                "key": "FIX-9",
+                "id": "9",
+                "fields": {
+                  "summary": "작업 9"
+                }
+              },
+              {
+                "key": "FIX-10",
+                "id": "10",
+                "fields": {
+                  "summary": "작업 10"
+                }
+              },
+              {
+                "key": "FIX-11",
+                "id": "11",
+                "fields": {
+                  "summary": "작업 11"
+                }
+              },
+              {
+                "key": "FIX-12",
+                "id": "12",
+                "fields": {
+                  "summary": "작업 12"
+                }
+              },
+              {
+                "key": "FIX-13",
+                "id": "13",
+                "fields": {
+                  "summary": "작업 13"
+                }
+              },
+              {
+                "key": "FIX-14",
+                "id": "14",
+                "fields": {
+                  "summary": "작업 14"
+                }
+              }
+            ],
+            "nextPageToken": "ignored-limit"
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": []
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-0",
+            "id": "0",
+            "summary": "작업 0",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-2",
+            "id": "2",
+            "summary": "작업 2",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-3",
+            "id": "3",
+            "summary": "작업 3",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-4",
+            "id": "4",
+            "summary": "작업 4",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-5",
+            "id": "5",
+            "summary": "작업 5",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-6",
+            "id": "6",
+            "summary": "작업 6",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-7",
+            "id": "7",
+            "summary": "작업 7",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-8",
+            "id": "8",
+            "summary": "작업 8",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-9",
+            "id": "9",
+            "summary": "작업 9",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-10",
+            "id": "10",
+            "summary": "작업 10",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-11",
+            "id": "11",
+            "summary": "작업 11",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-12",
+            "id": "12",
+            "summary": "작업 12",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-13",
+            "id": "13",
+            "summary": "작업 13",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          },
+          {
+            "key": "FIX-14",
+            "id": "14",
+            "summary": "작업 14",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 8,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ],
+            "nextPageToken": "next-8"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "issue empty page stops",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ],
+            "nextPageToken": "empty"
+          }
+        },
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [],
+            "nextPageToken": "ignored-empty"
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": []
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 14,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ],
+            "nextPageToken": "empty"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "issue missing token stops",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": []
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "issue isLast stops",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ],
+            "isLast": true,
+            "nextPageToken": "ignored-last"
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": []
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "issue failure rejects snapshot",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "status": 403
+        }
+      ]
+    },
+    "expected": {
+      "error": "Jira 접근 권한이 없습니다",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "malformed issue response rejects snapshot",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": {}
+          }
+        }
+      ]
+    },
+    "expected": {
+      "error": "(data.issues || []).map is not a function",
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "board failure preserves issues",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "status": 500
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "board null response preserves issues",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": null
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "board malformed values preserves issues",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": true
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "sprint normalization",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1",
+                  "status": {
+                    "name": "진행 중"
+                  },
+                  "updated": "2027-01-01T12:00:00Z",
+                  "story_points": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "name": "개발",
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 11,
+                "name": "Sprint A",
+                "state": "active",
+                "startDate": "2027-01-01",
+                "endDate": "2027-01-15",
+                "goal": "목표😀\ud800"
+              },
+              {
+                "id": 12,
+                "name": "Sprint B",
+                "state": "future"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": {
+              "name": "진행 중",
+              "category": "undefined"
+            },
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": "2027-01-01T12:00:00Z",
+            "storyPoints": 0,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": [
+          {
+            "id": 11,
+            "name": "Sprint A",
+            "state": "active",
+            "startDate": "2027-01-01",
+            "endDate": "2027-01-15",
+            "goal": "목표😀\ud800",
+            "boardId": 1
+          },
+          {
+            "id": 12,
+            "name": "Sprint B",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "individual sprint failures preserve successful boards",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": [
+              {
+                "key": "FIX-1",
+                "id": "1",
+                "fields": {
+                  "summary": "작업 1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              },
+              {
+                "id": 2,
+                "type": "scrum"
+              },
+              {
+                "id": 3,
+                "type": "scrum"
+              },
+              {
+                "id": 4,
+                "type": "kanban"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "status": 503
+        },
+        {
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 21,
+                "state": "active",
+                "name": "Success"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/3/sprint?state=active,future&maxResults=10",
+          "body": null
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [
+          {
+            "key": "FIX-1",
+            "id": "1",
+            "summary": "작업 1",
+            "status": null,
+            "priority": null,
+            "assignee": null,
+            "reporter": null,
+            "dueDate": null,
+            "created": null,
+            "updated": null,
+            "storyPoints": null,
+            "type": null,
+            "parent": null,
+            "sprint": null,
+            "labels": [],
+            "description": null,
+            "renderedDescription": null,
+            "transitions": [],
+            "comments": []
+          }
+        ],
+        "sprints": [
+          {
+            "id": 21,
+            "name": "Success",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 2
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/3/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "dedup active overrides earlier future and later active wins",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              },
+              {
+                "id": 2,
+                "type": "scrum"
+              },
+              {
+                "id": 3,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 99,
+                "state": "future",
+                "name": "first future"
+              },
+              {
+                "id": 98,
+                "state": "active",
+                "name": "first active"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 99,
+                "state": "active",
+                "name": "active replacement"
+              },
+              {
+                "id": 98,
+                "state": "future",
+                "name": "ignored future"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/3/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 99,
+                "state": "active",
+                "name": "last active"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "id": 98,
+            "name": "first active",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 99,
+            "name": "last active",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 3
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/3/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "name locale sort and active precedence",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 0,
+                "name": "z",
+                "state": "active"
+              },
+              {
+                "id": 1,
+                "name": "10",
+                "state": "active"
+              },
+              {
+                "id": 2,
+                "name": "A",
+                "state": "active"
+              },
+              {
+                "id": 3,
+                "name": "a",
+                "state": "active"
+              },
+              {
+                "id": 4,
+                "name": "á",
+                "state": "active"
+              },
+              {
+                "id": 5,
+                "name": "2",
+                "state": "future"
+              },
+              {
+                "id": 6,
+                "name": "한글",
+                "state": "future"
+              },
+              {
+                "id": 7,
+                "name": "😀",
+                "state": "future"
+              },
+              {
+                "id": 8,
+                "name": "\ud800",
+                "state": "future"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "id": 1,
+            "name": "10",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 3,
+            "name": "a",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 2,
+            "name": "A",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 4,
+            "name": "á",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 0,
+            "name": "z",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 7,
+            "name": "😀",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 5,
+            "name": "2",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 6,
+            "name": "한글",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": 8,
+            "name": "\ud800",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "numeric and string sprint IDs are distinct",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": "1",
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 5,
+                "name": "number",
+                "state": "active"
+              },
+              {
+                "id": "5",
+                "name": "string",
+                "state": "active"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "id": 5,
+            "name": "number",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": "1"
+          },
+          {
+            "id": "5",
+            "name": "string",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": "1"
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "missing versus null sprint IDs distinct",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "name": "missing",
+                "state": "future"
+              },
+              {
+                "id": null,
+                "name": "null",
+                "state": "future"
+              },
+              {
+                "name": "missing newer",
+                "state": "future"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "name": "missing",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          },
+          {
+            "id": null,
+            "name": "null",
+            "state": "future",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "sprint defaults preserve zero false values",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 0,
+                "name": "",
+                "state": false,
+                "startDate": "",
+                "endDate": false,
+                "goal": 0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "id": 0,
+            "name": "",
+            "state": false,
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 1
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "null sprint entry discards that board",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              },
+              {
+                "id": 2,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              null
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 20,
+                "name": "Kept",
+                "state": "active"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": [
+          {
+            "id": 20,
+            "name": "Kept",
+            "state": "active",
+            "startDate": null,
+            "endDate": null,
+            "goal": "",
+            "boardId": 2
+          }
+        ]
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/2/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "name": "invalid name collection remains optional",
+      "replies": [
+        {
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "issues": []
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board?maxResults=50",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "type": "scrum"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10",
+          "body": {
+            "values": [
+              {
+                "id": 1,
+                "name": {
+                  "invalid": true
+                },
+                "state": "active"
+              },
+              {
+                "id": 2,
+                "name": {
+                  "invalid": true
+                },
+                "state": "active"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "issues": [],
+        "sprints": []
+      },
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/api/3/search/jql",
+          "body": {
+            "jql": "assignee = currentUser() ORDER BY updated DESC",
+            "maxResults": 15,
+            "fields": [
+              "summary",
+              "status",
+              "priority",
+              "assignee",
+              "reporter",
+              "duedate",
+              "created",
+              "updated",
+              "issuetype",
+              "sprint",
+              "labels",
+              "story_points",
+              "customfield_10016",
+              "parent"
+            ]
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board?maxResults=50"
+        },
+        {
+          "method": "GET",
+          "path": "/rest/agile/1.0/board/1/sprint?state=active,future&maxResults=10"
+        }
+      ]
+    }
+  }
+]

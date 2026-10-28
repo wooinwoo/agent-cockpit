@@ -32,7 +32,8 @@ test('reference paths persist, reach prompts after reload, and overnight configu
     const reloaded = createBoardService(file);
     assert.deepEqual(reloaded.getBoard().review.referencePaths, paths);
     assert.ok(reloaded.getBoard().review.runUntil > Date.now() + 7 * 3_600_000);
-    const tick = createBoardReviewer({ ...reloaded, now: () => Date.now() + 1000, resolveTerminalRef, terminalAgent: () => 'codex' });
+    const tick = createBoardReviewer({ ...reloaded, now: () => Date.now() + 1000, resolveTerminalRef, terminalAgent: () => 'codex',
+      readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }) });
     tick();
     assert.ok(messages[0].includes(JSON.stringify(paths)));
     assert.match(messages[0], /승인 화면에는 입력을 보내지 마세요/);
@@ -58,7 +59,7 @@ test('overnight retries survive an eight-hour clock run, pause after three failu
     for (; time < end; time += 15_000) tick();
     assert.ok(restarts.length > 3);
     assert.ok(restarts.some(at => at > end - 3_600_000), 'retries continue into the final hour');
-    assert.ok(service.getBoard().review.reports.some(report => /30분 휴식/.test(report.text)));
+    assert.ok(service.getBoard().review.reports.some(report => /5분 휴식/.test(report.text)));
     time = end; tick();
     assert.equal(service.getBoard().review.status, 'stopped');
     assert.equal(service.getBoard().review.autoRecover, false);
@@ -67,10 +68,10 @@ test('overnight retries survive an eight-hour clock run, pause after three failu
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-test('approval dialogs receive no reminder or Enter and still reach the opted-in recovery deadline', () => {
+test('approval and paused goal screens receive neither input nor forced recovery', () => {
   const directory = mkdtempSync(join(tmpdir(), 'board-approval-'));
   try {
-    for (const screen of ['Would you like to run the following command?\n1. Yes, proceed\n2. No', 'Do you want to proceed?\n1. Yes\n2. No', 'Update available\n1. Update now\n2. Skip']) {
+    for (const screen of ['Would you like to run the following command?\n1. Yes, proceed\n2. No', 'Do you want to proceed?\n1. Yes\n2. No', 'Update available\n1. Update now\n2. Skip', 'Goal paused\n›']) {
       const service = createBoardService(join(directory, 'board.json'));
       let time = 1000;
       let writes = 0;
@@ -85,9 +86,9 @@ test('approval dialogs receive no reminder or Enter and still reach the opted-in
       time += 299_000; tick();
       assert.equal(writes, 0);
       assert.equal(recoveries, 0);
-      assert.match(service.getBoard().review.lastError, /승인 화면/);
+      assert.match(service.getBoard().review.lastError, /일시정지·제한·승인/);
       time += 1000; tick();
-      assert.equal(recoveries, 1);
+      assert.equal(recoveries, 0);
       assert.equal(writes, 0);
     }
   } finally { rmSync(directory, { recursive: true, force: true }); }
@@ -111,6 +112,39 @@ test('the overnight deadline can expire during process inspection without a late
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
+test('supervisor drafts and unknown screens block input and recovery without resetting the report deadline', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'board-draft-'));
+  try {
+    for (const screen of [
+      { current: true, lines: ['› 사용자가 입력 중인 초안'] },
+      { current: true, lines: ['›', '아직 입력 중인 두 번째 줄'] },
+      { current: true, lines: ['Working (esc to interrupt)', '› 작성 중인 초안'] },
+      { current: true, lines: ['Conversation interrupted', '› 작성 중인 초안'] },
+      { current: true, lines: ['Working (esc to interrupt)', '›', '아직 입력 중인 두 번째 줄'] },
+      { agent: 'claude', current: true, lines: ['✻ Lollygagging…', '❯ 작성 중인 초안'] },
+      { agent: 'jcode', current: true, lines: ['3… 작성 중', '~ 0% OAuth OpenAI GPT-6.1 Sol xhigh'] },
+      { current: false, lines: ['Working (esc to interrupt)', '›'] },
+      { current: true, lines: ['화면 상태 확인 불가'] },
+      undefined,
+    ]) {
+      const service = createBoardService(join(directory, 'board.json'));
+      service.updateBoardReview({ termId: 'manager', autoRecover: true, stallMinutes: 5,
+        pendingSince: 1000, cycleStartedAt: 1000, recoveryAfter: 0, recoveryAttempts: 0 });
+      let actions = 0;
+      const tick = createBoardReviewer({ ...service, now: () => 601000,
+        resolveTerminalRef: () => ({ entry: { pty: { write() { actions++; } } } }),
+        terminalAgent: () => screen?.agent || 'codex', readTerminalScreen: () => screen,
+        recoverSupervisor: () => { actions++; } });
+      tick(); tick();
+      assert.equal(actions, 0);
+      assert.equal(service.getBoard().review.cycleStartedAt, 1000);
+      assert.equal(service.getBoard().review.pendingSince, 1000);
+      assert.equal(service.getBoard().review.recoveryAttempts, 0);
+      assert.match(service.getBoard().review.lastError, /화면 상태가 불명확/);
+    }
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
 test('a concurrent stop or supervisor replacement invalidates both delivery and recovery claims', () => {
   const directory = mkdtempSync(join(tmpdir(), 'board-stop-race-'));
   try {
@@ -126,7 +160,8 @@ test('a concurrent stop or supervisor replacement invalidates both delivery and 
           resolveTerminalRef: () => {
             if (!changed) { changed = true; service.updateBoardReview(change); }
             return { entry: { pty: { write() { writes++; } } } };
-          }, terminalAgent: () => agent, recoverSupervisor: () => { recoveries++; } });
+          }, terminalAgent: () => agent, readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }),
+          recoverSupervisor: () => { recoveries++; } });
         assert.throws(tick, error => error.code === 'BOARD_CONFLICT');
         assert.equal(writes, 0);
         assert.equal(recoveries, 0);
@@ -147,11 +182,11 @@ test('report deadline interrupts only opted-in supervisors, preserves evidence a
     const messages = [];
     const interruptions = [];
     const tick = createBoardReviewer({ ...service, now: () => time, resolveTerminalRef: () => ({ entry: { pty: { write: value => messages.push(value) } } }),
-      terminalAgent: () => 'codex', readTerminalScreen: () => ({ lines: ['ERROR: 작업이 멈춤'] }),
+      terminalAgent: () => 'codex', readTerminalScreen: () => ({ current: true, lines: ['ERROR: 작업이 멈춤', 'Working (esc to interrupt)', '›'] }),
       recoverSupervisor: (_review, options) => interruptions.push(options) });
     tick();
     time += 300_000; tick();
-    assert.equal(messages.length, 2);
+    assert.equal(messages.length, 1);
     assert.equal(service.getBoard().review.cycleStartedAt, 1000);
     time = 600_999; tick(); assert.equal(interruptions.length, 0);
     time++; tick();
@@ -161,7 +196,7 @@ test('report deadline interrupts only opted-in supervisors, preserves evidence a
     assert.match(recovered.reports[0].text, /ERROR: 작업이 멈춤/);
     assert.equal(recovered.cycleStartedAt, 0);
     time = recovered.recoveryAfter; tick();
-    assert.equal(messages.length, 3);
+    assert.equal(messages.length, 2);
     service.reportBoardReview(service.getBoard().review.pendingSince, { report: '멈춘 명령을 수정하고 작업 재개' });
     assert.equal(service.getBoard().review.cycleStartedAt, 0);
     service.updateBoardReview({ stallMinutes: 0 });
@@ -200,7 +235,8 @@ test('opted-in recovery is bounded, avoids unknown processes, resets after a rep
     let recoveries = 0;
     const messages = [];
     const tick = createBoardReviewer({ ...service, now: () => time, resolveTerminalRef: () => ({ entry: { pty: { write: value => messages.push(value) } } }),
-      terminalAgent: () => agent, recoverSupervisor: () => { recoveries++; } });
+      terminalAgent: () => agent, readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }),
+      recoverSupervisor: () => { recoveries++; } });
     tick(); assert.equal(recoveries, 0);
     agent = '';
     tick(); tick(); assert.equal(recoveries, 1);
@@ -211,18 +247,21 @@ test('opted-in recovery is bounded, avoids unknown processes, resets after a rep
     time = service.getBoard().review.recoveryAfter;
     tick(); assert.equal(recoveries, 3);
     assert.match(service.getBoard().review.lastError, /3회/);
-    agent = 'codex'; tick();
+    assert.equal(service.getBoard().review.recoveryAfter - time, 300_000);
+    time = service.getBoard().review.recoveryAfter;
+    tick(); assert.equal(recoveries, 4, 'unlimited supervision retries instead of permanently giving up');
+    agent = 'codex'; time = service.getBoard().review.recoveryAfter; tick();
     assert.equal(messages.length, 1);
     service.reportBoardReview(service.getBoard().review.pendingSince, { report: '저장된 목표 확인 후 작업 재개' });
     assert.equal(service.getBoard().review.recoveryAttempts, 0);
     service.updateBoardReview({ status: 'stopped' });
-    agent = ''; time += 60_000; tick(); assert.equal(recoveries, 3);
+    agent = ''; time += 60_000; tick(); assert.equal(recoveries, 4);
     service.updateBoardReview({ status: 'running', autoRecover: false });
-    tick(); assert.equal(recoveries, 3);
+    tick(); assert.equal(recoveries, 4);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-test('supervision pins workers, backs off unanswered checks, persists reports and stops after evidenced completion', async () => {
+test('supervision pins workers, never repeats outstanding checks and wakes on a new answer before completion', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'board-supervision-'));
   try {
     const file = join(directory, 'board.json');
@@ -239,29 +278,34 @@ test('supervision pins workers, backs off unanswered checks, persists reports an
     assert.equal((await configure([{ target: 'ai2', goal: '' }])).status, 400);
     assert.equal((await configure([{ target: 'ai2', goal: '테스트 통과' }, { target: 'worker', goal: '중복' }])).status, 400);
     assert.equal((await configure([{ target: 'ai2', goal: '로그인 테스트 통과' }])).status, 200);
-    assert.deepEqual(createBoardService(file).getBoard().review.watched, [{ termId: 'worker', alias: 'ai2', goal: '로그인 테스트 통과' }]);
+    assert.deepEqual(createBoardService(file).getBoard().review.watched, [{ termId: 'worker', alias: 'ai2', goal: '로그인 테스트 통과', objective: '', priority: 2, paused: false }]);
     let time = Date.now() + 1000;
     const reads = [];
     const tick = createBoardReviewer({ ...service, now: () => time, resolveTerminalRef, terminalAgent: () => 'codex',
-      readTerminalScreen: id => { reads.push(id); return { lines: ['테스트 실행 중'] }; } });
+      readTerminalScreen: id => { reads.push(id); return { current: true, lines: id === 'manager' ? ['Working (esc to interrupt)', '›'] : ['테스트 실행 중'] }; } });
     tick(); tick();
     assert.equal(messages.length, 1);
-    assert.deepEqual(reads, ['manager', 'worker', 'worker', 'worker']);
+    assert.ok(reads.includes('manager'));
+    assert.equal(reads.filter(id => id === 'worker').length, 3);
+    assert.ok(reads.every(id => ['manager', 'worker'].includes(id)));
     assert.match(messages[0], /로그인 테스트 통과/);
     const first = service.getBoard().review;
     assert.throws(() => service.reportBoardReview(first.pendingSince), /근거/);
     time = first.retryAt - 1; tick(); assert.equal(messages.length, 1);
-    time++; tick(); assert.equal(messages.length, 2);
+    time++; tick(); assert.equal(messages.length, 1);
     const second = service.getBoard().review;
-    assert.equal(second.retryAt - second.pendingSince, 600_000);
-    assert.throws(() => service.reportBoardReview(first.pendingSince, { report: '옛 보고' }), /현재 점검/);
+    assert.equal(second.pendingSince, first.pendingSince);
+    assert.throws(() => service.reportBoardReview(first.pendingSince - 1, { report: '옛 보고' }), /현재 점검/);
     service.reportBoardReview(second.pendingSince, { status: 'waiting', report: 'ai2: 테스트 서버 선택 질문 등록. 사용자 답변 대기.' });
     time = service.getBoard().review.nextDueAt;
     tick();
+    assert.equal(messages.length, 1, 'an unchanged acknowledged wait does not invoke the model');
+    const question = service.addBoardTask('테스트 서버 선택', undefined, 'question').task;
+    service.updateBoardTask(question.id, { answer: '샘플 테스트 서버' }); tick();
     service.reportBoardReview(service.getBoard().review.pendingSince, { status: 'complete', report: 'ai2: 로그인 회귀 테스트 3개 통과 로그 확인.',
       progress: [{ termId: 'worker', artifact: '/tmp/login-test.log', version: '3-passed', result: '로그인 회귀 테스트 3개 통과' }] });
     time += 86_400_000; tick();
-    assert.equal(messages.length, 3);
+    assert.equal(messages.length, 2);
     const savedReports = createBoardService(file).getBoard().review.reports;
     assert.equal(savedReports.filter(report => !report.text.startsWith('진전 확인 필요:')).length, 2);
     assert.equal(savedReports.filter(report => report.text.startsWith('진전 확인 필요:')).length, 1);
@@ -273,7 +317,7 @@ test('supervision pins workers, backs off unanswered checks, persists reports an
     await routes['PUT /api/board/review']({ body: { target: '' } }, stopped);
     assert.equal(stopped.status, 200);
     assert.throws(() => service.reportBoardReview(pending, { report: '중지 후 보고' }), /현재 점검/);
-    time += 86_400_000; tick(); assert.equal(messages.length, 4);
+    time += 86_400_000; tick(); assert.equal(messages.length, 3);
     service.updateBoardReview({ termId: 'manager' });
     const priorReports = service.getBoard().review.reports.length;
     for (let index = 0; index < 100; index++) {
@@ -294,6 +338,7 @@ test('one manager covers every existing and newly added checklist with one pendi
     service.updateBoardReview({ termId: 'manager', intervalMinutes: 5 });
     const messages = [];
     const tick = createBoardReviewer({ ...service, now: () => 1000, terminalAgent: () => 'codex',
+      readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }),
       resolveTerminalRef: () => ({ entry: { pty: { write: message => messages.push(message) } } }) });
     tick();
     assert.equal(messages.length, 0);
@@ -329,7 +374,8 @@ test('goals and answers survive restart; reminders require acknowledgement and n
     let running = true;
     const messages = [];
     const resolveTerminalRef = ref => running && ref === 'stable-id' ? { id: ref, entry: { pty: { write: message => messages.push(message) } } } : null;
-    const tick = createBoardReviewer({ ...service, resolveTerminalRef, terminalAgent: () => 'codex', now: () => time });
+    const tick = createBoardReviewer({ ...service, resolveTerminalRef, terminalAgent: () => 'codex', now: () => time,
+      readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }) });
     const beforeReminder = service.getBoard();
     tick();
     assert.equal(service.getBoard().revision, beforeReminder.revision);
@@ -371,7 +417,9 @@ test('goals and answers survive restart; reminders require acknowledgement and n
     assert.equal(messages.length, 1);
     running = true;
     tick();
-    assert.equal(messages.length, 2);
+    assert.equal(messages.length, 1, 'restoring the same terminal does not replay acknowledged input');
+    service.addBoardTask('새 허용 작업'); tick();
+    assert.equal(messages.length, 2, 'new work schedules the next review');
     const configure = routes['PUT /api/board/review'];
     const invalid = {};
     await configure({ local: true, params: { id: 'C-0001' }, body: { target: 'missing', intervalMinutes: 0 } }, invalid);

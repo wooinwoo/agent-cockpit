@@ -52,7 +52,7 @@ test('stale-while-revalidate: snapshot is instant, refresh fills cache', async (
 
   // 스캔 전 스냅샷 — 즉시 null (스캔 유발 없음)
   assert.equal(usageSnapshot('claude', root), null);
-  assert.equal(usageSnapshot('codex', root), null);
+  assert.equal(usageSnapshot('gemini', root), null);
   assert.equal(usageSnapshot('claude', ''), null);
 
   // 첫 갱신은 스캔 완료까지 대기
@@ -73,4 +73,74 @@ test('stale-while-revalidate: snapshot is instant, refresh fills cache', async (
   const empty = await computeClaudeUsage(join(root, 'nope'), NOW);
   assert.equal(empty.weeklyTokens, 0);
   assert.equal(empty.lastActiveAt, '');
+});
+
+test('reads codex official rate limits from latest rollout', async () => {
+  const { computeCodexUsage } = await import('../../lib/ai-usage-service.js');
+  const root = await mkdtemp(join(tmpdir(), 'cockpit-codex-usage-'));
+  const dir = join(root, 'sessions', '2026', '09', '10');
+  mkdirSync(dir, { recursive: true });
+  const resetSec = Math.floor((NOW + 3 * 24 * 60 * 60 * 1000) / 1000);
+  const line = rl => JSON.stringify({ type: 'event_msg', payload: { type: 'token_count', rate_limits: rl } });
+  writeFileSync(join(dir, 'rollout-a.jsonl'), [
+    line({ primary: { used_percent: 10, window_minutes: 10080, resets_at: resetSec }, secondary: null }),
+    line({ primary: { used_percent: 40, window_minutes: 300, resets_at: Math.floor(NOW / 1000) - 60 }, secondary: { used_percent: 25, window_minutes: 10080, resets_at: resetSec } }),
+    JSON.stringify({ type: 'event_msg', payload: { type: 'agent_message' } }),
+  ].join('\n'));
+  utimesSync(join(dir, 'rollout-a.jsonl'), new Date(NOW), new Date(NOW));
+
+  const usage = await computeCodexUsage(root, NOW);
+  assert.equal(usage.provider, 'codex');
+  assert.equal(usage.limits.weekly.remaining, 75);
+  assert.equal(usage.limits.weekly.resetAt, new Date(resetSec * 1000).toISOString());
+  assert.deepEqual(usage.limits.session, { remaining: 100, resetAt: '' }); // 리셋 지남
+  assert.equal(await computeCodexUsage(join(root, 'nope'), NOW), null);
+});
+
+test('refreshClaudeToken rotates tokens into credential file', async () => {
+  const { refreshClaudeToken } = await import('../../lib/ai-usage-service.js');
+  const { readFileSync } = await import('node:fs');
+  const root = await mkdtemp(join(tmpdir(), 'cockpit-claude-refresh-'));
+  const file = join(root, '.credentials.json');
+  writeFileSync(file, JSON.stringify({ claudeAiOauth: { accessToken: 'old', refreshToken: 'r1', expiresAt: 1, scopes: ['user:inference'], subscriptionType: 'max' } }));
+  let sent;
+  const fetchImpl = async (url, init) => { sent = JSON.parse(init.body); return { ok: true, json: async () => ({ access_token: 'new', refresh_token: 'r2', expires_in: 3600 }) }; };
+  const [a, b] = await Promise.all([refreshClaudeToken(root, { fetchImpl, now: () => 1000 }), refreshClaudeToken(root, { fetchImpl, now: () => 1000 })]);
+  assert.equal(a, b); // 동시 호출은 한 번만 갱신
+  assert.deepEqual(sent, { grant_type: 'refresh_token', refresh_token: 'r1', client_id: '9d1c250a-e61b-44d9-88ed-5944d1962f5e', scope: 'user:inference' });
+  const saved = JSON.parse(readFileSync(file, 'utf8')).claudeAiOauth;
+  assert.deepEqual(saved, { accessToken: 'new', refreshToken: 'r2', expiresAt: 3_601_000, scopes: ['user:inference'], subscriptionType: 'max' });
+  const failed = await refreshClaudeToken(root, { fetchImpl: async () => ({ ok: false }) });
+  assert.equal(failed, null);
+  assert.equal(JSON.parse(readFileSync(file, 'utf8')).claudeAiOauth.accessToken, 'new'); // 실패 시 파일 유지
+});
+
+test('fetchCodexLimits reads usage API and refreshes token on 401', async () => {
+  const { fetchCodexLimits } = await import('../../lib/ai-usage-service.js');
+  const { readFileSync } = await import('node:fs');
+  const root = await mkdtemp(join(tmpdir(), 'cockpit-codex-api-'));
+  writeFileSync(join(root, 'auth.json'), JSON.stringify({ auth_mode: 'chatgpt', tokens: { access_token: 'old', refresh_token: 'r1', id_token: 'i1', account_id: 'acc' } }));
+  const resetSec = Math.floor(NOW / 1000) + 3600;
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    calls.push([url, init.headers?.Authorization || JSON.parse(init.body).refresh_token]);
+    if (url.includes('oauth/token')) return { ok: true, json: async () => ({ access_token: 'new', refresh_token: 'r2' }) };
+    if (init.headers.Authorization === 'Bearer old') return { ok: false, status: 401 };
+    return { ok: true, status: 200, json: async () => ({ plan_type: 'pro', rate_limit: {
+      primary_window: { used_percent: 30, limit_window_seconds: 18000, reset_at: resetSec },
+      secondary_window: { used_percent: 90, limit_window_seconds: 604800, reset_at: resetSec },
+    } }) };
+  };
+  const result = await fetchCodexLimits(root, { fetchImpl, now: NOW });
+  assert.deepEqual(result.limits, {
+    weekly: { remaining: 10, resetAt: new Date(resetSec * 1000).toISOString() },
+    session: { remaining: 70, resetAt: new Date(resetSec * 1000).toISOString() },
+  });
+  assert.deepEqual(calls.map(c => c[1]), ['Bearer old', 'r1', 'Bearer new']);
+  const saved = JSON.parse(readFileSync(join(root, 'auth.json'), 'utf8'));
+  assert.equal(saved.tokens.access_token, 'new');
+  assert.equal(saved.tokens.refresh_token, 'r2');
+  assert.equal(saved.tokens.id_token, 'i1');
+  assert.equal(saved.tokens.account_id, 'acc');
+  assert.equal(await fetchCodexLimits(join(root, 'nope'), { fetchImpl }), null);
 });

@@ -15,6 +15,7 @@ test('isMcpServerProcess matches npx MCP binaries only', () => {
 test('hasLivingParentMarker keeps sessions inside AI/editor/tmux trees', () => {
   assert.equal(hasLivingParentMarker(['tmux -L cockpit-x new-session -d']), true);
   assert.equal(hasLivingParentMarker(['claude -p --safe-mode', 'tmux attach']), true);
+  assert.equal(hasLivingParentMarker(['/opt/jcode/jcode-linux-x86_64.bin serve']), true);
   assert.equal(hasLivingParentMarker(["sh -c 'playwright-mcp'", 'node server.js']), true);
   assert.equal(hasLivingParentMarker(["sh -c 'playwright-mcp'"]), false);
   assert.equal(hasLivingParentMarker([]), false);

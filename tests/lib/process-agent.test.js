@@ -66,9 +66,18 @@ test('detectAgentProcess finds opencode below a PTY shell', () => {
   })), { available: true, kind: 'opencode' });
 });
 
+test('jcode native binaries and interpreter launchers are detected', () => {
+  for (const command of ['jcode', '/opt/jcode/jcode-linux-x86_64.bin', '/opt/jcode/jcode-linux-aarch64.bin']) {
+    assert.deepEqual(detectAgentProcess(10, proc({
+      10: { comm: 'bash', cmdline: 'bash\0', children: '11' },
+      11: { comm: 'jcode-linux-x86', cmdline: `${command}\0--no-update\0` },
+    })), { available: true, kind: 'jcode' });
+  }
+});
+
 test('ordinary program arguments are not agent executables', () => {
   for (const executable of ['vim', 'cat', 'less', 'tail', 'rg']) {
-    for (const agent of ['codex', 'claude', 'opencode']) {
+    for (const agent of ['codex', 'claude', 'opencode', 'jcode', '/opt/jcode/jcode-linux-x86_64.bin']) {
       assert.deepEqual(detectAgentProcess(10, proc({
         10: { comm: 'bash', cmdline: 'bash\0', children: '11' },
         11: { comm: executable, cmdline: `${executable}\0${agent}\0` },

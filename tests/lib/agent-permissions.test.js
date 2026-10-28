@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { agentPermissionCommand, normalizeLaunchPermissions, unattendedCommandReady } from '../../js/agent-permissions.js';
+import { agentPermissionCommand, agentRestoreCommand, normalizeLaunchPermissions, unattendedCommandReady } from '../../js/agent-permissions.js';
 import { validateRecoveryCommand } from '../../lib/durable-terminal.js';
 
 test('permission presets preserve explicit commands and produce recovery-compatible launchers', () => {
@@ -30,4 +30,13 @@ test('overnight startup requires an explicit noninteractive preset with Cockpit 
   assert.equal(unattendedCommandReady('codex'), false);
   assert.equal(unattendedCommandReady('claude --permission-mode=acceptEdits'), false);
   assert.equal(unattendedCommandReady('claude --dangerously-skip-permissions'), true);
+});
+
+test('manually started agents restore default permissions without replacing known commands', () => {
+  assert.equal(agentRestoreCommand('', 'codex', {}), 'codex --no-daemon');
+  assert.equal(agentRestoreCommand('', 'claude', { claude: 'auto' }), 'claude');
+  assert.equal(agentRestoreCommand('', 'codex', { codex: 'full' }), 'codex --no-daemon');
+  assert.equal(agentRestoreCommand('', 'jcode', {}), 'jcode');
+  assert.equal(agentRestoreCommand('', null, { codex: 'full' }), '');
+  assert.equal(agentRestoreCommand('claude --permission-mode=acceptEdits', 'claude', { claude: 'full' }), 'claude --permission-mode=acceptEdits');
 });

@@ -21,7 +21,7 @@ Node가 `process.execve`를 지원하는 Linux에서는 npm의 실행기 프로�
 
 Linux GNU 빌드는 Tokio를 시작하기 전에 glibc 메모리 할당 영역을 하나로 제한합니다. 반복 폴링을 서로 다른 작업 스레드가 처리할 때 큰 임시 메모리가 여러 영역에 남는 현상을 줄이기 위한 설정입니다. 실행 환경에 `MALLOC_ARENA_MAX` 또는 `GLIBC_TUNABLES`의 `glibc.malloc.arena_max`가 지정돼 있으면 그 설정을 유지합니다. 자식 AI의 환경 변수는 바꾸지 않습니다. [glibc의 `M_ARENA_MAX` 설명](https://sourceware.org/glibc/manual/2.31/html_node/Malloc-Tunable-Parameters.html)을 참고하세요. 이 설정은 전체 앱의 메모리 상한이나 장시간 누수 방지를 보장하지 않습니다.
 
-`docs/_local/measure-cost-memory.mjs --release --line-kib=1 --rust-only --check-growth`는 별도 합성 기록으로 실제 비용 집계를 세 번 수행합니다. 마지막 반복에서 작은 기록 추가만으로 RSS가 다시 8 MiB 이상 늘면 실패하며, 집계 결과와 검증 프로세스 정리도 확인합니다. 운영 세션이나 고객 기록은 사용하지 않습니다.
+`scripts/measure-cost-memory.mjs --release --line-kib=1 --rust-only --check-growth`는 별도 합성 기록으로 실제 비용 집계를 세 번 수행합니다. 마지막 반복에서 작은 기록 추가만으로 RSS가 다시 8 MiB 이상 늘면 실패하며, 집계 결과와 검증 프로세스 정리도 확인합니다. 운영 세션이나 고객 기록은 사용하지 않습니다.
 
 비교 검증은 현재 작업 트리의 Node 서버를 임시 폴더와 임의 포트에서 실행합니다. Rust 서버에는 다른 빈 저장소를 할당합니다. 실제 프로젝트·계정·토큰·세션·보드를 복사하지 않습니다. 검증이 끝나면 두 검증 서버와 임시 폴더를 정리합니다.
 

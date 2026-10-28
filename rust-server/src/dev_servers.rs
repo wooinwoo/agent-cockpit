@@ -475,7 +475,13 @@ mod tests {
         tokio::time::timeout(Duration::from_secs(3), async {
             loop {
                 match std::fs::read_to_string(format!("/proc/{descendant}/stat")) {
-                    Err(error) if error.kind() == io::ErrorKind::NotFound => break,
+                    // A descendant being torn down can briefly report ESRCH instead of disappearing.
+                    Err(error)
+                        if error.kind() == io::ErrorKind::NotFound
+                            || error.raw_os_error() == Some(libc::ESRCH) =>
+                    {
+                        break
+                    }
                     Ok(stat)
                         if matches!(
                             stat.rsplit_once(") ").unwrap().1.chars().next(),

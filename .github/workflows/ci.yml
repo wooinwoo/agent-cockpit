@@ -33,6 +33,9 @@ jobs:
   native:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # Telegram text fixtures were recorded from the JavaScript formatter in Korea Standard Time.
+      TZ: Asia/Seoul
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,6 +49,9 @@ jobs:
       - run: npm ci
       - name: Install durable terminal prerequisite
         run: sudo apt-get update && sudo apt-get install -y tmux
+      # Workflow regex tests run the debug server binary as an isolated child process.
+      - name: Build native debug binary
+        run: cargo build --locked -j 2 --manifest-path rust-server/Cargo.toml
       - name: Test native storage and runtime
         run: cargo test --locked -j 2 --manifest-path rust-server/Cargo.toml
       - name: Build native release

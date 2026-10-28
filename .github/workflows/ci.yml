@@ -29,3 +29,34 @@ jobs:
           npx playwright-core install --with-deps chromium
       - name: Verify real terminal restart and browser scroll
         run: npm run test:integration
+
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Telegram text fixtures were recorded from the JavaScript formatter in Korea Standard Time.
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: rust-server
+      - run: npm ci
+      - name: Install durable terminal prerequisite
+        run: sudo apt-get update && sudo apt-get install -y tmux
+      # Workflow regex tests run the debug server binary as an isolated child process.
+      - name: Build native debug binary
+        run: cargo build --locked -j 2 --manifest-path rust-server/Cargo.toml
+      - name: Test native storage and runtime
+        run: cargo test --locked -j 2 --manifest-path rust-server/Cargo.toml
+      - name: Build native release
+        run: cargo build --release --locked -j 2 --manifest-path rust-server/Cargo.toml
+      - name: Verify fresh installation and read-only resources
+        run: node scripts/verify-rust-startup.mjs --release
+      - name: Verify Node and Rust data handover
+        run: node scripts/verify-rust-handover.mjs --release

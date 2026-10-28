@@ -31,9 +31,13 @@ import { cleanupOrphanMcpProcesses } from './lib/orphan-cleaner.js';
 import { listNotes, getNote, createNote, updateNote, deleteNote } from './lib/notes-service.js';
 import { getBoard, updateBoardReview, replaceBoardIfRevision, updateBoardNote, appendBoardNote, addBoardTask, updateBoardTask, deleteBoardTask } from './lib/board-service.js';
 import { detectTerminalAgent } from './lib/process-agent.js';
-import { agentPermissionCommand } from './js/agent-permissions.js';
+import { createAgentInput } from './lib/agent-input.js';
+import { saveRecoveryHistory, writeCheckpoint } from './lib/recovery-history.js';
+import { workerScreenState } from './lib/board-workers.js';
+import { workerDispatchEnabled } from './js/worker-settings.js';
+import { agentPermissionCommand, agentRestoreCommand } from './js/agent-permissions.js';
 import { listAiAccounts, resolveAiAccountLaunch } from './lib/ai-accounts-service.js';
-import { listStoredAccounts, createStoredAccount, deleteStoredAccount, resolveStoredLaunch, setAccountBudget, checkStoredAccountLogin } from './lib/ai-accounts-store.js';
+import { listStoredAccounts, createStoredAccount, deleteStoredAccount, resolveStoredLaunch, setAccountBudget, checkStoredAccountLogin, loginCommandFor } from './lib/ai-accounts-store.js';
 import { startAiAccountWatcher } from './lib/ai-accounts-watcher.js';
 import {
   activeDelegatedRun, DELEGATE_HEARTBEAT_TTL_MS, DELEGATE_STATUS_DIR,
@@ -54,6 +58,7 @@ import { register as regGit } from './routes/git.js';
 import { register as regProjects } from './routes/projects.js';
 import { register as regSystem } from './routes/system.js';
 import { register as regPorts } from './routes/ports.js';
+import { register as regAwsConnect } from './routes/aws-connect.js';
 import { register as regTelegram } from './routes/telegram.js';
 import { register as regSupervisor } from './routes/supervisor.js';
 import { register as regAutopilot } from './routes/autopilot.js';
@@ -155,6 +160,9 @@ function loadOrCreateToken() {
 const LAN_TOKEN = loadOrCreateToken();
 
 function isLocalhost(req) {
+  // A local reverse proxy (including Tailscale Serve) still carries remote users.
+  // These headers can only remove localhost trust, never grant it.
+  if (['x-forwarded-for', 'forwarded', 'tailscale-user-login'].some(name => req.headers?.[name] !== undefined)) return false;
   const addr = req.socket.remoteAddress;
   return addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
 }
@@ -863,7 +871,7 @@ const routeCtx = {
   join, resolve, normalize, spawn, execFile, randomBytes, timingSafeEqual, tmpdir,
   poller, devServers, LAN_TOKEN,
   listAiAccounts, listStoredAccounts, createStoredAccount, deleteStoredAccount, setAccountBudget, checkStoredAccountLogin,
-  resolveTerminalRef, terminalSummaryList, readTerminalScreen, terminalAgent, prepareBoardRecovery, recoverBoardSupervisor,
+  resolveTerminalRef, terminalSummaryList, readTerminalScreen, terminalAgent, sendAgentInput, prepareBoardRecovery, recoverBoardSupervisor,
   saveTerminalStateNow, updateBoardReview,
   listNotes, getNote, createNote, updateNote, deleteNote,
   durableTerminalsEnabled: () => DURABLE_TERMINALS,
@@ -884,6 +892,7 @@ regSessions(routeCtx);
 regAgent(routeCtx);
 regGit(routeCtx);
 regPorts(routeCtx);
+regAwsConnect(routeCtx);
 regTelegram(routeCtx);
 regSupervisor(routeCtx);
 regAutopilot(routeCtx);
@@ -1056,7 +1065,7 @@ try {
           });
           let safeCommand = '';
           if (command && typeof command === 'string' && command.length < 500
-              && /^(claude|codex|opencode|npm|npx|node|git|python|pip|docker|yarn|pnpm|bun|cargo|make|cmake|go|rustc|ruby|java|javac|mvn|gradle|dotnet|terraform|kubectl|helm|ansible|packer|deno|tsx|ts-node|jest|vitest|pytest|eslint|prettier|tsc)\b/.test(command)
+              && /^(claude|codex|opencode|jcode|npm|npx|node|git|python|pip|docker|yarn|pnpm|bun|cargo|make|cmake|go|rustc|ruby|java|javac|mvn|gradle|dotnet|terraform|kubectl|helm|ansible|packer|deno|tsx|ts-node|jest|vitest|pytest|eslint|prettier|tsc)\b/.test(command)
               && !/[&|<>^;`$]/.test(command)) {
             safeCommand = command;
           }
@@ -1381,17 +1390,22 @@ function terminalAgent(entry) {
   if (entry.durableId) return null;
   // 스캔 불가 플랫폼(Windows pty 등)에서는 실행 커맨드로만 판단하고, 그 외엔
   // null(모름)을 반환 — ''(스캔 결과 없음)와 구분해야 클라이언트 출력 휴리스틱이 살아남음
-  return /^(claude|codex|opencode)\b/.exec(entry.command || '')?.[1] ?? null;
+  return /^(claude|codex|opencode|jcode)\b/.exec(entry.command || '')?.[1] ?? null;
+}
+
+function sendAgentInput(...args) {
+  return createAgentInput({ resolveTerminalRef, terminalAgent, readTerminalScreen })(...args);
 }
 
 function prepareBoardRecovery(found) {
   if (!DURABLE_TERMINALS || !found.entry.durableId) throw new Error('자동 복구는 tmux로 보존되는 터미널에서 사용할 수 있습니다.');
-  validateRecoveryCommand(found.entry.command);
-  if (/^codex\b/.test(found.entry.command) && !found.entry.command.split(' ').includes('--no-daemon')) {
+  const saved = terminalStateEntries().find(entry => entry.termId === found.id);
+  validateRecoveryCommand(saved.command);
+  if (/^codex\b/.test(saved.command) && !saved.command.split(' ').includes('--no-daemon')) {
     throw new Error('Codex 자동 복구는 --no-daemon으로 실행한 세션에서 지원합니다. 아래 권한 프리셋으로 새 Codex를 실행하거나 codex --no-daemon을 사용하세요.');
   }
-  if (found.entry.command.split(' ')[0] !== terminalAgent(found.entry)) throw new Error('초기 실행 명령과 현재 AI가 다릅니다. 해당 AI를 콕핏에서 새로 실행한 뒤 지정하세요.');
-  return terminalStateEntries().find(entry => entry.termId === found.id);
+  if (saved.command.split(' ')[0] !== terminalAgent(found.entry)) throw new Error('초기 실행 명령과 현재 AI가 다릅니다. 해당 AI를 콕핏에서 새로 실행한 뒤 지정하세요.');
+  return saved;
 }
 
 function recoverBoardSupervisor(review, { interrupt = false } = {}) {
@@ -1419,7 +1433,17 @@ function recoverBoardSupervisor(review, { interrupt = false } = {}) {
   if (agent && !interrupt) return;
   if (agent === null) throw new Error('감독 프로세스 상태를 확인할 수 없습니다.');
   if (agent && agent !== saved.command.split(' ')[0]) throw new Error('현재 실행 중인 AI가 감독 실행 정보와 달라 중단하지 않았습니다.');
-  restartDurableAgent(found.entry.durableId, saved.command, { allowRunning: Boolean(agent && interrupt), deadline: review.runUntil });
+  if (agent) {
+    const screen = readTerminalScreen(review.termId, 80, true);
+    const state = workerScreenState(screen, agent);
+    if (['paused', 'limited', 'goal-blocked', 'approval', 'unknown'].includes(state)
+        || (['busy', 'interrupted'].includes(state) && workerScreenState(screen, agent, { inspectComposer: true }) !== 'idle')) {
+      throw new Error('감독의 현재 화면 또는 입력 상태가 변경돼 자동 복구를 보류했습니다.');
+    }
+  }
+  found.entry.restarting = true;
+  try { restartDurableAgent(found.entry.durableId, saved.command, { allowRunning: Boolean(agent && interrupt), deadline: review.runUntil }); }
+  finally { found.entry.restarting = false; }
 }
 const agentScanTimer = setInterval(() => {
   for (const [termId, entry] of terminals) {
@@ -1464,7 +1488,7 @@ function resolveTerminalRef(ref) {
   }
   return null;
 }
-function terminalSummaryList() {
+function terminalSummaryList({ activity = false } = {}) {
   const list = [];
   for (const [id, t] of terminals) {
     list.push({
@@ -1472,6 +1496,12 @@ function terminalSummaryList() {
       account: t.account ? { id: t.account.id, name: t.account.name, provider: t.account.provider } : null,
       durable: Boolean(t.durableId),
       conversationHeld: t.conversationHeld === true,
+      ...(activity ? { activity: (() => {
+        const agent = terminalAgent(t);
+        const state = t.restarting ? 'restarting' : agent === '' ? 'offline' : !agent ? 'unknown'
+          : workerScreenState(readTerminalScreen(id, 80, true), agent);
+        return { agent: agent || '', state, observedAt: Date.now() };
+      })() } : {}),
     });
   }
   return list;
@@ -1531,7 +1561,7 @@ const summaryTimer = setInterval(() => {
     const mark = entry._outCount || 0;
     if (!mark || !supervisorService.summaryGate(termId, mark)) continue;
     const text = stripAnsi(bufRead(entry)).slice(-3500);
-    if (!/\b(claude|codex|opencode)\b/i.test(`${entry.agentCommand || ''} ${text}`)) continue;
+    if (!/\b(claude|codex|opencode|jcode)\b/i.test(`${entry.agentCommand || ''} ${text}`)) continue;
     supervisorService.beginSummary(termId, mark);
     supervisorLlm.summarizeActivity(text)
       .then(summary => supervisorService.endSummary(termId, summary))
@@ -1583,7 +1613,7 @@ function terminalStateEntries() {
       termId: id,
       alias: terminal.alias || '',
       projectId: terminal.projectId,
-      command: terminal.command || '',
+      command: agentRestoreCommand(terminal.command, terminalAgent(terminal)),
       cwd,
       accountId: terminal.account?.id || '',
       account: terminal.account ? {
@@ -1602,22 +1632,28 @@ function saveTerminalStateNow(strict = false) {
   // Do not let the 30s autosave replace that checkpoint with an empty list first.
   if (!_terminalsRestored && existsSync(STATE_FILE)) {
     try {
-      return JSON.parse(readFileSync(STATE_FILE, 'utf8')).terminals?.length || 0;
+      const saved = JSON.parse(readFileSync(STATE_FILE, 'utf8'));
+      saveTerminalHistory(saved);
+      return saved.terminals?.length || 0;
     } catch { return 0; }
   }
   const state = terminalStateEntries();
-  if (state.length === 0 && !existsSync(STATE_FILE)) return 0;
-  const tempStateFile = `${STATE_FILE}.tmp`;
+  const sessionState = { terminals: state, timestamp: Date.now() };
   try {
-    writeFileSync(tempStateFile, JSON.stringify({ terminals: state, timestamp: Date.now() }));
-    renameSync(tempStateFile, STATE_FILE);
+    writeCheckpoint(STATE_FILE, JSON.stringify(sessionState));
     if (state.length > 0) logger.debug('state', `Saved ${state.length} terminal(s)`);
   } catch (error) {
     logger.error('state', 'Save error', error.message);
     if (strict) throw new Error(`터미널 체크포인트를 저장하지 못해 재시작을 취소했습니다: ${error.message}`);
     return null;
   }
+  saveTerminalHistory(sessionState);
   return state.length;
+}
+
+function saveTerminalHistory(sessionState) {
+  try { saveRecoveryHistory(join(DATA_DIR, 'recovery-history'), { board: getBoard(), sessionState, projects: getProjects() }); }
+  catch (error) { logger.error('state', 'Recovery history save failed', error.message); }
 }
 
 function saveTerminalState() {
@@ -1633,13 +1669,8 @@ function loadTerminalState() {
   try {
     if (!existsSync(STATE_FILE)) return null;
     const data = JSON.parse(readFileSync(STATE_FILE, 'utf8'));
-    const hasDurableSession = data.terminals?.some(entry => entry?.durableId);
-    // Legacy shell metadata expires after 24 hours; durable tmux sessions do not.
-    if (!hasDurableSession && Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-      try { unlinkSync(STATE_FILE); } catch { /* cleanup — file may not exist */ }
-      return null;
-    }
-    return data;
+    // Power-off duration must not discard saved assignments or their fixed IDs.
+    return Array.isArray(data.terminals) ? data : null;
   } catch { return null; /* corrupt state file — skip restore */ }
 }
 
@@ -1670,7 +1701,7 @@ function tryRestoreTerminal(entry, preserveId = false) {
 
   const reusableTermId = typeof entry.termId === 'string' && /^[\w.-]{1,200}$/.test(entry.termId)
     && !terminals.has(entry.termId);
-  const newTermId = ((DURABLE_TERMINALS && entry.durableId) || preserveId) && reusableTermId
+  const newTermId = reusableTermId
     ? entry.termId
     : `${entry.projectId}-${randomBytes(6).toString('hex')}`;
   let accountLaunch = null;
@@ -1733,14 +1764,27 @@ function tryRestoreTerminal(entry, preserveId = false) {
   });
 
   if (!spec.resumed) {
-    const restoreCommand = entry.command || accountLaunch?.command || '';
+    // 로그인 명령은 복원 시 재실행하지 않음 — 재시작마다 로그인 흐름이 새로 뜨고 기존 로그인을 건드림
+    const isLoginCommand = /^(claude|codex) login$/.test(entry.command || '');
+    const restoreCommand = (isLoginCommand ? '' : entry.command) || accountLaunch?.command || '';
     if (restoreCommand) setTimeout(() => {
       try {
         if (preserveId) {
           const canRestoreSupervisor = getBoard().supervisors.some(review => review.termId === newTermId && review.autoRecover
             && !['stopped', 'complete'].includes(review.status) && (!review.runUntil || review.runUntil > Date.now()));
           if (!canRestoreSupervisor) return;
+          const restored = terminals.get(newTermId);
+          if (!restored || restored.conversationHeld || !restored.durableId) return;
+          restored.restarting = true;
+          try {
+            const review = getBoard().supervisors.find(item => item.termId === newTermId);
+            restartDurableAgent(restored.durableId, restoreCommand, { deadline: review?.runUntil || 0 });
+          } finally { restored.restarting = false; }
+          return;
         }
+        // A cold boot restores the agent launcher, never an old deployment or one-shot job.
+        try { validateRecoveryCommand(restoreCommand); }
+        catch { logger.warn('state', 'Saved one-shot or custom command requires manual restart'); return; }
         term.write(restoreCommand + '\r');
       } catch (error) { logger.warn('state', `Deferred agent launch failed: ${error.message}`); }
     }, 500);
@@ -1946,7 +1990,7 @@ wss.on('connection', (ws) => {
         // C4: Validate command — only allow safe known prefixes
         let safeCommand = '';
         if (msg.command && typeof msg.command === 'string' && msg.command.length < 500
-            && /^(claude|codex|opencode|npm|npx|node|git|python|pip|docker|yarn|pnpm|bun|cargo|make|cmake|go|rustc|ruby|java|javac|mvn|gradle|dotnet|terraform|kubectl|helm|ansible|packer|deno|tsx|ts-node|jest|vitest|pytest|eslint|prettier|tsc)\b/.test(msg.command)
+            && /^(claude|codex|opencode|jcode|npm|npx|node|git|python|pip|docker|yarn|pnpm|bun|cargo|make|cmake|go|rustc|ruby|java|javac|mvn|gradle|dotnet|terraform|kubectl|helm|ansible|packer|deno|tsx|ts-node|jest|vitest|pytest|eslint|prettier|tsc)\b/.test(msg.command)
             && !/[&|<>^;`$]/.test(msg.command)) {
           safeCommand = msg.command;
         }
@@ -1954,7 +1998,7 @@ wss.on('connection', (ws) => {
         // 미로그인 계정의 로그인 터미널은 로그인 명령을 자동 실행.
         // provider는 화이트리스트 검증된 enum이라 셸 주입 불가.
         if (msg.loginMode && (accountLaunch?.provider === 'claude' || accountLaunch?.provider === 'codex')) {
-          safeCommand = `${accountLaunch.provider} login`;
+          safeCommand = loginCommandFor(accountLaunch.provider);
         }
         safeCommand = agentPermissionCommand(safeCommand, launchPermissions);
 
@@ -2026,20 +2070,24 @@ wss.on('connection', (ws) => {
 
       case 'kill': {
         const t = terminals.get(msg.termId);
-        if (t) {
-          try {
-            // Closing the supervisor explicitly must not resurrect it through the watchdog.
-            for (const review of getBoard().supervisors.filter(item => item.termId === msg.termId)) {
-              updateBoardReview({ status: 'stopped', autoRecover: false, pendingSince: 0, recoveryAfter: 0 }, undefined, review.id);
-            }
-            stopTerminal(t, true);
-          } catch (error) {
-            logger.error('terminal', `Close failed for ${msg.termId}`, error.message);
-            ws.send(JSON.stringify({ type: 'error', message: `터미널을 종료하지 못했습니다: ${error.message}` }));
-            break;
+        try {
+          // Closing an active or deferred supervisor must persist the stop.
+          for (const review of getBoard().supervisors.filter(item => item.termId === msg.termId)) {
+            updateBoardReview({ status: 'stopped', autoRecover: false, pendingSince: 0, recoveryAfter: 0 }, undefined, review.id);
           }
+          if (t) stopTerminal(t, true);
           terminals.delete(msg.termId);
-          saveTerminalState();
+          for (let i = deferredTerminalRestores.length - 1; i >= 0; i--) {
+            if (deferredTerminalRestores[i].termId === msg.termId) deferredTerminalRestores.splice(i, 1);
+          }
+          if (saveTerminalStateNow() === null) throw new Error('터미널 종료 상태를 저장하지 못했습니다. 다시 종료해 주세요.');
+          if (msg.confirm === true) ws.send(JSON.stringify({ type: 'kill-result', termId: msg.termId, accepted: true }));
+        } catch (error) {
+          logger.error('terminal', `Close failed for ${msg.termId}`, error.message);
+          const message = `터미널을 종료하지 못했습니다: ${error.message}`;
+          ws.send(JSON.stringify(msg.confirm === true
+            ? { type: 'kill-result', termId: msg.termId, accepted: false, error: message }
+            : { type: 'error', message }));
         }
         break;
       }
@@ -2115,7 +2163,7 @@ wss.on('connection', (ws) => {
   }
 
   // Send list of active terminals (+ idMap if restored)
-  const msg = { type: 'terminals', active: activeTerminalsPayload() };
+  const msg = { type: 'terminals', active: activeTerminalsPayload(), closeReceipts: true };
   if (idMap) msg.idMap = idMap;
   ws.send(JSON.stringify(msg));
 });
@@ -2128,7 +2176,7 @@ const BIND_ADDR = process.env.COCKPIT_BIND || '0.0.0.0';
 server.listen(PORT, BIND_ADDR, () => {
   // An opted-in supervisor must resume without waiting for a browser WebSocket.
   try {
-    const activeSupervisor = getBoard().supervisors.some(review => review.termId && !['stopped', 'complete'].includes(review.status));
+    const activeSupervisor = getBoard().supervisors.some(review => (review.termId && !['stopped', 'complete'].includes(review.status)) || workerDispatchEnabled(review));
     if (activeSupervisor && !_terminalsRestored) {
       restoreTerminals(); _terminalsRestored = true; saveTerminalStateNow();
     }

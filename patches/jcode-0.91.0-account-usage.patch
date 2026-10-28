@@ -1,0 +1,620 @@
+diff --git a/crates/jcode-base/src/account_usage_records.rs b/crates/jcode-base/src/account_usage_records.rs
+new file mode 100644
+index 0000000..eab5bae
+--- /dev/null
++++ b/crates/jcode-base/src/account_usage_records.rs
+@@ -0,0 +1,177 @@
++//! Request-time account identity and terminal usage. No credentials or content.
++use serde::{Deserialize, Serialize};
++use std::{
++    fs::OpenOptions,
++    io::{Read, Seek, SeekFrom, Write},
++    path::Path,
++};
++
++#[derive(Clone, Debug, Serialize, Deserialize)]
++pub struct Record {
++    pub schema: u32,
++    pub id: String,
++    pub timestamp: String,
++    pub session: Option<String>,
++    pub provider: String,
++    pub email: Option<String>,
++    pub account_id: Option<String>,
++    pub requested_model: String,
++    pub model: Option<String>,
++    pub service_tier: Option<String>,
++    pub cache_ttl: String,
++    pub input_tokens: Option<u64>,
++    pub output_tokens: Option<u64>,
++    pub cache_read_input_tokens: Option<u64>,
++    pub cache_creation_input_tokens: Option<u64>,
++}
++
++impl Record {
++    pub fn capture(provider: &str, email: Option<String>, model: &str, cache_ttl: &str) -> Self {
++        Self {
++            schema: 1,
++            id: uuid::Uuid::new_v4().to_string(),
++            timestamp: chrono::Utc::now().to_rfc3339(),
++            session: crate::logging::current_context_snapshot().session,
++            provider: provider.into(),
++            email,
++            account_id: None,
++            requested_model: model.into(),
++            model: None,
++            service_tier: None,
++            cache_ttl: cache_ttl.into(),
++            input_tokens: None,
++            output_tokens: None,
++            cache_read_input_tokens: None,
++            cache_creation_input_tokens: None,
++        }
++    }
++
++    /// Capture only response metadata, never output text or tool payloads.
++    pub fn response_metadata(&mut self, response: &serde_json::Value) {
++        if let Some(model) = response.get("model").and_then(serde_json::Value::as_str) {
++            self.model = Some(model.into());
++        }
++        if let Some(tier) = response
++            .get("service_tier")
++            .and_then(serde_json::Value::as_str)
++        {
++            self.service_tier = Some(tier.into());
++        }
++    }
++
++    pub fn persist(&self) -> anyhow::Result<()> {
++        self.append(&crate::storage::jcode_dir()?.join("account_usage.jsonl"))
++    }
++
++    fn append(&self, path: &Path) -> anyhow::Result<()> {
++        let mut bytes = serde_json::to_vec(self)?;
++        anyhow::ensure!(bytes.len() < 4096, "account usage metadata too large");
++        bytes.push(b'\n');
++        let mut options = OpenOptions::new();
++        options.read(true).append(true).create(true);
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::OpenOptionsExt;
++            options
++                .mode(0o600)
++                .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
++        }
++        let mut file = options.open(path)?;
++        let meta = file.metadata()?;
++        anyhow::ensure!(meta.is_file(), "account usage path is not a regular file");
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::MetadataExt;
++            anyhow::ensure!(
++                meta.uid() == unsafe { libc::geteuid() }
++                    && meta.mode() & 0o077 == 0
++                    && meta.nlink() == 1,
++                "account usage file is not private"
++            );
++        }
++        // Lock the append-only inode; no process replaces this file.
++        file.lock()?;
++        if file.metadata()?.len() > 0 {
++            file.seek(SeekFrom::End(-1))?;
++            let mut last = [0];
++            file.read_exact(&mut last)?;
++            if last[0] != b'\n' {
++                file.write_all(b"\n")?;
++            }
++        }
++        file.write_all(&bytes)?;
++        file.sync_data()?;
++        Ok(())
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn append_preserves_partial_records_and_serializes_concurrent_writers() {
++        let temp = tempfile::tempdir().unwrap();
++        let path = temp.path().join("account_usage.jsonl");
++        let mut initial = OpenOptions::new();
++        initial.write(true).create_new(true);
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::OpenOptionsExt;
++            initial.mode(0o600);
++        }
++        initial.open(&path).unwrap().write_all(b"{partial").unwrap();
++        std::thread::scope(|scope| {
++            for _ in 0..8 {
++                let path = &path;
++                scope.spawn(move || {
++                    Record::capture(
++                        "claude",
++                        Some("test@example.com".into()),
++                        "claude-opus-5-5",
++                        "5m",
++                    )
++                    .append(path)
++                    .unwrap()
++                });
++            }
++        });
++        let text = std::fs::read_to_string(&path).unwrap();
++        assert!(text.starts_with("{partial\n"));
++        let records: Vec<Record> = text
++            .lines()
++            .skip(1)
++            .map(|s| serde_json::from_str(s).unwrap())
++            .collect();
++        assert_eq!(records.len(), 8);
++        assert_eq!(
++            records
++                .iter()
++                .map(|r| &r.id)
++                .collect::<std::collections::HashSet<_>>()
++                .len(),
++            8
++        );
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::MetadataExt;
++            assert_eq!(std::fs::metadata(&path).unwrap().mode() & 0o777, 0o600);
++        }
++    }
++
++    #[cfg(unix)]
++    #[test]
++    fn refuses_symlinks_and_public_files() {
++        use std::os::unix::fs::{PermissionsExt, symlink};
++        let temp = tempfile::tempdir().unwrap();
++        let target = temp.path().join("target");
++        std::fs::write(&target, "untouched").unwrap();
++        std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o644)).unwrap();
++        let link = temp.path().join("link");
++        symlink(&target, &link).unwrap();
++        let record = Record::capture("openai", None, "gpt-6.1-sol", "unknown");
++        assert!(record.append(&link).is_err());
++        assert!(record.append(&target).is_err());
++        assert_eq!(std::fs::read_to_string(target).unwrap(), "untouched");
++    }
++}
+diff --git a/crates/jcode-base/src/lib.rs b/crates/jcode-base/src/lib.rs
+index 035cc5a..60bd224 100644
+--- a/crates/jcode-base/src/lib.rs
++++ b/crates/jcode-base/src/lib.rs
+@@ -19,6 +19,7 @@
+ )]
+ 
+ pub mod account_login;
++pub mod account_usage_records;
+ pub mod applets;
+ pub mod auth;
+ pub mod background;
+diff --git a/crates/jcode-provider-anthropic-runtime/src/lib.rs b/crates/jcode-provider-anthropic-runtime/src/lib.rs
+index 6aa515f..ca5e5a7 100644
+--- a/crates/jcode-provider-anthropic-runtime/src/lib.rs
++++ b/crates/jcode-provider-anthropic-runtime/src/lib.rs
+@@ -2081,6 +2081,17 @@ async fn stream_response(
+     direct_transport: &DirectTransportConfig,
+ ) -> Result<()> {
+     use jcode_message_types::ConnectionPhase;
++    let mut usage_record = is_oauth.then(|| {
++        let email = auth::claude::list_accounts().ok().and_then(|accounts| {
++            let mut matched = accounts.iter().filter(|a| !token.is_empty() && a.access == token);
++            let first = matched.next()?;
++            if matched.next().is_some() { return None; }
++            let email = first.email.clone().filter(|email| !email.trim().is_empty())?;
++            (accounts.iter().filter(|a| a.email.as_deref().is_some_and(|e| e.trim().eq_ignore_ascii_case(email.trim()))).count() == 1).then_some(email)
++        });
++        jcode_base::account_usage_records::Record::capture("claude", email, &request.model,
++            if is_cache_ttl_1h() { "1h" } else { "5m" })
++    });
+     let requested_model_base = strip_1m_suffix(&request.model).to_ascii_lowercase();
+     if std::env::var("JCODE_ANTHROPIC_DEBUG")
+         .map(|v| v == "1")
+@@ -2231,6 +2242,7 @@ async fn stream_response(
+         // Process complete SSE events
+         while let Some(event) = parse_sse_event(&mut buffer) {
+             let events = process_sse_event(&event, &mut sse_state, is_oauth);
++            record_terminal_usage(&mut usage_record, &sse_state, &event, &events).await;
+             for stream_event in events {
+                 if let StreamEvent::Error { ref message, .. } = stream_event
+                     && is_retryable_error(&message.to_lowercase())
+@@ -2553,6 +2565,8 @@ struct SseEvent {
+ /// single SSE response stream.
+ #[derive(Default)]
+ struct SseStreamState {
++    served_model: Option<String>,
++    service_tier: Option<String>,
+     current_tool_use: Option<ToolUseAccumulator>,
+     /// Server tool block (`server_tool_use`) being streamed. Its input arrives
+     /// as `input_json_delta` like a client tool, but the provider runs it, so it
+@@ -2571,6 +2585,28 @@ struct SseStreamState {
+     warned_model_substitution: bool,
+ }
+ 
++async fn record_terminal_usage(
++    record: &mut Option<jcode_base::account_usage_records::Record>,
++    state: &SseStreamState,
++    event: &SseEvent,
++    events: &[StreamEvent],
++) {
++    if event.event_type != "message_stop" && !events.iter().any(|e| matches!(e, StreamEvent::MessageEnd { .. })) {
++        return;
++    }
++    let Some(mut record) = record.take() else { return; };
++    record.model = state.served_model.clone();
++    record.service_tier = state.service_tier.clone();
++    record.input_tokens = state.input_tokens;
++    record.output_tokens = state.output_tokens;
++    record.cache_read_input_tokens = state.cache_read_input_tokens;
++    record.cache_creation_input_tokens = state.cache_creation_input_tokens;
++    // Terminal usage must reach disk before a disconnected consumer can drop it.
++    if !matches!(tokio::task::spawn_blocking(move || record.persist()).await, Ok(Ok(()))) {
++        jcode_base::logging::warn("Account usage recorder task failed");
++    }
++}
++
+ /// Process an SSE event and return StreamEvents if applicable
+ fn process_sse_event(
+     event: &SseEvent,
+@@ -2587,6 +2623,7 @@ fn process_sse_event(
+                 // Log it so we can confirm there was no silent server-side
+                 // substitution (and surface it under JCODE_LOG_SERVED_MODEL).
+                 if let Some(served) = parsed.message.model.as_deref() {
++                    state.served_model = Some(served.into());
+                     jcode_base::logging::info(&format!("Anthropic served model={}", served));
+                     if std::env::var("JCODE_LOG_SERVED_MODEL").is_ok() {
+                         eprintln!("[anthropic] served model={served}");
+@@ -2620,6 +2657,7 @@ fn process_sse_event(
+                     state.cache_creation_input_tokens =
+                         usage.cache_creation_input_tokens.map(|t| t as u64);
+                     if let Some(tier) = usage.service_tier.as_deref() {
++                        state.service_tier = Some(tier.into());
+                         jcode_base::logging::info(&format!(
+                             "Anthropic granted service_tier={}",
+                             tier
+@@ -2816,6 +2854,42 @@ mod native_web_search_sse_tests;
+ #[path = "anthropic_tests.rs"]
+ mod tests;
+ 
++#[cfg(test)]
++mod account_record_tests {
++    use super::*;
++
++    #[tokio::test]
++    async fn records_only_terminal_usage_once_with_served_model() {
++        let _lock = jcode_base::storage::lock_test_env();
++        let home = tempfile::tempdir().unwrap();
++        let old = std::env::var_os("JCODE_HOME");
++        jcode_base::env::set_var("JCODE_HOME", home.path());
++        let mut record = Some(jcode_base::account_usage_records::Record::capture("claude", Some("captured@example.com".into()), "claude-opus-5-5", "5m"));
++        let mut state = SseStreamState::default();
++        for (kind, data) in [
++            ("message_start", r#"{"message":{"model":"claude-haiku-4-5-20251001","usage":{"input_tokens":50,"cache_read_input_tokens":500,"cache_creation_input_tokens":20,"service_tier":"standard"}}}"#),
++            ("message_delta", r#"{"delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":7}}"#),
++            ("message_stop", "{}"),
++        ] {
++            let event = SseEvent { event_type: kind.into(), data: data.into() };
++            let events = process_sse_event(&event, &mut state, true);
++            record_terminal_usage(&mut record, &state, &event, &events).await;
++            if kind == "message_start" { assert!(!home.path().join("account_usage.jsonl").exists()); }
++        }
++        let text = std::fs::read_to_string(home.path().join("account_usage.jsonl")).unwrap();
++        assert_eq!(text.lines().count(), 1);
++        let saved: jcode_base::account_usage_records::Record = serde_json::from_str(&text).unwrap();
++        assert_eq!(saved.model.as_deref(), Some("claude-haiku-4-5-20251001"));
++        assert_eq!(saved.email.as_deref(), Some("captured@example.com"));
++        assert_eq!(saved.service_tier.as_deref(), Some("standard"));
++        assert_eq!(saved.input_tokens, Some(50));
++        assert_eq!(saved.output_tokens, Some(7));
++        assert_eq!(saved.cache_read_input_tokens, Some(500));
++        if let Some(old) = old { jcode_base::env::set_var("JCODE_HOME", old); }
++        else { jcode_base::env::remove_var("JCODE_HOME"); }
++    }
++}
++
+ #[cfg(test)]
+ #[path = "late_tool_result_tests.rs"]
+ mod late_tool_result_tests;
+diff --git a/crates/jcode-provider-openai-runtime/src/openai_stream_runtime.rs b/crates/jcode-provider-openai-runtime/src/openai_stream_runtime.rs
+index 5749fb9..d3b7f27 100644
+--- a/crates/jcode-provider-openai-runtime/src/openai_stream_runtime.rs
++++ b/crates/jcode-provider-openai-runtime/src/openai_stream_runtime.rs
+@@ -290,6 +290,7 @@ pub(super) async fn stream_response(
+         };
+         match result {
+             Ok(event) => {
++                usage_recorder.response_metadata(stream.response_metadata());
+                 if matches!(event, StreamEvent::MessageEnd { .. }) {
+                     saw_message_end = true;
+                 }
+@@ -976,6 +977,7 @@ async fn continue_persistent_ws_locked(
+                     }
+                 }
+ 
++                usage_recorder.frame_metadata(&text);
+                 if let Some(event) = parse_openai_response_event(
+                     &text,
+                     &mut saw_text_delta,
+@@ -1414,6 +1416,7 @@ pub(super) async fn stream_response_websocket_persistent(
+                     } else {
+                         is_websocket_first_activity_payload(&text)
+                     };
++                    usage_recorder.frame_metadata(&text);
+                     if let Some(event) = parse_openai_response_event(
+                         &text,
+                         &mut saw_text_delta,
+diff --git a/crates/jcode-provider-openai-runtime/src/openai_usage_recording.rs b/crates/jcode-provider-openai-runtime/src/openai_usage_recording.rs
+index eecae1e..ee12cb2 100644
+--- a/crates/jcode-provider-openai-runtime/src/openai_usage_recording.rs
++++ b/crates/jcode-provider-openai-runtime/src/openai_usage_recording.rs
+@@ -7,6 +7,32 @@ pub(super) struct OAuthUsageRecorder {
+     model: String,
+     tier: Option<String>,
+     recorded: bool,
++    detail: Option<jcode_base::account_usage_records::Record>,
++}
++
++fn credential_email(creds: &CodexCredentials, accounts: &[OpenAiAccount]) -> Option<String> {
++    let mut matched = accounts.iter().filter(|a| {
++        (!creds.access_token.is_empty() && a.access_token == creds.access_token)
++            || (!creds.refresh_token.is_empty() && a.refresh_token == creds.refresh_token)
++    });
++    let first = matched.next()?;
++    if matched.next().is_some() {
++        return None;
++    }
++    let email = first
++        .email
++        .clone()
++        .filter(|email| !email.trim().is_empty())?;
++    (accounts
++        .iter()
++        .filter(|a| {
++            a.email
++                .as_deref()
++                .is_some_and(|e| e.trim().eq_ignore_ascii_case(email.trim()))
++        })
++        .count()
++        == 1)
++        .then_some(email)
+ }
+ 
+ // Match the actual request credential, not the mutable active-account setting.
+@@ -31,10 +57,9 @@ fn credential_label(creds: &CodexCredentials, accounts: &[OpenAiAccount]) -> Opt
+ 
+ impl OAuthUsageRecorder {
+     pub(super) fn capture(creds: &CodexCredentials, request: &Value) -> Self {
++        let accounts = jcode_base::auth::codex::list_accounts().ok();
+         let label = if OpenAIProvider::is_chatgpt_mode(creds) {
+-            jcode_base::auth::codex::list_accounts()
+-                .ok()
+-                .and_then(|accounts| credential_label(creds, &accounts))
++            accounts.as_ref().and_then(|accounts| credential_label(creds, accounts))
+         } else {
+             None
+         };
+@@ -43,6 +68,16 @@ impl OAuthUsageRecorder {
+                 "ChatGPT usage not recorded: request credential could not be attributed to a unique account",
+             );
+         }
++        let detail = OpenAIProvider::is_chatgpt_mode(creds).then(|| {
++            let mut record = jcode_base::account_usage_records::Record::capture(
++                "openai",
++                credential_email(creds, accounts.as_deref().unwrap_or(&[])),
++                &openai_request_model(request),
++                "unknown",
++            );
++            record.account_id = creds.account_id.clone();
++            record
++        });
+         Self {
+             label,
+             model: openai_request_model(request),
+@@ -51,6 +86,21 @@ impl OAuthUsageRecorder {
+                 .and_then(Value::as_str)
+                 .map(str::to_string),
+             recorded: false,
++            detail,
++        }
++    }
++
++    pub(super) fn response_metadata(&mut self, response: &Value) {
++        if let Some(record) = self.detail.as_mut() {
++            record.response_metadata(response);
++        }
++    }
++
++    pub(super) fn frame_metadata(&mut self, frame: &str) {
++        if let Ok(value) = serde_json::from_str::<Value>(frame) {
++            if let Some(response) = value.get("response") {
++                self.response_metadata(response);
++            }
+         }
+     }
+ 
+@@ -64,29 +114,44 @@ impl OAuthUsageRecorder {
+             input_tokens,
+             output_tokens,
+             cache_read_input_tokens,
+-            ..
++            cache_creation_input_tokens,
+         } = event
+         else {
+             return;
+         };
+-        let Some(label) = self.label.clone() else {
++        if self.label.is_none() && self.detail.is_none() {
+             return;
+-        };
++        }
+         self.recorded = true;
++        let label = self.label.clone();
++        let mut detail = self.detail.take();
++        if let Some(record) = detail.as_mut() {
++            record.input_tokens = *input_tokens;
++            record.output_tokens = *output_tokens;
++            record.cache_read_input_tokens = *cache_read_input_tokens;
++            record.cache_creation_input_tokens = *cache_creation_input_tokens;
++        }
+         let model = self.model.clone();
+         let tier = self.tier.clone();
+         let (input, output, cached) = (*input_tokens, *output_tokens, *cache_read_input_tokens);
+         // Wait for durability before forwarding terminal usage. Blocking file IO
+         // runs outside the async executor and survives a disconnected TUI.
+         if let Err(error) = tokio::task::spawn_blocking(move || {
+-            jcode_base::provider_activity::record_openai_oauth_usage(
+-                &label,
+-                &model,
+-                tier.as_deref(),
+-                input,
+-                output,
+-                cached,
+-            );
++            if let Some(record) = detail {
++                if record.persist().is_err() {
++                    jcode_base::logging::warn("Could not persist account usage metadata");
++                }
++            }
++            if let Some(label) = label {
++                jcode_base::provider_activity::record_openai_oauth_usage(
++                    &label,
++                    &model,
++                    tier.as_deref(),
++                    input,
++                    output,
++                    cached,
++                );
++            }
+         })
+         .await
+         {
+@@ -166,8 +231,15 @@ mod tests {
+             model: "gpt-5.5".into(),
+             tier: None,
+             recorded: false,
++            detail: Some(jcode_base::account_usage_records::Record::capture(
++                "openai",
++                Some("captured@example.com".into()),
++                "gpt-6.1-sol",
++                "unknown",
++            )),
+         };
+         let frame = r#"{"type":"response.completed","response":{"usage":{"input_tokens":100,"output_tokens":20,"input_tokens_details":{"cached_tokens":40}}}}"#;
++        recorder.frame_metadata(r#"{"type":"response.completed","response":{"model":"gpt-6.1-sol","service_tier":"priority"}}"#);
+         let mut text = false;
+         let mut thinking = false;
+         let mut tools = HashMap::new();
+@@ -195,10 +267,37 @@ mod tests {
+             "{rows:?}"
+         );
+         assert!(!temp.path().join("provider_activity.json").exists());
++        let detail = std::fs::read_to_string(temp.path().join("account_usage.jsonl")).unwrap();
++        assert_eq!(detail.lines().count(), 1);
++        let record: jcode_base::account_usage_records::Record =
++            serde_json::from_str(&detail).unwrap();
++        assert_eq!(record.email.as_deref(), Some("captured@example.com"));
++        assert_eq!(record.input_tokens, Some(100));
++        assert_eq!(record.model.as_deref(), Some("gpt-6.1-sol"));
++        assert_eq!(record.service_tier.as_deref(), Some("priority"));
+         if let Some(old) = old {
+             jcode_base::env::set_var("JCODE_HOME", old);
+         } else {
+             jcode_base::env::remove_var("JCODE_HOME");
+         }
+     }
++
++    #[test]
++    fn email_requires_unique_actual_credentials() {
++        let one = creds("one", "one-refresh");
++        let mut a = account("one", &one);
++        a.email = Some("one@example.com".into());
++        assert_eq!(
++            credential_email(&one, &[a.clone()]).as_deref(),
++            Some("one@example.com")
++        );
++        assert!(credential_email(&creds("stale", "stale"), &[a.clone()]).is_none());
++        assert!(credential_email(&one, &[a.clone(), a]).is_none());
++        let mut first = account("first", &one);
++        first.email = Some("same@example.com".into());
++        let mut second = account("second", &creds("different-access", "different-refresh"));
++        second.account_id = Some("another-workspace".into());
++        second.email = Some("SAME@example.com".into());
++        assert!(credential_email(&one, &[first, second]).is_none());
++    }
+ }
+diff --git a/crates/jcode-provider-openai/src/stream.rs b/crates/jcode-provider-openai/src/stream.rs
+index a784256..78008a5 100644
+--- a/crates/jcode-provider-openai/src/stream.rs
++++ b/crates/jcode-provider-openai/src/stream.rs
+@@ -932,6 +932,7 @@ fn handle_openai_image_generation_item(
+ }
+ 
+ pub struct OpenAIResponsesStream {
++    response_metadata: Value,
+     inner: Pin<Box<dyn Stream<Item = Result<Bytes, reqwest::Error>> + Send>>,
+     buffer: String,
+     /// Carries incomplete multi-byte UTF-8 sequences across chunk boundaries
+@@ -947,6 +948,7 @@ pub struct OpenAIResponsesStream {
+ impl OpenAIResponsesStream {
+     pub fn new(stream: impl Stream<Item = Result<Bytes, reqwest::Error>> + Send + 'static) -> Self {
+         Self {
++            response_metadata: Value::Null,
+             inner: Box::pin(stream),
+             buffer: String::new(),
+             utf8: jcode_core::util::Utf8StreamDecoder::new(),
+@@ -958,6 +960,10 @@ impl OpenAIResponsesStream {
+         }
+     }
+ 
++    pub fn response_metadata(&self) -> &Value {
++        &self.response_metadata
++    }
++
+     fn parse_next_event(&mut self) -> Option<StreamEvent> {
+         if let Some(event) = self.pending.pop_front() {
+             return Some(event);
+@@ -979,6 +985,18 @@ impl OpenAIResponsesStream {
+             }
+ 
+             let data = data_lines.join("\n");
++            if let Ok(value) = serde_json::from_str::<Value>(&data) {
++                if let Some(response) = value.get("response") {
++                    if let Some(model) = response.get("model").and_then(Value::as_str) {
++                        if self.response_metadata.is_null() { self.response_metadata = serde_json::json!({}); }
++                        self.response_metadata["model"] = model.into();
++                    }
++                    if let Some(tier) = response.get("service_tier").and_then(Value::as_str) {
++                        if self.response_metadata.is_null() { self.response_metadata = serde_json::json!({}); }
++                        self.response_metadata["service_tier"] = tier.into();
++                    }
++                }
++            }
+             if let Some(event) = parse_openai_response_event(
+                 &data,
+                 &mut self.saw_text_delta,
+@@ -1003,6 +1021,20 @@ fn extract_input_token_detail(usage: &Value, field: &str) -> Option<u64> {
+         .find_map(|key| usage.get(key)?.get(field)?.as_u64())
+ }
+ 
++#[cfg(test)]
++mod account_metadata_tests {
++    use super::*;
++
++    #[test]
++    fn sse_metadata_contains_only_served_model_and_tier() {
++        let mut stream = OpenAIResponsesStream::new(futures::stream::empty());
++        stream.buffer = "data: {\"type\":\"response.created\",\"response\":{\"model\":\"requested\"}}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"model\":\"gpt-6.1-sol\",\"service_tier\":\"priority\",\"output\":\"private content\",\"usage\":{\"input_tokens\":100,\"output_tokens\":5}}}\n\n".into();
++        assert!(matches!(stream.parse_next_event(), Some(StreamEvent::TokenUsage { .. })));
++        assert_eq!(stream.response_metadata(), &serde_json::json!({"model":"gpt-6.1-sol","service_tier":"priority"}));
++        assert!(!stream.response_metadata().to_string().contains("private content"));
++    }
++}
++
+ fn extract_usage_from_response(response: &Value) -> Option<StreamEvent> {
+     let usage = response.get("usage")?;
+     let input_tokens = usage.get("input_tokens").and_then(|v| v.as_u64());

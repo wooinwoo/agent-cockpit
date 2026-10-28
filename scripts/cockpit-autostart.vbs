@@ -1,21 +1,18 @@
-' Cockpit Dashboard — Windows login auto-start (WSL backend)
+' Cockpit Dashboard — Windows login auto-start (WSL user service)
 '
-' [권장] WSL/Linux 에서는 systemd user 서비스가 정석입니다:
-'   systemctl --user enable --now cockpit-prod.service
-'   loginctl enable-linger $USER      ' 세션 없이도 부팅 시 기동
-' 이 VBS 는 systemd 를 쓸 수 없는 환경용 대체 수단입니다.
+' Ubuntu의 rst010 사용자가 설치한 cockpit-prod.service를 시작합니다.
+' 저장소 경로와 서버 실행 방식은 서비스 파일에서 관리합니다.
+' 먼저 해당 WSL 사용자의 systemd user manager에 서비스를 설치하세요.
 '
 ' 사용법:
-'   1) 아래 REPO_PATH 를 본인 WSL 내 저장소 경로로 수정
-'      (예: /home/<user>/projects/claude-code-cockpit)
-'   2) 이 파일을 Startup 폴더에 복사:
+'   이 파일을 Windows Startup 폴더에 복사:
 '      %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\
 '
-' 로그인 시 WSL Ubuntu 에서 node server.js 를 백그라운드 실행(콘솔 숨김).
-' 로그는 WSL 내부 /tmp/cockpit.log. 포트 3847 이 이미 점유면 EADDRINUSE 로
-' 새 인스턴스가 즉시 종료 — 무해.
+' 이미 실행 중인 서비스에는 중복 서버를 만들지 않습니다.
+' 로그는 WSL 내부 /tmp/cockpit.log에 기록합니다.
 
-Const REPO_PATH = "/path/to/claude-code-cockpit"   ' ← 본인 경로로 수정
+Option Explicit
 
-Dim shell : Set shell = CreateObject("WScript.Shell")
-shell.Run "wsl.exe -d Ubuntu --cd " & REPO_PATH & " -- bash -ilc ""node server.js >> /tmp/cockpit.log 2>&1""", 0, False
+Dim shell
+Set shell = CreateObject("WScript.Shell")
+shell.Run "wsl.exe -d Ubuntu -u rst010 -- /usr/bin/systemctl --user start cockpit-prod.service", 0, False

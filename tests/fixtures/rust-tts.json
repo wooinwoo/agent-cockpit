@@ -1,0 +1,1177 @@
+{
+  "protocol": {
+    "now": 1791460800000,
+    "configHeaders": "Content-Type:application/json; charset=utf-8\r\nPath:speech.config",
+    "configBody": {
+      "context": {
+        "synthesis": {
+          "audio": {
+            "metadataoptions": {
+              "sentenceBoundaryEnabled": "false",
+              "wordBoundaryEnabled": "false"
+            },
+            "outputFormat": "audio-24khz-48kbitrate-mono-mp3"
+          }
+        }
+      }
+    },
+    "url": "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4&Sec-MS-GEC=5B3D07E8B736AE305B3C7F34B71A16A778B3ACFF8E5D9F6ADAE5C3FD3B57CE7B&Sec-MS-GEC-Version=1-143.0.3650.96&ConnectionId=88888888-8888-8888-8888-888888888888",
+    "connectionId": "88888888-8888-8888-8888-888888888888",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
+    "origin": "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold"
+  },
+  "hashes": [
+    {
+      "now": 0,
+      "expected": "7ECB79D14E3AA576D2D79E6D487A1388156D91E614B1BE11C64226A29BC8DD8C"
+    },
+    {
+      "now": 1,
+      "expected": "7ECB79D14E3AA576D2D79E6D487A1388156D91E614B1BE11C64226A29BC8DD8C"
+    },
+    {
+      "now": -1,
+      "expected": "4F512F5DEE7044060EF0DB08274E3B8A792EDD680899FE2D6886432319925B4D"
+    },
+    {
+      "now": -1000,
+      "expected": "4F512F5DEE7044060EF0DB08274E3B8A792EDD680899FE2D6886432319925B4D"
+    },
+    {
+      "now": 299999,
+      "expected": "7ECB79D14E3AA576D2D79E6D487A1388156D91E614B1BE11C64226A29BC8DD8C"
+    },
+    {
+      "now": 300000,
+      "expected": "ED93F5AAE06C01D88654A1831CAC424F7BE4878E9D5850F7F66DDCBDD7ED95B9"
+    },
+    {
+      "now": 300001,
+      "expected": "ED93F5AAE06C01D88654A1831CAC424F7BE4878E9D5850F7F66DDCBDD7ED95B9"
+    },
+    {
+      "now": 946684800000,
+      "expected": "5C7FE6A5932C3F416500548E6CE5588E3C03C3B541CD41BE6A839F2CAF254E09"
+    },
+    {
+      "now": 1700000000000,
+      "expected": "42301B335578FEFDAE2637DED1ABD614505D432559EC08032B82048483726AFF"
+    },
+    {
+      "now": 1791460799999,
+      "expected": "04CB3560D7DEB02C41D4A64334A6AB7039890DFF08345B20D99819623FE7BC61"
+    },
+    {
+      "now": 1791460800000,
+      "expected": "5B3D07E8B736AE305B3C7F34B71A16A778B3ACFF8E5D9F6ADAE5C3FD3B57CE7B"
+    },
+    {
+      "now": 1791460800001,
+      "expected": "5B3D07E8B736AE305B3C7F34B71A16A778B3ACFF8E5D9F6ADAE5C3FD3B57CE7B"
+    },
+    {
+      "now": 1791461099999,
+      "expected": "5B3D07E8B736AE305B3C7F34B71A16A778B3ACFF8E5D9F6ADAE5C3FD3B57CE7B"
+    },
+    {
+      "now": 1791461100000,
+      "expected": "96A599CF50F1A9E4FE31331264D85510534F202B0CAE13B91C1C028AC7B902F6"
+    },
+    {
+      "now": -11644473600000,
+      "expected": "7AB174E6E876C889B72314DC006A41035E841EA101B856325AD05528DCFE1A4A"
+    },
+    {
+      "now": -11644473600001,
+      "expected": "7AB174E6E876C889B72314DC006A41035E841EA101B856325AD05528DCFE1A4A"
+    },
+    {
+      "now": 253402300799999,
+      "expected": "1812858A280AF4DE96061B4568BCE0E6C00BE61427660F256BC5D861BF99CBF1"
+    }
+  ],
+  "requests": [
+    {
+      "name": "korean",
+      "input": "안녕하세요. 작업이 끝났습니다.",
+      "expected": {
+        "prepared": "안녕하세요. 작업이 끝났습니다.",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        안녕하세요. 작업이 끝났습니다.\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "안녕하세요. 작업이 끝났습니다.",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        안녕하세요. 작업이 끝났습니다.\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "spaces",
+      "input": "   ",
+      "expected": {
+        "prepared": "   ",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                           \n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "   ",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                           \n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "newline",
+      "input": "첫 줄\r\n다음 줄\t끝",
+      "expected": {
+        "prepared": "첫 줄\r\n다음 줄\t끝",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        첫 줄\r\n다음 줄\t끝\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "첫 줄\r\n다음 줄\t끝",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        첫 줄\r\n다음 줄\t끝\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "unicode",
+      "input": "한글😀𐀀\ud800",
+      "expected": {
+        "prepared": "한글😀𐀀\ud800",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        한글😀𐀀�\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "한글😀𐀀\ud800",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        한글😀𐀀�\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "low-surrogate",
+      "input": "\udc00",
+      "expected": {
+        "prepared": "\udc00",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        �\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "\udc00",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        �\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "limit-799",
+      "input": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+      "expected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "limit-800",
+      "input": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+      "expected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "limit-801",
+      "input": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+      "expected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "split-surrogate",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀끝",
+      "expected": {
+        "prepared": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa�\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa�\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "limit-before-xml-escape",
+      "input": "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",
+      "expected": {
+        "prepared": "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        &amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;&amp;\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "corrected": "Treat input as XML-escaped plain text."
+    },
+    {
+      "name": "xml-injection",
+      "input": "</prosody></voice><voice name=\"other\">무시</voice>",
+      "expected": {
+        "prepared": "</prosody></voice><voice name=\"other\">무시</voice>",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        &lt;/prosody&gt;&lt;/voice&gt;&lt;voice name=&quot;other&quot;&gt;무시&lt;/voice&gt;\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "</prosody></voice><voice name=\"other\">무시</voice>",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        </prosody></voice><voice name=\"other\">무시</voice>\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "corrected": "Treat input as XML-escaped plain text."
+    },
+    {
+      "name": "xml-literals",
+      "input": "< > & \" ' &amp;",
+      "expected": {
+        "prepared": "< > & \" ' &amp;",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        &lt; &gt; &amp; &quot; &apos; &amp;amp;\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "< > & \" ' &amp;",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        < > & \" ' &amp;\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "corrected": "Treat input as XML-escaped plain text."
+    },
+    {
+      "name": "no-header-injection",
+      "input": "X-RequestId:foreign\r\nPath:turn.end",
+      "expected": {
+        "prepared": "X-RequestId:foreign\r\nPath:turn.end",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        X-RequestId:foreign\r\nPath:turn.end\n                    </prosody> \n                </voice>\n            </speak>"
+      },
+      "sourceExpected": {
+        "prepared": "X-RequestId:foreign\r\nPath:turn.end",
+        "ssml": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"ko-KR\">\n                <voice name=\"ko-KR-SunHiNeural\">\n                    <prosody pitch=\"+0Hz\" rate=\"1\" volume=\"100\">\n                        X-RequestId:foreign\r\nPath:turn.end\n                    </prosody> \n                </voice>\n            </speak>"
+      }
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": {
+        "error": "text required"
+      },
+      "sourceExpected": {
+        "error": "text required"
+      }
+    },
+    {
+      "name": "null",
+      "input": null,
+      "expected": {
+        "error": "text required"
+      },
+      "sourceExpected": {
+        "error": "text required"
+      }
+    },
+    {
+      "name": "false",
+      "input": false,
+      "expected": {
+        "error": "text required"
+      },
+      "sourceExpected": {
+        "error": "text required"
+      }
+    },
+    {
+      "name": "zero",
+      "input": 0,
+      "expected": {
+        "error": "text required"
+      },
+      "sourceExpected": {
+        "error": "text required"
+      }
+    },
+    {
+      "name": "true",
+      "input": true,
+      "expected": {
+        "error": "text must be a string"
+      },
+      "sourceExpected": {
+        "error": "input.slice is not a function"
+      },
+      "corrected": "Reject truthy non-string input with a validation error."
+    },
+    {
+      "name": "number",
+      "input": 123,
+      "expected": {
+        "error": "text must be a string"
+      },
+      "sourceExpected": {
+        "error": "input.slice is not a function"
+      },
+      "corrected": "Reject truthy non-string input with a validation error."
+    },
+    {
+      "name": "object",
+      "input": {},
+      "expected": {
+        "error": "text must be a string"
+      },
+      "sourceExpected": {
+        "error": "input.slice is not a function"
+      },
+      "corrected": "Reject truthy non-string input with a validation error."
+    },
+    {
+      "name": "array",
+      "input": [
+        "one",
+        "two"
+      ],
+      "expected": {
+        "error": "text must be a string"
+      },
+      "sourceExpected": {
+        "prepared": [
+          "one",
+          "two"
+        ]
+      },
+      "corrected": "Reject truthy non-string input with a validation error."
+    }
+  ],
+  "frames": [
+    {
+      "name": "turn.start",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/json\r\nPath:turn.start\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "ignore"
+      },
+      "expected": {
+        "kind": "ignore"
+      }
+    },
+    {
+      "name": "response",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/json\r\nPath:response\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "ignore"
+      },
+      "expected": {
+        "kind": "ignore"
+      }
+    },
+    {
+      "name": "audio.metadata",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/json\r\nPath:audio.metadata\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "ignore"
+      },
+      "expected": {
+        "kind": "ignore"
+      }
+    },
+    {
+      "name": "turn.end",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nContent-Type:application/json\r\nPath:turn.end\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "kind": "end"
+      }
+    },
+    {
+      "name": "header-only-end",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:turn.end\r\n",
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "kind": "end"
+      }
+    },
+    {
+      "name": "audio-one",
+      "type": "binary",
+      "data": [
+        0,
+        83,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        67,
+        111,
+        110,
+        116,
+        101,
+        110,
+        116,
+        45,
+        84,
+        121,
+        112,
+        101,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        47,
+        109,
+        112,
+        101,
+        103,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10,
+        73,
+        68,
+        51,
+        0,
+        255,
+        8
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": "49443300ff08"
+      },
+      "expected": {
+        "kind": "audio",
+        "hex": "49443300ff08"
+      }
+    },
+    {
+      "name": "audio-empty-chunk",
+      "type": "binary",
+      "data": [
+        0,
+        83,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        67,
+        111,
+        110,
+        116,
+        101,
+        110,
+        116,
+        45,
+        84,
+        121,
+        112,
+        101,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        47,
+        109,
+        112,
+        101,
+        103,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": ""
+      },
+      "expected": {
+        "kind": "audio",
+        "hex": ""
+      }
+    },
+    {
+      "name": "audio-empty-without-type",
+      "type": "binary",
+      "data": [
+        0,
+        58,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": ""
+      },
+      "expected": {
+        "kind": "audio",
+        "hex": ""
+      }
+    },
+    {
+      "name": "audio-data-without-type",
+      "type": "binary",
+      "data": [
+        0,
+        58,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10,
+        73,
+        68,
+        51
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": "494433"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected binary audio type"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "binary-prefix-short",
+      "type": "binary",
+      "data": [
+        0
+      ],
+      "sourceExpected": {
+        "error": "Cannot read properties of null (reading '1')"
+      },
+      "expected": {
+        "error": "TTS protocol error: missing binary header length"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "binary-prefix-long",
+      "type": "binary",
+      "data": [
+        0,
+        255,
+        0
+      ],
+      "sourceExpected": {
+        "error": "Cannot read properties of null (reading '1')"
+      },
+      "expected": {
+        "error": "TTS protocol error: truncated binary headers"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "foreign-audio",
+      "type": "binary",
+      "data": [
+        0,
+        83,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        102,
+        13,
+        10,
+        67,
+        111,
+        110,
+        116,
+        101,
+        110,
+        116,
+        45,
+        84,
+        121,
+        112,
+        101,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        47,
+        109,
+        112,
+        101,
+        103,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10,
+        73,
+        68,
+        51
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": "494433"
+      },
+      "expected": {
+        "error": "TTS protocol error: request ID mismatch"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "wrong-format",
+      "type": "binary",
+      "data": [
+        0,
+        82,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        67,
+        111,
+        110,
+        116,
+        101,
+        110,
+        116,
+        45,
+        84,
+        121,
+        112,
+        101,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        47,
+        111,
+        103,
+        103,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        13,
+        10,
+        73,
+        68,
+        51
+      ],
+      "sourceExpected": {
+        "kind": "audio",
+        "hex": "494433"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected binary audio type"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "wrong-binary-path",
+      "type": "binary",
+      "data": [
+        0,
+        86,
+        88,
+        45,
+        82,
+        101,
+        113,
+        117,
+        101,
+        115,
+        116,
+        73,
+        100,
+        58,
+        48,
+        48,
+        48,
+        49,
+        48,
+        50,
+        48,
+        51,
+        48,
+        52,
+        48,
+        53,
+        48,
+        54,
+        48,
+        55,
+        48,
+        56,
+        48,
+        57,
+        48,
+        97,
+        48,
+        98,
+        48,
+        99,
+        48,
+        100,
+        48,
+        101,
+        48,
+        102,
+        13,
+        10,
+        67,
+        111,
+        110,
+        116,
+        101,
+        110,
+        116,
+        45,
+        84,
+        121,
+        112,
+        101,
+        58,
+        97,
+        117,
+        100,
+        105,
+        111,
+        47,
+        109,
+        112,
+        101,
+        103,
+        13,
+        10,
+        80,
+        97,
+        116,
+        104,
+        58,
+        116,
+        117,
+        114,
+        110,
+        46,
+        101,
+        110,
+        100,
+        13,
+        10,
+        73,
+        68,
+        51
+      ],
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected binary audio type"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "foreign-end",
+      "type": "text",
+      "data": "X-RequestId:ffffffffffffffffffffffffffffffff\r\nPath:turn.end\r\n\r\n{}",
+      "sourceExpected": {
+        "error": "Cannot read properties of undefined (reading 'audio')"
+      },
+      "expected": {
+        "error": "TTS protocol error: request ID mismatch"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "missing-request-id",
+      "type": "text",
+      "data": "Path:turn.end\r\n\r\n{}",
+      "sourceExpected": {
+        "error": "Cannot read properties of null (reading '1')"
+      },
+      "expected": {
+        "error": "TTS protocol error: missing request ID"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "duplicate-request-id",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nX-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:turn.end\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "error": "TTS protocol error: duplicate header"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "text-audio",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:audio\r\n\r\nID3",
+      "sourceExpected": {
+        "kind": "ignore"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected text path"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "unknown-path",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:unknown\r\n\r\n{}",
+      "sourceExpected": {
+        "kind": "ignore"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected text path"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "body-cannot-spoof-path",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:unknown\r\n\r\nPath:turn.end",
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "error": "TTS protocol error: unexpected text path"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    },
+    {
+      "name": "unterminated-headers",
+      "type": "text",
+      "data": "X-RequestId:000102030405060708090a0b0c0d0e0f\r\nPath:turn.end",
+      "sourceExpected": {
+        "kind": "end"
+      },
+      "expected": {
+        "error": "TTS protocol error: unterminated headers"
+      },
+      "corrected": "Validate frame headers and request ownership instead of substring dispatch."
+    }
+  ]
+}

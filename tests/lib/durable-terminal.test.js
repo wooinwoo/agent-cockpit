@@ -26,7 +26,8 @@ test('agent recovery refuses live processes and shell commands, but can restart 
   dead = true;
   restartDurableAgent(id, 'claude --verbose', options);
   assert.equal(calls.filter(args => args.includes('respawn-pane')).length, 2);
-  assert.equal(calls.at(-2).at(-1), 'claude --verbose');
+  assert.deepEqual(calls.at(-1).slice(-3), ['/bin/bash', '-lic', 'exec claude --verbose']);
+  assert.equal(calls.some(args => args.includes('send-keys')), false, 'recovery never opens a shell input gap');
 });
 
 test('creates once, then reattaches the same isolated tmux server', () => {
@@ -83,10 +84,10 @@ test('an expired overnight deadline prevents the actual pane restart', () => {
   assert.equal(calls.some(args => args.includes('respawn-pane')), false);
 });
 
-test('a deadline reached during respawn or command entry prevents launching the agent', () => {
+test('a deadline reached during preflight prevents the atomic launch', () => {
   const originalNow = Date.now;
   try {
-    for (const delayedStep of ['respawn-pane', 'send-keys']) {
+    for (const delayedStep of ['set-option', 'display-message']) {
       let now = 999;
       const calls = [];
       Date.now = () => now;
@@ -99,6 +100,7 @@ test('a deadline reached during respawn or command entry prevents launching the 
         },
       }), /종료 시각/);
       assert.equal(calls.some(args => args.includes('Enter')), false);
+      assert.equal(calls.some(args => args.includes('respawn-pane')), false);
     }
   } finally { Date.now = originalNow; }
 });

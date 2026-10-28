@@ -1,8 +1,9 @@
 const fields = {
   notes: ['title', 'content'],
   checklists: ['title', 'goal', 'supervisorId'],
-  tasks: ['text', 'done', 'kind', 'questionTo', 'answer', 'checklistId'],
+  tasks: ['text', 'done', 'kind', 'questionTo', 'answer', 'checklistId', 'termId', 'status', 'blocker', 'waitFor', 'waitKey', 'activation'],
 };
+const equal = (a, b) => a === b || (Array.isArray(a) && Array.isArray(b) && JSON.stringify(a) === JSON.stringify(b));
 
 function conflict(id) {
   throw Object.assign(new Error(`${id}: 다른 곳에서도 같은 항목을 수정했습니다. 입력 내용은 이 기기에 보관됩니다.`), { code: 'BOARD_CONFLICT' });
@@ -15,7 +16,7 @@ export function mergeBoardChanges(base, local, remote) {
     const before = new Map(base[collection].map(item => [item.id, item]));
     const after = new Map(local[collection].map(item => [item.id, item]));
     const current = new Map(result[collection].map(item => [item.id, item]));
-    const changed = (a, b) => keys.some(key => a[key] !== b[key]);
+    const changed = (a, b) => keys.some(key => !equal(a[key], b[key]));
     for (const [id, previous] of before) {
       if (after.has(id)) continue;
       const existing = current.get(id);
@@ -35,9 +36,14 @@ export function mergeBoardChanges(base, local, remote) {
       }
       if (!changed(previous, item)) continue;
       if (!existing) conflict(id);
+      if (collection === 'tasks' && item.termId) {
+        const stateKeys = ['done', 'status', 'blocker', 'waitFor', 'waitKey', 'activation'];
+        if (stateKeys.some(key => !equal(previous[key], item[key])) && stateKeys.some(key => !equal(previous[key], existing[key]))
+            && stateKeys.some(key => !equal(item[key], existing[key]))) conflict(id);
+      }
       for (const key of keys) {
-        if (previous[key] === item[key]) continue;
-        if (existing[key] !== previous[key] && existing[key] !== item[key]) conflict(id);
+        if (equal(previous[key], item[key])) continue;
+        if (!equal(existing[key], previous[key]) && !equal(existing[key], item[key])) conflict(id);
         existing[key] = item[key];
       }
       existing.updatedAt = Math.max(item.updatedAt || 0, existing.updatedAt || 0);

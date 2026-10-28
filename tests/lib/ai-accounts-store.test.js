@@ -95,7 +95,7 @@ test('credentialState reflects token expiry and refresh staleness', () => {
 });
 
 test('checkStoredAccountLogin reports a checklist without spending tokens', async () => {
-  assert.equal(loginCommandFor('claude'), 'claude login');
+  assert.equal(loginCommandFor('claude'), 'claude auth login --claudeai');
   assert.equal(loginCommandFor('codex'), 'codex login');
 
   const acct = createStoredAccount({ name: '연결 테스트', provider: 'codex', email: 'test@example.com' });

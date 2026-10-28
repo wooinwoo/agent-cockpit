@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../css/cockpit-next.css";
+@import "../css/work-overview.css";
 
 @source "../index.html";
 @source "../js";

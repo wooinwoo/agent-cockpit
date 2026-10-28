@@ -1071,7 +1071,8 @@
   background: var(--green);
   box-shadow: 0 0 6px var(--green);
 }
-.agent-strip-item.waiting .agent-strip-dot {
+.agent-strip-item.waiting .agent-strip-dot,
+.agent-strip-item.idle .agent-strip-dot {
   background: var(--yellow);
   box-shadow: 0 0 6px var(--yellow);
 }

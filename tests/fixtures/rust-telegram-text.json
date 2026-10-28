@@ -1,0 +1,2736 @@
+[
+  {
+    "input": {
+      "action": "mask",
+      "value": null
+    },
+    "expected": null
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": false
+    },
+    "expected": false
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": 0
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": ""
+    },
+    "expected": ""
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": true
+    },
+    "expected": "true"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": 1
+    },
+    "expected": "1"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": -1
+    },
+    "expected": "-1"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": 1e+21
+    },
+    "expected": "1e+21"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": 1e-7
+    },
+    "expected": "1e-7"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": {}
+    },
+    "expected": "[object Object]"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": []
+    },
+    "expected": ""
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": [
+        null,
+        1,
+        [
+          "a",
+          "\ud800"
+        ]
+      ]
+    },
+    "expected": ",1,a,\ud800"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "normal public text"
+    },
+    "expected": "normal public text"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "\ud800surrogate\udc00"
+    },
+    "expected": "\ud800surrogate\udc00"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "TOKEN=abc"
+    },
+    "expected": "TOKEN=abc"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "TOKEN=abcd"
+    },
+    "expected": "TOKEN=***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "token: abcd"
+    },
+    "expected": "token: ***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "my_password = \"synthetic-password\""
+    },
+    "expected": "my_password = ***\""
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "PWD='synthetic-password'"
+    },
+    "expected": "PWD=***'"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "API_KEY:abcd"
+    },
+    "expected": "API_KEY:***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "MONKEY=synthetic-value"
+    },
+    "expected": "MONKEY=***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "PASSWORD =﻿synthetic-value"
+    },
+    "expected": "PASSWORD =﻿***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "KEY = a\ud800bc"
+    },
+    "expected": "KEY = ***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "KEY=가나다라"
+    },
+    "expected": "KEY=***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "TOKEN=aaa\nbbb"
+    },
+    "expected": "TOKEN=aaa\nbbb"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "AKIAAAAAAAAAAAAAAAA"
+    },
+    "expected": "AKIAAAAAAAAAAAAAAAA"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "AKIAAAAAAAAAAAAAAAAA"
+    },
+    "expected": "AKIA***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "akiaAAAAAAAAAAAAAAAAAAAA"
+    },
+    "expected": "akiaAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "AWS_SECRET_ACCESS_KEY = synthetic-value"
+    },
+    "expected": "aws_secret_access_key=***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "aws_secret_access_key=abc"
+    },
+    "expected": "aws_secret_access_key=***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "sk-ant-aaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "sk-***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "sk-ant-aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "sk-ant-***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "sk-aaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "sk-aaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "sk-aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "sk-***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "SK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "SK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "AIzaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "AIzaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "AIzaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "AIza***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ya29.a"
+    },
+    "expected": "ya29.***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ya29."
+    },
+    "expected": "ya29."
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghp_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "gh*_***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "gho_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "gh*_***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghu_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "gh*_***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghs_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "gh*_***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghr_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "gh*_***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghx_aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "ghx_aaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "ghp_aaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "ghp_aaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "glpat-aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "glpat-***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "Bearer aaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "Bearer aaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "Bearer aaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "Bearer ***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "bearer\naaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "Bearer ***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "eyJaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "eyJaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "eyJaaaaaaaaaaaaaaaaaaaa"
+    },
+    "expected": "eyJ***"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "postgres://synthetic:password@example.invalid/db"
+    },
+    "expected": "postgres://***:***@example.invalid/db"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "PostgreSQL+srv://synthetic:password@example.invalid/db"
+    },
+    "expected": "PostgreSQL+srv://***:***@example.invalid/db"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "MYSQL://synthetic:password@example.invalid/db"
+    },
+    "expected": "MYSQL://***:***@example.invalid/db"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "mongodb+srv://synthetic:password@example.invalid/db"
+    },
+    "expected": "mongodb+srv://***:***@example.invalid/db"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "postgres://no-password@example.invalid/db"
+    },
+    "expected": "postgres://no-password@example.invalid/db"
+  },
+  {
+    "input": {
+      "action": "mask",
+      "value": "TOKEN=abcd sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ya29.fake ghp_bbbbbbbbbbbbbbbbbbbb"
+    },
+    "expected": "TOKEN=*** sk-*** ya29.*** gh*_***"
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": ""
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "30m"
+    },
+    "expected": 1800000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1h"
+    },
+    "expected": 3600000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "2h30m"
+    },
+    "expected": 9000000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "45s"
+    },
+    "expected": 45000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1h 2m 3s"
+    },
+    "expected": 3723000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "0m"
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "-1h"
+    },
+    "expected": 3600000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1.5h"
+    },
+    "expected": 18000000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "30M"
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "2H30m"
+    },
+    "expected": 1800000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "h30"
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "m"
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1\tm"
+    },
+    "expected": 60000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1 h"
+    },
+    "expected": 3600000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1﻿s"
+    },
+    "expected": 1000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "１h"
+    },
+    "expected": 0
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1h1h"
+    },
+    "expected": 7200000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "x2my"
+    },
+    "expected": 120000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "3ms"
+    },
+    "expected": 180000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "2hm"
+    },
+    "expected": 7200000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "99s"
+    },
+    "expected": 99000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "0001m"
+    },
+    "expected": 60000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999h"
+    },
+    "expected": {
+      "nonFinite": "Infinity"
+    }
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "9999999999999999999999s"
+    },
+    "expected": 1e+25
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "0.5m"
+    },
+    "expected": 300000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "1\n h"
+    },
+    "expected": 3600000
+  },
+  {
+    "input": {
+      "action": "duration",
+      "value": "\ud8001m"
+    },
+    "expected": 60000
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": "-Infinity"
+    },
+    "expected": "-Infinity초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": -3600000
+    },
+    "expected": "-3600초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": -1500
+    },
+    "expected": "-1초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": -500
+    },
+    "expected": "0초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": -1
+    },
+    "expected": "0초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 0
+    },
+    "expected": "0초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 1
+    },
+    "expected": "0초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 499
+    },
+    "expected": "0초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 500
+    },
+    "expected": "1초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 1499
+    },
+    "expected": "1초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 1500
+    },
+    "expected": "2초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 59999
+    },
+    "expected": "60초"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 60000
+    },
+    "expected": "1분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 89999
+    },
+    "expected": "1분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 90000
+    },
+    "expected": "2분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 3599999
+    },
+    "expected": "60분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 3600000
+    },
+    "expected": "1시간"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 3629999
+    },
+    "expected": "1시간"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 3630000
+    },
+    "expected": "1시간 1분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 7170000
+    },
+    "expected": "1시간 60분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 7200000
+    },
+    "expected": "2시간"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 86400000
+    },
+    "expected": "24시간"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": 1e+25
+    },
+    "expected": "2777777777777778000시간 26분"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": "Infinity"
+    },
+    "expected": "Infinity시간"
+  },
+  {
+    "input": {
+      "action": "remaining",
+      "value": "NaN"
+    },
+    "expected": "NaN시간"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": null,
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": false,
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 0,
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "",
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": true,
+      "now": 1791450000000
+    },
+    "expected": "20734일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1,
+      "now": 1791450000000
+    },
+    "expected": "20734일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": [],
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": [
+        0
+      ],
+      "now": 1791450000000
+    },
+    "expected": "9777일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": {},
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "invalid",
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "\ud800",
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791536400000,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791453600000,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791450060000,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791450000000,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791449940001,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791449940000,
+      "now": 1791450000000
+    },
+    "expected": "1분 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791446400001,
+      "now": 1791450000000
+    },
+    "expected": "59분 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791446400000,
+      "now": 1791450000000
+    },
+    "expected": "1시간 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791363600001,
+      "now": 1791450000000
+    },
+    "expected": "23시간 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791363600000,
+      "now": 1791450000000
+    },
+    "expected": "1일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 1791277200000,
+      "now": 1791450000000
+    },
+    "expected": "2일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "2026-10-08T09:00:00Z",
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "2026-10-08T18:00:00+09:00",
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "2026-10-08",
+      "now": 1791450000000
+    },
+    "expected": "9시간 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "2026-10-08T09:00:00",
+      "now": 1791450000000
+    },
+    "expected": "9시간 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "2026-02-30T09:00:00Z",
+      "now": 1791450000000
+    },
+    "expected": "220일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "Thu, 01 Jan 1970 00:00:00 GMT",
+      "now": 1791450000000
+    },
+    "expected": "20734일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "0",
+      "now": 1791450000000
+    },
+    "expected": "9777일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "13",
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": "32",
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 8640000000000000,
+      "now": 1791450000000
+    },
+    "expected": "방금"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": -8640000000000000,
+      "now": 1791450000000
+    },
+    "expected": "100020734일 전"
+  },
+  {
+    "input": {
+      "action": "timeAgo",
+      "value": 8640000000000001,
+      "now": 1791450000000
+    },
+    "expected": "?"
+  },
+  {
+    "input": {
+      "action": "help"
+    },
+    "expected": "🤖 <b>Cockpit 봇</b>\n\n<b>━ 모드 ━</b>\n/status — 모드 + 신뢰 + focus + todo 상태\n/here /away — 자리 모드\n/trust 30m /untrust — 신뢰 모드 (위험 자동, hard 만 묻기)\n\n<b>━ Sticky ━</b>\n/focus &lt;project&gt; — 이후 \"그거\" = focus 프로젝트\n/unfocus — 해제\n\n<b>━ Backlog ━</b>\n/todo add &lt;text&gt; — 추가\n/todo list — 미완료 목록\n/todo done N — 완료 처리\n/todo next — 다음 거 바로 콕사원에 위임\n\n<b>━ 자율 스케줄 ━</b>\n/schedule add \"09:00 daily\" \"프롬프트\"\n/schedule list /remove ID /run ID /toggle ID\n\n<b>━ 조회 (즉답, 토큰 0) ━</b>\n/history [N] /decisions [N] /approvals [N]\n/terminals /projects /log [N] /agents /diag\n\n<b>━ 기타 ━</b>\n/new /help\n\n그 외 자유 텍스트 → 콕사원 (Gemini Flash) 가 처리.\n예: \"기획팀 박기리 불러\", \"tire-auction 푸시해\", \"그거 어떻게 됐어?\""
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {},
+      "now": 1791450000000
+    },
+    "expected": null
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [],
+        "terminals": [],
+        "todos": []
+      },
+      "now": 1791450000000
+    },
+    "expected": null
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": "project"
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: project\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"project\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": "\ud800"
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: \ud800\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"\ud800\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": 1
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: 1\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"1\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": []
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: \n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": {
+          "name": "object"
+        }
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: [object Object]\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"[object Object]\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": "TOKEN=synthetic-token"
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: TOKEN=***\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"TOKEN=***\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[현재 sticky 상태]\n🎯 현재 focus: TOKEN=synthetic-token\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"TOKEN=synthetic-token\" 로 해석.\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "todos": [
+          {
+            "status": "done",
+            "text": "done"
+          },
+          {
+            "status": "pending",
+            "text": "pending task"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n📋 미완료 todo 1건 (next: \"pending task\")\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "todos": [
+          {
+            "status": "pending",
+            "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀tail"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n📋 미완료 todo 1건 (next: \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d\")\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "todos": [
+          {
+            "status": "pending",
+            "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n📋 미완료 todo 1건 (next: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-*\")\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[현재 sticky 상태]\n📋 미완료 todo 1건 (next: \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-a\")\n\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "active",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- 🟢 Project · active · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "busy",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- 🟢 Project · busy · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[Cockpit 프로젝트]\n- · Project · busy · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "waiting",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- 🟠 Project · waiting · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[Cockpit 프로젝트]\n- · Project · waiting · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "idle",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- ⚪ Project · idle · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "paused",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- ⏸ Project · paused · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "unknown",
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · unknown · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": null,
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": [
+                "active"
+              ],
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · active · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": [
+                "busy"
+              ],
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · busy · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": true,
+              "sessionCount": 0,
+              "lastActivity": 1791449940000
+            },
+            "git": {
+              "branch": "main",
+              "uncommittedCount": 2
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project · true · 세션 0 · 최근 1분 전 · branch main · uncommitted 2\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p"
+          },
+          {
+            "id": "q",
+            "name": null,
+            "session": {
+              "state": "active",
+              "sessionCount": 3
+            },
+            "git": {}
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · undefined\n- 🟢 null · active · 세션 3\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "TOKEN=synthetic-project",
+            "session": {
+              "state": "waiting"
+            },
+            "git": {
+              "branch": "KEY=synthetic-branch"
+            }
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- 🟠 TOKEN=*** · waiting · branch KEY=***\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[Cockpit 프로젝트]\n- · TOKEN=synthetic-project · waiting · branch KEY=synthetic-branch\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "mode": "away"
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🚶 AWAY]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "mode": "here"
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "mode": ""
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "mode": null
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "pending": 0
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "pending": 1
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 1건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "pending": 3
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 3건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "pending": "2"
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 2건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [],
+        "pending": -1
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 -1건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 0"
+            },
+            "reasoning": "reason 0"
+          },
+          {
+            "ts": "2026-10-08T08:59:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 1"
+            },
+            "reasoning": "reason 1"
+          },
+          {
+            "ts": "2026-10-08T08:58:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 2"
+            },
+            "reasoning": "reason 2"
+          },
+          {
+            "ts": "2026-10-08T08:57:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 3"
+            },
+            "reasoning": "reason 3"
+          },
+          {
+            "ts": "2026-10-08T08:56:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 4"
+            },
+            "reasoning": "reason 4"
+          },
+          {
+            "ts": "2026-10-08T08:55:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 5"
+            },
+            "reasoning": "reason 5"
+          },
+          {
+            "ts": "2026-10-08T08:54:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 6"
+            },
+            "reasoning": "reason 6"
+          },
+          {
+            "ts": "2026-10-08T08:53:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 7"
+            },
+            "reasoning": "reason 7"
+          },
+          {
+            "ts": "2026-10-08T08:52:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 8"
+            },
+            "reasoning": "reason 8"
+          },
+          {
+            "ts": "2026-10-08T08:51:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 9"
+            },
+            "reasoning": "reason 9"
+          },
+          {
+            "ts": "2026-10-08T08:50:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 10"
+            },
+            "reasoning": "reason 10"
+          },
+          {
+            "ts": "2026-10-08T08:49:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 11"
+            },
+            "reasoning": "reason 11"
+          },
+          {
+            "ts": "2026-10-08T08:48:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 12"
+            },
+            "reasoning": "reason 12"
+          },
+          {
+            "ts": "2026-10-08T08:47:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 13"
+            },
+            "reasoning": "reason 13"
+          },
+          {
+            "ts": "2026-10-08T08:46:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 14"
+            },
+            "reasoning": "reason 14"
+          },
+          {
+            "ts": "2026-10-08T08:45:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 15"
+            },
+            "reasoning": "reason 15"
+          },
+          {
+            "ts": "2026-10-08T08:44:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 16"
+            },
+            "reasoning": "reason 16"
+          },
+          {
+            "ts": "2026-10-08T08:43:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 17"
+            },
+            "reasoning": "reason 17"
+          },
+          {
+            "ts": "2026-10-08T08:42:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 18"
+            },
+            "reasoning": "reason 18"
+          },
+          {
+            "ts": "2026-10-08T08:41:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 19"
+            },
+            "reasoning": "reason 19"
+          }
+        ],
+        "mode": "away",
+        "pending": 2
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🚶 AWAY]\n최근 1시간: 자동 5건 통과, 차단 10건, 사람 대기 2건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  08:42:00 BASH: command 18\n     이유: reason 18\n  08:43:00 BASH: command 17\n     이유: reason 17\n  08:46:00 BASH: command 14\n     이유: reason 14\n  08:47:00 BASH: command 13\n     이유: reason 13\n  08:50:00 BASH: command 10\n     이유: reason 10\n\n🟡 사람 결정 거친 작업:\n  08:41:00 BASH: command 19\n  08:45:00 BASH: command 15\n  08:49:00 BASH: command 11\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [
+          {
+            "ts": "2026-10-08T08:00:00.000Z",
+            "decision": "deny",
+            "tool": "boundary",
+            "input": {
+              "command": "old"
+            }
+          },
+          {
+            "ts": "2026-10-08T09:01:00.000Z",
+            "decision": "ask",
+            "input": {
+              "file_path": "/synthetic/future"
+            }
+          },
+          {
+            "ts": "invalid",
+            "decision": "block",
+            "reasoning": "invalid date"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 0건, 사람 대기 0건\n\n🟡 사람 결정 거친 작업:\n  09:01:00 ?: /synthetic/future\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          },
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 100건 통과, 차단 0건, 사람 대기 0건\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "block",
+            "tool": "TOKEN=synthetic-tool",
+            "input": {
+              "command": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            "reasoning": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 1건, 사람 대기 0건\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  09:00:00 TOKEN=*** xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-**\n     이유: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-**\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 1건, 사람 대기 0건\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  09:00:00 TOKEN=synthetic-tool: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-aa\n     이유: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx sk-bb\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "decisions": [
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "deny",
+            "input": {
+              "command": [
+                "array",
+                1,
+                null
+              ]
+            },
+            "reasoning": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀tail"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[Supervisor — 모드: 🏠 HERE]\n최근 1시간: 자동 0건 통과, 차단 1건, 사람 대기 0건\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  09:00:00 ?: array,1,\n     이유: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ud83d\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": ""
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": " \n "
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "line1\nline2\nline3\nline4\nline5\nline6\nline7"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    line2\n    line3\n    line4\n    line5\n    line6\n    line7\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "\u001b[31mred\u001b[0m\n\u001b]0;synthetic title\u0007normal"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    red\n    normal\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "﻿ edge "
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    edge\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "\ud800xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "😀xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    \ude00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "shell",
+            "buffer": "TOKEN=synthetic-token\nsk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "\n[터미널 작업판]\n- [t1] p · cmd: shell\n  최근 출력:\n    TOKEN=***\n    sk-***\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project"
+          }
+        ],
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "",
+            "buffer": "output"
+          },
+          {
+            "termId": "t2",
+            "buffer": "\ud800"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[Cockpit 프로젝트]\n- · Project\n\n[터미널 작업판]\n- [t1] Project · cmd: (shell)\n  최근 출력:\n    output\n- [t2] ? · cmd: (shell)\n  최근 출력:\n    \ud800\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+  },
+  {
+    "input": {
+      "action": "context",
+      "snapshot": {
+        "focus": "Project",
+        "todos": [
+          {
+            "status": "pending",
+            "text": "task"
+          }
+        ],
+        "projects": [
+          {
+            "id": "p",
+            "name": "Project",
+            "session": {
+              "state": "busy"
+            }
+          }
+        ],
+        "decisions": [
+          {
+            "ts": "2026-10-08T09:00:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 0"
+            },
+            "reasoning": "reason 0"
+          },
+          {
+            "ts": "2026-10-08T08:59:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 1"
+            },
+            "reasoning": "reason 1"
+          },
+          {
+            "ts": "2026-10-08T08:58:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 2"
+            },
+            "reasoning": "reason 2"
+          },
+          {
+            "ts": "2026-10-08T08:57:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 3"
+            },
+            "reasoning": "reason 3"
+          },
+          {
+            "ts": "2026-10-08T08:56:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 4"
+            },
+            "reasoning": "reason 4"
+          },
+          {
+            "ts": "2026-10-08T08:55:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 5"
+            },
+            "reasoning": "reason 5"
+          },
+          {
+            "ts": "2026-10-08T08:54:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 6"
+            },
+            "reasoning": "reason 6"
+          },
+          {
+            "ts": "2026-10-08T08:53:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 7"
+            },
+            "reasoning": "reason 7"
+          },
+          {
+            "ts": "2026-10-08T08:52:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 8"
+            },
+            "reasoning": "reason 8"
+          },
+          {
+            "ts": "2026-10-08T08:51:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 9"
+            },
+            "reasoning": "reason 9"
+          },
+          {
+            "ts": "2026-10-08T08:50:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 10"
+            },
+            "reasoning": "reason 10"
+          },
+          {
+            "ts": "2026-10-08T08:49:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 11"
+            },
+            "reasoning": "reason 11"
+          },
+          {
+            "ts": "2026-10-08T08:48:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 12"
+            },
+            "reasoning": "reason 12"
+          },
+          {
+            "ts": "2026-10-08T08:47:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 13"
+            },
+            "reasoning": "reason 13"
+          },
+          {
+            "ts": "2026-10-08T08:46:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 14"
+            },
+            "reasoning": "reason 14"
+          },
+          {
+            "ts": "2026-10-08T08:45:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 15"
+            },
+            "reasoning": "reason 15"
+          },
+          {
+            "ts": "2026-10-08T08:44:00.000Z",
+            "decision": "approve",
+            "tool": "BASH",
+            "input": {
+              "command": "command 16"
+            },
+            "reasoning": "reason 16"
+          },
+          {
+            "ts": "2026-10-08T08:43:00.000Z",
+            "decision": "block",
+            "tool": "BASH",
+            "input": {
+              "command": "command 17"
+            },
+            "reasoning": "reason 17"
+          },
+          {
+            "ts": "2026-10-08T08:42:00.000Z",
+            "decision": "deny",
+            "tool": "BASH",
+            "input": {
+              "command": "command 18"
+            },
+            "reasoning": "reason 18"
+          },
+          {
+            "ts": "2026-10-08T08:41:00.000Z",
+            "decision": "ask",
+            "tool": "BASH",
+            "input": {
+              "command": "command 19"
+            },
+            "reasoning": "reason 19"
+          }
+        ],
+        "pending": 1,
+        "mode": "away",
+        "terminals": [
+          {
+            "termId": "t1",
+            "projectId": "p",
+            "command": "TOKEN=synthetic-command",
+            "buffer": "complete"
+          }
+        ]
+      },
+      "now": 1791450000000
+    },
+    "expected": "[현재 sticky 상태]\n🎯 현재 focus: Project\n📋 미완료 todo 1건 (next: \"task\")\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"Project\" 로 해석.\n\n[Cockpit 프로젝트]\n- 🟢 Project · busy\n\n[Supervisor — 모드: 🚶 AWAY]\n최근 1시간: 자동 5건 통과, 차단 10건, 사람 대기 1건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  08:42:00 BASH: command 18\n     이유: reason 18\n  08:43:00 BASH: command 17\n     이유: reason 17\n  08:46:00 BASH: command 14\n     이유: reason 14\n  08:47:00 BASH: command 13\n     이유: reason 13\n  08:50:00 BASH: command 10\n     이유: reason 10\n\n🟡 사람 결정 거친 작업:\n  08:41:00 BASH: command 19\n  08:45:00 BASH: command 15\n  08:49:00 BASH: command 11\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n[터미널 작업판]\n- [t1] Project · cmd: TOKEN=***\n  최근 출력:\n    complete\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지.",
+    "correction": {
+      "reason": "Recognize busy/waiting states; mask the complete context and mask todo/decision fields before UTF-16 truncation.",
+      "original": "[현재 sticky 상태]\n🎯 현재 focus: Project\n📋 미완료 todo 1건 (next: \"task\")\n참고: \"그거\", \"그 프로젝트\" 등 모호한 표현은 우선적으로 \"Project\" 로 해석.\n\n[Cockpit 프로젝트]\n- · Project · busy\n\n[Supervisor — 모드: 🚶 AWAY]\n최근 1시간: 자동 5건 통과, 차단 10건, 사람 대기 1건\n\n⚠️ 사용자 답변 대기 중 — 답해주세요.\n\n🔴 차단된 작업 (사용자 알 가치 있음):\n  08:42:00 BASH: command 18\n     이유: reason 18\n  08:43:00 BASH: command 17\n     이유: reason 17\n  08:46:00 BASH: command 14\n     이유: reason 14\n  08:47:00 BASH: command 13\n     이유: reason 13\n  08:50:00 BASH: command 10\n     이유: reason 10\n\n🟡 사람 결정 거친 작업:\n  08:41:00 BASH: command 19\n  08:45:00 BASH: command 15\n  08:49:00 BASH: command 11\n\n※ approve는 통상 사용자가 시킨 일이라 상세 생략. 위 차단/대기가 중요.\n\n[터미널 작업판]\n- [t1] Project · cmd: TOKEN=***\n  최근 출력:\n    complete\n\n위 현황을 참고해 답하세요. \"그 세션\", \"방금 거\" 같은 표현은 작업판에서 매핑. 정보 없으면 모른다고 말하고 추측 금지."
+    }
+  }
+]

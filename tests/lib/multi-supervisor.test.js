@@ -39,7 +39,7 @@ test('supervisor questions and checklist ownership survive legacy writers and re
 test('two supervisors receive independent requests and cannot acknowledge or stop each other', t => {
   const { service, second } = setup(t);
   const messages = [];
-  const tick = createBoardReviewer({ ...service, now: () => 1000,
+  const tick = createBoardReviewer({ ...service, readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }), now: () => 1000,
     resolveTerminalRef: id => ({ id, entry: { pty: { write: text => messages.push({ id, text }) } } }), terminalAgent: () => 'codex' });
   tick();
   assert.deepEqual(messages.map(item => item.id), ['manager1', 'manager2']);
@@ -62,7 +62,7 @@ test('one failed supervisor does not block another, and overlapping active assig
   assert.throws(() => service.updateBoardReview({ watched: [{ termId: 'worker1', goal: 'overlap' }] }, undefined, second), /다른 실행 중인 감독/);
   assert.throws(() => service.updateBoardReview({ termId: 'manager1' }, undefined, second), /다른 실행 중인 감독/);
   const messages = [];
-  const tick = createBoardReviewer({ ...service, now: () => 1000,
+  const tick = createBoardReviewer({ ...service, readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }), now: () => 1000,
     resolveTerminalRef: id => { if (id === 'manager1') throw new Error('first supervisor unavailable'); return { id, entry: { pty: { write: text => messages.push(text) } } }; },
     terminalAgent: () => 'codex' });
   assert.throws(tick, /first supervisor unavailable/);

@@ -5,7 +5,7 @@ import { createConnection } from 'node:net';
 
 const PORT = 3847;
 const WSL_ARGS = ['-d', 'Ubuntu', '-u', 'rst010', '--', 'sh', '-lc'];
-const WSL_REPO = '/home/rst010/projects/personal/claude-code-cockpit';
+const WSL_START_COMMAND = `curl -fsS http://127.0.0.1:${PORT}/api/health >/dev/null 2>&1 || /usr/bin/systemctl --user start cockpit-prod.service`;
 
 export function parseDiscovery(output) {
   const lines = output.split(/\r?\n/);
@@ -29,7 +29,7 @@ function discoverWslCockpit() {
 
 function startWslCockpit() {
   execFile('wsl.exe', [...WSL_ARGS,
-    `curl -fsS http://127.0.0.1:${PORT}/api/health >/dev/null 2>&1 || { cd '${WSL_REPO}' && nohup node server.js >> /tmp/cockpit.log 2>&1 </dev/null & }`,
+    WSL_START_COMMAND,
   ], { timeout: 15000, windowsHide: true }, () => {});
 }
 
@@ -59,6 +59,10 @@ export function isInitialNavigation(req) {
 }
 
 if (process.argv.includes('--self-test')) {
+  assert.equal(WSL_START_COMMAND.startsWith(`curl -fsS http://127.0.0.1:${PORT}/api/health >/dev/null 2>&1 || `), true);
+  assert.equal(WSL_START_COMMAND.endsWith('/usr/bin/systemctl --user start cockpit-prod.service'), true);
+  assert.equal(WSL_START_COMMAND.includes('nohup'), false);
+  assert.equal(WSL_START_COMMAND.includes('node server.js'), false);
   assert.deepEqual(parseDiscovery('notice\nCOCKPIT_HOST=172.20.1.2\nCOCKPIT_TOKEN=0123456789abcdef\n'), {
     host: '172.20.1.2', token: '0123456789abcdef',
   });

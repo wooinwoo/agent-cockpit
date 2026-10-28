@@ -1,0 +1,1151 @@
+[
+  {
+    "input": {
+      "platform": "linux",
+      "title": "",
+      "body": ""
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "",
+        ""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "",
+          ""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "title",
+      "body": "body"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "title",
+        "body"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "title",
+          "body"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "한글 제목",
+      "body": "작업이 완료되었습니다."
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "한글 제목",
+        "작업이 완료되었습니다."
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "한글 제목",
+          "작업이 완료되었습니다."
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "Emoji 😀",
+      "body": "완료 🛰️"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "Emoji 😀",
+        "완료 🛰️"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "Emoji 😀",
+          "완료 🛰️"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "a \"quote\"",
+      "body": "body \"quote\""
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "a \"quote\"",
+        "body \"quote\""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "a \"quote\"",
+          "body \"quote\""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "trailing\\",
+      "body": "body\\"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "trailing\\",
+        "body\\"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "trailing\\",
+          "body\\"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "back\\slash",
+      "body": "C:\\new\\test"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "back\\slash",
+        "C:\\new\\test"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "back\\slash",
+          "C:\\new\\test"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "\\\" & do shell script \"touch forbidden\" & \"",
+      "body": "script lookalike \\\""
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "\\\" & do shell script \"touch forbidden\" & \"",
+        "script lookalike \\\""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "\\\" & do shell script \"touch forbidden\" & \"",
+          "script lookalike \\\""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "--urgency=critical",
+      "body": "--icon=synthetic"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "--urgency=critical",
+        "--icon=synthetic"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "--urgency=critical",
+          "--icon=synthetic"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "-e",
+      "body": "--"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "-e",
+        "--"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "-e",
+          "--"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "$(touch forbidden)",
+      "body": "`touch forbidden`"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "$(touch forbidden)",
+        "`touch forbidden`"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "$(touch forbidden)",
+          "`touch forbidden`"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "title\nline",
+      "body": "body\nline"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "title\nline",
+        "body\nline"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "title\nline",
+          "body\nline"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "title\rline",
+      "body": "body\r\nline"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "title\rline",
+        "body\r\nline"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "title\rline",
+          "body\r\nline"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "\ttitle",
+      "body": "body\ttext"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "\ttitle",
+        "body\ttext"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "\ttitle",
+          "body\ttext"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "<>&\"'",
+      "body": "XML <toast>&text</toast>"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "<>&\"'",
+        "XML <toast>&text</toast>"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "<>&\"'",
+          "XML <toast>&text</toast>"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "nul\u0000title",
+      "body": "nul\u0000body"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "nul\u0000title",
+        "nul\u0000body"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "nul\u0000title",
+          "nul\u0000body"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "separator title",
+      "body": "paragraph body"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "separator title",
+        "paragraph body"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "separator title",
+          "paragraph body"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "linux",
+      "title": "é é",
+      "body": "ＱＲ　완료"
+    },
+    "expected": {
+      "program": "notify-send",
+      "args": [
+        "--",
+        "é é",
+        "ＱＲ　완료"
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Terminate notify-send options before user-supplied text.",
+      "original": {
+        "program": "notify-send",
+        "args": [
+          "é é",
+          "ＱＲ　완료"
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "",
+      "body": ""
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"\" with title \"\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "title",
+      "body": "body"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body\" with title \"title\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "한글 제목",
+      "body": "작업이 완료되었습니다."
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"작업이 완료되었습니다.\" with title \"한글 제목\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "Emoji 😀",
+      "body": "완료 🛰️"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"완료 🛰️\" with title \"Emoji 😀\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "a \"quote\"",
+      "body": "body \"quote\""
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body \\\"quote\\\"\" with title \"a \\\"quote\\\"\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "trailing\\",
+      "body": "body\\"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body\\\\\" with title \"trailing\\\\\""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Escape AppleScript backslashes before quotes to keep text inside its literal.",
+      "original": {
+        "program": "osascript",
+        "args": [
+          "-e",
+          "display notification \"body\\\" with title \"trailing\\\""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "back\\slash",
+      "body": "C:\\new\\test"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"C:\\\\new\\\\test\" with title \"back\\\\slash\""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Escape AppleScript backslashes before quotes to keep text inside its literal.",
+      "original": {
+        "program": "osascript",
+        "args": [
+          "-e",
+          "display notification \"C:\\new\\test\" with title \"back\\slash\""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "\\\" & do shell script \"touch forbidden\" & \"",
+      "body": "script lookalike \\\""
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"script lookalike \\\\\\\"\" with title \"\\\\\\\" & do shell script \\\"touch forbidden\\\" & \\\"\""
+      ],
+      "env": {}
+    },
+    "correction": {
+      "reason": "Escape AppleScript backslashes before quotes to keep text inside its literal.",
+      "original": {
+        "program": "osascript",
+        "args": [
+          "-e",
+          "display notification \"script lookalike \\\\\"\" with title \"\\\\\" & do shell script \\\"touch forbidden\\\" & \\\"\""
+        ],
+        "env": {}
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "--urgency=critical",
+      "body": "--icon=synthetic"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"--icon=synthetic\" with title \"--urgency=critical\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "-e",
+      "body": "--"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"--\" with title \"-e\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "$(touch forbidden)",
+      "body": "`touch forbidden`"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"`touch forbidden`\" with title \"$(touch forbidden)\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "title\nline",
+      "body": "body\nline"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body\nline\" with title \"title\nline\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "title\rline",
+      "body": "body\r\nline"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body\r\nline\" with title \"title\rline\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "\ttitle",
+      "body": "body\ttext"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"body\ttext\" with title \"\ttitle\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "<>&\"'",
+      "body": "XML <toast>&text</toast>"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"XML <toast>&text</toast>\" with title \"<>&\\\"'\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "nul\u0000title",
+      "body": "nul\u0000body"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"nul\u0000body\" with title \"nul\u0000title\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "separator title",
+      "body": "paragraph body"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"paragraph body\" with title \"separator title\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "mac",
+      "title": "é é",
+      "body": "ＱＲ　완료"
+    },
+    "expected": {
+      "program": "osascript",
+      "args": [
+        "-e",
+        "display notification \"ＱＲ　완료\" with title \"é é\""
+      ],
+      "env": {}
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "",
+      "body": ""
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "",
+        "NB": ""
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "title",
+      "body": "body"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "title",
+        "NB": "body"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "한글 제목",
+      "body": "작업이 완료되었습니다."
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "한글 제목",
+        "NB": "작업이 완료되었습니다."
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "Emoji 😀",
+      "body": "완료 🛰️"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "Emoji 😀",
+        "NB": "완료 🛰️"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "a \"quote\"",
+      "body": "body \"quote\""
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "a \"quote\"",
+        "NB": "body \"quote\""
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "trailing\\",
+      "body": "body\\"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "trailing\\",
+        "NB": "body\\"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "back\\slash",
+      "body": "C:\\new\\test"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "back\\slash",
+        "NB": "C:\\new\\test"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "\\\" & do shell script \"touch forbidden\" & \"",
+      "body": "script lookalike \\\""
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "\\\" & do shell script \"touch forbidden\" & \"",
+        "NB": "script lookalike \\\""
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "--urgency=critical",
+      "body": "--icon=synthetic"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "--urgency=critical",
+        "NB": "--icon=synthetic"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "-e",
+      "body": "--"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "-e",
+        "NB": "--"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "$(touch forbidden)",
+      "body": "`touch forbidden`"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "$(touch forbidden)",
+        "NB": "`touch forbidden`"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "title\nline",
+      "body": "body\nline"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "title\nline",
+        "NB": "body\nline"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "title\rline",
+      "body": "body\r\nline"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "title\rline",
+        "NB": "body\r\nline"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "\ttitle",
+      "body": "body\ttext"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "\ttitle",
+        "NB": "body\ttext"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "<>&\"'",
+      "body": "XML <toast>&text</toast>"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "<>&\"'",
+        "NB": "XML <toast>&text</toast>"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "nul\u0000title",
+      "body": "nul\u0000body"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "nul\u0000title",
+        "NB": "nul\u0000body"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "separator title",
+      "body": "paragraph body"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "separator title",
+        "NB": "paragraph body"
+      }
+    }
+  },
+  {
+    "input": {
+      "platform": "windows",
+      "title": "é é",
+      "body": "ＱＲ　완료"
+    },
+    "expected": {
+      "program": "powershell",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "CgBbAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzAC4AVABvAGEAcwB0AE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAE0AYQBuAGEAZwBlAHIALAAgAFcAaQBuAGQAbwB3AHMALgBVAEkALgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgBzACwAIABDAG8AbgB0AGUAbgB0AFQAeQBwAGUAIAA9ACAAVwBpAG4AZABvAHcAcwBSAHUAbgB0AGkAbQBlAF0AIAB8ACAATwB1AHQALQBOAHUAbABsAAoAWwBXAGkAbgBkAG8AdwBzAC4ARABhAHQAYQAuAFgAbQBsAC4ARABvAG0ALgBYAG0AbABEAG8AYwB1AG0AZQBuAHQALAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAsACAAQwBvAG4AdABlAG4AdABUAHkAcABlACAAPQAgAFcAaQBuAGQAbwB3AHMAUgB1AG4AdABpAG0AZQBdACAAfAAgAE8AdQB0AC0ATgB1AGwAbAAKACQAQQBQAFAAXwBJAEQAIAA9ACAAJwB7ADEAQQBDADEANABFADcANwAtADAAMgBFADcALQA0AEUANQBEAC0AQgA3ADQANAAtADIARQBCADEAQQBFADUAMQA5ADgAQgA3AH0AXABXAGkAbgBkAG8AdwBzAFAAbwB3AGUAcgBTAGgAZQBsAGwAXAB2ADEALgAwAFwAcABvAHcAZQByAHMAaABlAGwAbAAuAGUAeABlACcACgAkAHQAIAA9ACAAWwBTAHkAcwB0AGUAbQAuAFMAZQBjAHUAcgBpAHQAeQAuAFMAZQBjAHUAcgBpAHQAeQBFAGwAZQBtAGUAbgB0AF0AOgA6AEUAcwBjAGEAcABlACgAJABlAG4AdgA6AE4AVAApAAoAJABiACAAPQAgAFsAUwB5AHMAdABlAG0ALgBTAGUAYwB1AHIAaQB0AHkALgBTAGUAYwB1AHIAaQB0AHkARQBsAGUAbQBlAG4AdABdADoAOgBFAHMAYwBhAHAAZQAoACQAZQBuAHYAOgBOAEIAKQAKACQAeABtAGwAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFcAaQBuAGQAbwB3AHMALgBEAGEAdABhAC4AWABtAGwALgBEAG8AbQAuAFgAbQBsAEQAbwBjAHUAbQBlAG4AdAAKACQAeABtAGwALgBMAG8AYQBkAFgAbQBsACgAIgA8AHQAbwBhAHMAdAA+ADwAdgBpAHMAdQBhAGwAPgA8AGIAaQBuAGQAaQBuAGcAIAB0AGUAbQBwAGwAYQB0AGUAPQAnAFQAbwBhAHMAdABHAGUAbgBlAHIAaQBjACcAPgA8AHQAZQB4AHQAPgAkAHQAPAAvAHQAZQB4AHQAPgA8AHQAZQB4AHQAPgAkAGIAPAAvAHQAZQB4AHQAPgA8AC8AYgBpAG4AZABpAG4AZwA+ADwALwB2AGkAcwB1AGEAbAA+ADwAYQB1AGQAaQBvACAAcwByAGMAPQAnAG0AcwAtAHcAaQBuAHMAbwB1AG4AZABlAHYAZQBuAHQAOgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAuAEQAZQBmAGEAdQBsAHQAJwAvAD4APAAvAHQAbwBhAHMAdAA+ACIAKQAKAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4ATQBhAG4AYQBnAGUAcgBdADoAOgBDAHIAZQBhAHQAZQBUAG8AYQBzAHQATgBvAHQAaQBmAGkAZQByACgAJABBAFAAUABfAEkARAApAC4AUwBoAG8AdwAoAFsAVwBpAG4AZABvAHcAcwAuAFUASQAuAE4AbwB0AGkAZgBpAGMAYQB0AGkAbwBuAHMALgBUAG8AYQBzAHQATgBvAHQAaQBmAGkAYwBhAHQAaQBvAG4AXQA6ADoAbgBlAHcAKAAkAHgAbQBsACkAKQA="
+      ],
+      "env": {
+        "NT": "é é",
+        "NB": "ＱＲ　완료"
+      }
+    }
+  }
+]

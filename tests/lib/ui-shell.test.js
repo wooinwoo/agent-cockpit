@@ -40,7 +40,7 @@ test('terminal-first shell keeps its Tailwind and focus-mode contract', async ()
   assert.match(terminalUi, /if \(!canvas\.enabled && window\.WebglAddon && localStorage\.getItem\('dl-term-webgl'\) === '1'\) \{[\s\S]*?webgl\.onContextLoss\(\(\) => \{[\s\S]*?term\.xterm\.loadAddon\(webgl\);/);
   assert.match(terminalUi, /function toggleCanvasView/);
   assert.match(terminalUi, /if \(canvas\.enabled\) \{\s*fitCanvas\(\)/);
-  assert.match(terminalUi, /data-canvas-context/);
+  assert.match(terminalUi, /body\.replaceChildren\(createSessionManagement\(termId, term\)\)/);
   assert.match(terminalUi, /data-canvas-resize-item/);
   assert.match(terminalUi, /function handleCanvasWheel/);
   assert.match(terminalUi, /function fillActiveCanvasFrame/);
@@ -83,12 +83,12 @@ test('terminal-first shell keeps its Tailwind and focus-mode contract', async ()
   assert.match(terminalUi, /Close \$\{term\.label\} terminal session\? Running work in this terminal will stop\./);
   assert.match(terminalUi, /export function requestCloseTerminal/);
   assert.equal((terminalUi.match(/_core\.closeTerminal\(/g) || []).length, 1);
-  assert.match(terminalUi, /activeFrame \|\| document\.querySelector\('\[data-canvas-board-frame\]'\)/);
+  assert.match(terminal, /activeFrame \|\| document\.querySelector\('\[data-canvas-board-frame\]'\)/);
   assert.match(terminalUi, /toolsInitialized/);
   assert.match(terminalUi, /data-boardtype="note">New memo/);
   assert.match(terminalUi, /const horizontalPan = e\.shiftKey && e\.button === 0 && !overCanvasItem/);
   assert.match(terminalUi, /requestAnimationFrame\(\(\) => addButton\?\.focus\(\)\)/);
-  assert.match(terminalUi, /closest\('\.canvas-context'\).*return/s);
+  assert.match(terminalUi, /closest\('\.session-management, \.session-activity'\).*return/s);
   assert.match(terminalUi, /function handleCanvasFrameKey/);
   assert.match(terminalUi, /if \(e\.target !== frameEl\) return false/);
   assert.match(terminalUi, /function handleCanvasSessionShortcut/);

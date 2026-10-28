@@ -157,8 +157,8 @@ Tauri Shell (cockpit.exe / Cockpit.app)
 ## 빠른 시작
 
 ```bash
-git clone https://github.com/wooinwoo/claude-code-cockpit.git
-cd claude-code-cockpit
+git clone https://github.com/wooinwoo/agent-cockpit.git
+cd agent-cockpit
 npm install
 npm start          # = node server.js  →  http://localhost:3847
 ```

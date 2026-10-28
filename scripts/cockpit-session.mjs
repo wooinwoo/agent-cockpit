@@ -158,16 +158,16 @@ try {
     const list = await sessions();
     const found = list.find(t => t.alias?.toLowerCase() === target.toLowerCase() || t.termId === target);
     if (!found) { console.error(`세션을 찾지 못했습니다: ${target}`); process.exit(1); }
-    const screen = await request(`/api/terminals/${encodeURIComponent(found.termId)}/screen?lines=${lines}`);
+    const screen = await request(`/api/terminals/${encodeURIComponent(found.termId)}/screen?lines=${lines}&current=1`);
     const trimmed = screen.lines.map(trimLine);
-    const hash = fingerprintLines(screen.lines);
+    const hash = fingerprintLines([`current:${screen.current === true}`, ...screen.lines]);
     const prevHash = loadFingerprint(found.termId);
     saveFingerprint(found.termId, hash);
-    if (onlyNew && hash === prevHash) {
+    if (onlyNew && hash === prevHash && screen.current) {
       console.log(`── ${screen.alias || found.termId}: 변화 없음 ──`);
       process.exit(0);
     }
-    console.log(`── ${screen.alias || found.termId} 화면 (끝 ${screen.lines.length}줄${screen.truncated ? ', 이전 내용 생략' : ''}) ──`);
+    console.log(`── ${screen.alias || found.termId} ${screen.current ? '현재 화면' : '저장된 출력 · 현재 화면 확인 실패'} (끝 ${screen.lines.length}줄${screen.truncated ? ', 이전 내용 생략' : ''}) ──`);
     console.log(trimmed.join('\n'));
     process.exit(0);
   }

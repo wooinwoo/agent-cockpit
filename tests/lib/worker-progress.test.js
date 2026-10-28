@@ -23,7 +23,7 @@ function setup(t) {
   register({ ...service, addRoute: (method, path, handler) => { routes[`${method} ${path}`] = handler; },
     readBody: async req => req.body, isLocalhost: () => true,
     json: (res, body, status = 200) => Object.assign(res, { body, status }) });
-  const tick = createBoardReviewer({ ...service, now: () => time,
+  const tick = createBoardReviewer({ ...service, readTerminalScreen: () => ({ current: true, lines: ['› Ask Codex to do anything'] }), now: () => time,
     resolveTerminalRef: () => ({ entry: { pty: { write: value => messages.push(value) } } }), terminalAgent: () => 'codex' });
   const report = async (progress, status = 'running') => {
     const res = {};
@@ -31,7 +31,13 @@ function setup(t) {
       status, report: '작업 중', ...(progress === undefined ? {} : { progress }) } }, res);
     return res;
   };
-  return { service, file, tick, report, messages, advance: minutes => { time += minutes * 60_000; } };
+  // These cases exercise progress accounting with a supervisor check every minute. Reviews now skip
+  // unchanged input, so clear the stored input key to request that check explicitly.
+  const check = () => {
+    if (!service.getBoard().review.pendingSince) service.updateBoardReview({ lastReviewKey: '' });
+    tick();
+  };
+  return { service, file, tick: check, report, messages, advance: minutes => { time += minutes * 60_000; } };
 }
 
 const evidence = (termId, version) => ({ termId, artifact: `/tmp/${termId}.txt`, version, result: '검증 결과' });

@@ -1,0 +1,38 @@
+[package]
+name = "cockpit-server"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+axum = { version = "0.8.9", features = ["ws"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "sync", "time", "process", "io-util"] }
+serde_json = { version = "1", features = ["raw_value", "preserve_order"] }
+serde = { version = "1", features = ["derive"] }
+ring = "0.17"
+rand = "0.9"
+subtle = "2"
+url = "2"
+fs2 = "0.4"
+tempfile = "3"
+portable-pty = "0.9"
+futures-util = { version = "0.3", features = ["sink"] }
+regex = "1"
+regress = { version = "0.12", features = ["utf16"] }
+percent-encoding = "2"
+libc = "0.2"
+sha2 = "0.10"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio-tungstenite = { version = "0.29.0", features = ["rustls-tls-webpki-roots"] }
+rusqlite = { version = "0.40", default-features = false, features = ["bundled"] }
+icu_collator = "2"
+icu_locale = "2"
+qrcodegen = "1.8.0"
+
+[dev-dependencies]
+quircs = "0.10.3"
+
+[profile.release]
+strip = true
+lto = "thin"

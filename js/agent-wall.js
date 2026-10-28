@@ -2,8 +2,10 @@ import { app, getOrderedTerminalEntries, getTerminalPair, getTerminalPairs, noti
 import { esc, fetchJson } from './utils.js';
 import { filterCicdByProject } from './cicd.js';
 import { registerClickActions } from './actions.js';
-import { getAgentAttentionForTerm, getAgentGoal, getAgentKind, getAgentState, getAgentTask, getOperationalState, getReleaseGate, getSessionActivity, getWallSummary } from './agent-wall-state.js';
+import { getAgentAttentionForTerm, getAgentGoal, getAgentKind, getAgentState, getAgentTask, getOperationalState, getReleaseGate, getRuntimeActivity, getSessionActivity, getWallSummary } from './agent-wall-state.js';
+import { updateSessionManagement, refreshSessionManagement } from './session-management.js';
 import { terminalGroupLayoutLabel } from './terminal-group-layout.js';
+import { showSessionAccounts } from './ai-accounts.js';
 
 // 터미널 분할 레이아웃 트리에 들어가는 관제 패널의 센티널 leaf id.
 // 실제 터미널이 아니므로 termMap 에는 없고, 트리 유틸들은 이 id 를 항상 유효한 leaf 로 취급한다.
@@ -180,7 +182,7 @@ function elapsed(ts) {
 }
 
 function tileHTML({ termId, term, kind, output, state, attention, gate, branch }) {
-  const stateLabel = state === 'busy' ? '작업 중' : state === 'waiting' ? '입력 필요' : state === 'done' ? '완료' : '대기';
+  const stateLabel = term.activity ? getRuntimeActivity(term.activity).label : state === 'busy' ? '작업 중' : state === 'waiting' ? '입력 필요' : state === 'done' ? '완료' : '대기';
   const summary = getAgentTask(summaries[termId]?.text, recentLines(term.xterm));
   const reason = attention?.reason || gate.reason;
   const action = attention ? '응답하기' : gate.state === 'hold' ? '확인하기' : gate.label;
@@ -200,8 +202,8 @@ function tileHTML({ termId, term, kind, output, state, attention, gate, branch }
 function kanbanHTML(agents) {
   const groups = [
     ['Working', agents.filter(a => a.state === 'busy')],
-    ['Waiting', agents.filter(a => a.state === 'waiting')],
-    ['Done', agents.filter(a => a.state !== 'busy' && a.state !== 'waiting')],
+    ['Waiting / Check', agents.filter(a => ['waiting', 'unknown', 'offline'].includes(a.state))],
+    ['Idle / Done', agents.filter(a => ['idle', 'done'].includes(a.state))],
   ];
   return groups.map(([label, items]) => `<section class="agent-kanban-col">
     <div class="agent-kanban-head"><span>${label}</span><span>${items.length}</span></div>
@@ -326,7 +328,10 @@ export function toggleWallPane() {
   setTimeout(() => notify('fitAllTerminals'), 100);
   render();
 }
-registerClickActions({ 'wall-pane-close': () => toggleWallPane() });
+registerClickActions({
+  'wall-pane-close': () => toggleWallPane(),
+  'session-account-list': button => showSessionAccounts(button.dataset.termid),
+});
 
 // 터미널 탭 상단 요약 스트립 — 탭 이동 없이 상태 확인 + 클릭으로 패널 포커스
 function renderStrip(agents) {
@@ -340,7 +345,7 @@ function renderStrip(agents) {
   const html = agents.map(({ termId, term, kind, state }) => {
     const name = app.projectList.find(p => p.id === term.projectId)?.name || term.projectId;
     const task = getAgentTask(summaries[termId]?.text, recentLines(term.xterm));
-    const stateLabel = state === 'busy' ? '작업 중' : state === 'waiting' ? '입력 필요' : state === 'done' ? '완료' : '대기';
+    const stateLabel = term.activity ? getRuntimeActivity(term.activity).label : state === 'busy' ? '작업 중' : state === 'waiting' ? '입력 필요' : state === 'done' ? '완료' : '대기';
     return `<li><button type="button" class="agent-strip-item ${state}${termId === app.activeTermId ? ' current' : ''}"
       data-strip-term="${esc(termId)}" title="${esc(name)} · ${kind} · ${state}${task ? ` · ${esc(task)}` : ''}">
       <span class="agent-strip-dot" aria-hidden="true"></span>
@@ -366,29 +371,9 @@ function renderStrip(agents) {
   }
 }
 
-function renderCanvasContexts(agents) {
-  document.querySelectorAll('[data-canvas-context]').forEach(panel => {
-    const termId = panel.dataset.canvasContext;
-    const term = app.termMap.get(termId);
-    const agent = agents.find(item => item.termId === termId);
-    const lines = term ? recentLines(term.xterm) : [];
-    const summary = summaries[termId] || {};
-    const task = agent ? getAgentTask(summary.text, lines) : '일반 셸 세션';
-    const goal = getAgentGoal(summary.goal, lines) || '첫 사용자 지시를 기다리는 중';
-    const stateLabel = agent?.state === 'busy' ? '작업 중' : agent?.state === 'waiting' ? '입력 필요' : agent?.state === 'done' ? '완료' : '대기';
-    const nextState = agent?.state || 'idle';
-    if (panel.dataset.state !== nextState) panel.dataset.state = nextState;
-    const values = [
-      [panel.querySelector('[data-context-goal]'), goal],
-      [panel.querySelector('[data-context-task]'), task],
-      [panel.querySelector('[data-context-status]'), `${agent?.kind || 'Shell'} · ${stateLabel}`],
-    ];
-    for (const [element, value] of values) if (element && element.textContent !== value) element.textContent = value;
-  });
-}
 
 function activityFor(termId, term) {
-  return getSessionActivity({ termId, board: activityBoard, summary: summaries[termId], lines: recentLines(term.xterm) });
+  return getSessionActivity({ termId, board: activityBoard, summary: summaries[termId], lines: recentLines(term.xterm), runtime: term.activity });
 }
 
 function activityTiming(activity) {
@@ -404,7 +389,8 @@ function activityTiming(activity) {
 function renderSessionActivity() {
   let added = false;
   for (const [termId, term] of app.termMap) {
-    const container = term.element.closest('.terminal-canvas-frame, .split-leaf');
+    const container = term.element.closest('.terminal-canvas-frame, .split-leaf')
+      || [...document.querySelectorAll('[data-canvas-frame]')].find(frame => frame.dataset.canvasFrame === termId);
     if (!container) continue;
     let conversation = container.querySelector('.session-conversation');
     if (!conversation) {
@@ -501,6 +487,7 @@ function renderCanvasSessionBoard(agents) {
     const state = activity.state;
     const stateLabel = activity.label;
     const shortcut = index < 9 ? `Alt+${index + 1}` : '';
+    const isJcode = term.activity?.agent === 'jcode' || (!term.activity?.agent && /^jcode(?:\s|$)/.test(term.agentCommand || term.command || ''));
     return `<div class="canvas-session-row ${esc(state)}${termId === app.activeTermId ? ' current' : ''}${pair ? ` paired${pairToneClass(termId)}` : ''}${pairSource ? ' pair-source' : ''}${app.pairSourceTermId ? ' group-editing' : ''}${groupSelected ? ' group-selected' : ''}" data-session-order-row="${esc(termId)}">
       <span class="canvas-session-order" draggable="true" tabindex="0" role="button" data-session-order-id="${esc(termId)}" aria-label="Reorder ${esc(term.label)} session" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown" title="Drag to reorder · Alt+↑/↓">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="1"/><circle cx="15" cy="7" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg>
@@ -509,7 +496,7 @@ function renderCanvasSessionBoard(agents) {
         <span class="canvas-session-dot" aria-hidden="true"></span>
         <span class="canvas-session-copy">
           <span class="canvas-session-name">${term.alias ? `<i class="canvas-session-alias">${esc(term.alias)}</i>` : ''}${esc(term.label)}</span>
-          <span class="canvas-session-meta">${esc(activity.role)} · ${stateLabel}${pair ? ` · GROUP ${pair.termIds.length} · ${terminalGroupLayoutLabel(pair)}` : ''}</span>
+          <span class="canvas-session-meta">${esc(activity.role)} · ${stateLabel}${activity.priority ? ` · 우선순위 ${['', '높음', '보통', '낮음'][activity.priority]}` : ''}${pair ? ` · GROUP ${pair.termIds.length} · ${terminalGroupLayoutLabel(pair)}` : ''}</span>
           <span class="canvas-session-task">${esc(task)}</span>
           <span class="canvas-session-progress">${esc(activityTiming(activity))}</span>
           <span class="canvas-session-blocker">${activity.blocker ? `막힘 · ${esc(activity.blocker)}` : ''}</span>
@@ -517,6 +504,7 @@ function renderCanvasSessionBoard(agents) {
         ${app.pairSourceTermId ? `<span class="canvas-session-group-choice" aria-hidden="true">${groupSelected ? '✓' : '+'}</span>` : shortcut ? `<kbd class="canvas-session-shortcut">${shortcut}</kbd>` : ''}
       </button>
       <span class="canvas-session-actions">
+        <button type="button" class="canvas-session-manage" data-action="canvas-tab" data-tab="context" data-termid="${esc(termId)}" title="${esc(term.alias || term.label)} 목표·우선순위 관리" aria-label="${esc(term.alias || term.label)} 세션 관리">관리</button>
         <button type="button" class="canvas-session-pair${pair || pairSource ? ' active' : ''}" data-action="canvas-pair-toggle" data-termid="${esc(termId)}" title="${pairSource ? 'Cancel group selection' : pair ? 'Add another terminal to this group' : `Group ${esc(term.label)} with another terminal`}" aria-label="${pairSource ? 'Cancel group selection' : pair ? 'Add another terminal to this group' : `Group ${esc(term.label)} with another terminal`}">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H7a4 4 0 0 0 0 8h2M15 8h2a4 4 0 0 1 0 8h-2M8 12h8"/></svg>
         </button>
@@ -525,11 +513,12 @@ function renderCanvasSessionBoard(agents) {
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
         </button>
       </span>
+      ${isJcode ? `<div class="canvas-session-account-line"><span class="canvas-session-account-name" title="실행 시 지정한 계정이며 실제 연결 계정과 다를 수 있습니다.">${esc(term.account?.name ? `실행 설정 · ${term.account.name}` : '기본 로그인 확인')}</span><button type="button" data-action="session-account-list" data-termid="${esc(termId)}" aria-label="${esc(term.alias || term.label)} 계정 보기·전환">계정</button></div>` : ''}
     </div>`;
   }).join('') || '<p>No active sessions</p>';
   const structureKey = sessions.map(([termId, term], index) => {
     const pair = getTerminalPair(termId);
-    return [termId, term.label, index, pair?.layout || '', pair?.termIds.join(':') || '', app.pairSourceTermId === termId].join('|');
+    return [termId, term.label, term.activity?.agent || term.agentCommand || term.command || '', index, pair?.layout || '', pair?.termIds.join(':') || '', app.pairSourceTermId === termId].join('|');
   }).join('::') || 'empty';
   if (list._cockpitStructureKey !== structureKey) {
     const scrollTop = list.scrollTop;
@@ -548,7 +537,7 @@ function renderCanvasSessionBoard(agents) {
       const currentMain = row.querySelector('.canvas-session-main');
       const nextMain = next.querySelector('.canvas-session-main');
       if (currentMain && nextMain && currentMain.title !== nextMain.title) currentMain.title = nextMain.title;
-      for (const selector of ['.canvas-session-name', '.canvas-session-meta', '.canvas-session-task', '.canvas-session-progress', '.canvas-session-blocker']) {
+      for (const selector of ['.canvas-session-name', '.canvas-session-meta', '.canvas-session-task', '.canvas-session-progress', '.canvas-session-blocker', '.canvas-session-account-name']) {
         const current = row.querySelector(selector);
         const value = next.querySelector(selector)?.textContent || '';
         if (current && current.textContent !== value) current.textContent = value;
@@ -586,11 +575,11 @@ function render() {
     const rawState = hook?.state === 'busy' ? 'busy' : hook?.state === 'done' ? 'done' : agentState(term, output, projectAgentCount);
     const projectState = app.state.projects.get(term.projectId);
     const gate = getReleaseGate({ git: projectState?.git, prs: projectState?.prs?.prs, runs: ciByProject.get(term.projectId), attention });
-    const state = getOperationalState(rawState, gate.state, attention);
+    const state = term.activity ? getRuntimeActivity(term.activity).state : getOperationalState(rawState, gate.state, attention);
     return { termId, term, kind, output, state, attention, gate, hook, branch: projectState?.git?.branch };
   }).sort((a, b) => Number(Boolean(b.attention)) - Number(Boolean(a.attention))
     || ['waiting', 'busy', 'idle', 'done'].indexOf(a.state) - ['waiting', 'busy', 'idle', 'done'].indexOf(b.state));
-  renderCanvasContexts(agents);
+  updateSessionManagement();
   renderSessionActivity();
   renderCanvasSessionBoard(agents);
   renderStrip(agents);
@@ -639,6 +628,7 @@ function render() {
 export function updateAgentWall() {
   if (!opsTimer) {
     const refreshOps = async () => {
+      if (document.hidden) return;
       // Refresh session reports while terminals are visible; fetch CI only for the wall.
       const stage = document.getElementById('agent-wall-stage');
       const terminalView = document.getElementById('terminal-view');
@@ -649,16 +639,22 @@ export function updateAgentWall() {
         fetchJson('/api/supervisor/recent?n=30', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/agents', { timeoutMs: 3000 }).catch(() => null),
         fetchJson('/api/supervisor/summaries', { timeoutMs: 3000 }).catch(() => null),
-        fetchJson('/api/board', { timeoutMs: 3000 }).catch(() => null),
-        fetchJson('/api/terminals', { timeoutMs: 3000 }).catch(() => null),
+        fetchJson('/api/board?projection=overview', { timeoutMs: 3000 }).catch(() => null),
+        fetchJson('/api/terminals?activity=1', { timeoutMs: 3000 }).catch(() => null),
       ]);
       if (Array.isArray(nextDecisions)) decisions = nextDecisions;
       if (Array.isArray(nextAgentEvents)) agentEvents = nextAgentEvents;
       if (nextSummaries && typeof nextSummaries === 'object') summaries = nextSummaries;
-      if (nextBoard?.review) { activityBoard = nextBoard; activityBoardAt = Date.now(); }
+      if (Array.isArray(nextBoard?.supervisors)) { activityBoard = nextBoard; activityBoardAt = Date.now(); }
+      refreshSessionManagement();
+      for (const terminal of nextTerminals?.terminals || []) {
+        const term = app.termMap.get(terminal.termId);
+        if (term) term.activity = terminal.activity;
+      }
       if (epoch === conversationEpoch && Array.isArray(nextTerminals?.terminals)) conversationStates = new Map(nextTerminals.terminals
         .map(terminal => [terminal.termId, terminal.conversationHeld === true]));
       render();
+      notify('updateTermHeaders');
       if (!wallVisible) return;
       const projectIds = [...new Set([...app.termMap.entries()]
         .filter(([termId, t]) => !t.exited && detectKind(termId, t, tail(t.xterm)))

@@ -243,9 +243,22 @@ Metadata is engraved into the terminal header rather than floated above it.
 
 The desktop activity rail uses centered line icons above engraved labels. Inactive items are muted; hover reveals a matte wash and hairline; active items use a darker control surface, bright text, an active border, and a thin inset steel-blue edge. On mobile the same hierarchy moves to the bottom and the active edge rotates to the top. Session navigation is a separate square-edged mono strip with two-digit indices and tiny state lamps.
 
+A 44px panel toggle at the start of the desktop instrument strip hides the activity rail while retaining the instrument strip and expands the application into its 68px space. The same button restores navigation; its accessible label and expansion state follow the visible state. The preference persists across reloads, while the mobile bottom navigation remains available.
+
 ### Terminal Panel
 
 The terminal panel is the signature component. It uses the dedicated terminal-black canvas, a 29px metadata header on desktop, warm terminal ink, ANSI semantic color, and a thin active inset edge. Split dividers are 3px hit lines that turn steel blue on hover or drag. On mobile, per-panel headers disappear in favor of the shared session row so output receives more vertical space.
+
+### Report Library / Preview
+
+The report tab extends the existing navigation and Instrument Bench frame with a file library beside a reading surface. Its management controls use the incumbent matte surfaces, text colors, hairlines, and steel-blue focus cues.
+
+- **Structure:** Desktop places a narrow library (260px to 320px) beside the flexible preview with a 16px gap. At 900px and below, the library sits above the preview, its scrollable list is capped at 240px, and the detail region retains room for reading. A persistent header action can hide the library and registration region, leaving the preview in one full-width column within the application; selection, filters, and preview contents remain in place.
+- **Controls:** File-path registration opens in a disclosure above the library. Search, format selection, and actions retain 44px minimum heights, 4px corners, and visible 2px focus outlines with a 2px offset.
+- **Rows:** Title, format, project/session metadata, modification time, and filename form a compact vertical stack. Hover and selection use the existing panel tone; selection adds a one-pixel inset steel-blue edge.
+- **Source identity:** The detail header keeps the registered source path visible beside actions for copying the path, downloading the file, and removing its library entry. Selecting or refreshing reads the source file's current contents.
+- **Reading surface:** Markdown renders inside an isolated white document with dark ink, system sans-serif body text (15px, 1.75 line height), a 75ch maximum measure, and distinct heading sizes (26px, 21px, and 18px). These values belong to the report document, while management chrome keeps the existing interface tokens. HTML retains its source styling in an isolated, script-free preview; external resources are blocked.
+- **States:** Loading, empty library, no search results, no selection, and failed source reads have explicit copy. Failed reads expose a retry action. A successful registration or removal remains visible if the following list refresh fails, with the refresh error stated separately.
 
 ## Do's and Don'ts
 

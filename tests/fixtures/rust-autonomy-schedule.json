@@ -1,0 +1,5716 @@
+[
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 2h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 2h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 2h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 2h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "EVERY 1 M",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "EVERY 1 M",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "EVERY 1 M",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "EVERY 1 M",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every\t2\nh",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every\t2\nh",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every\t2\nh",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every\t2\nh",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 00001m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 00001m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 00001m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 00001m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": " every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": " every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": " every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": " every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every -1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every -1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every -1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every -1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every +1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every +1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every +1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every +1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1.5m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1.5m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1.5m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1.5m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every １m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every １m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every １m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every １m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1d",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1d",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1d",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1d",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999h",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "\ud800",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "\ud800",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 59999
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "\ud800",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 60000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "\ud800",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 7200000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": false
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": false
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": 0
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": 0
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": 1
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": 1
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": 60000
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": 60000
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": -60000
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": -60000
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": true
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": true
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": ""
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": ""
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "invalid"
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "invalid"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "1970-01-01T00:01:00.000Z"
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "1970-01-01T00:01:00.000Z"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "1970-01-01T01:01:00+01:00"
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "1970-01-01T01:01:00+01:00"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": []
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": []
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": [
+          0
+        ]
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": [
+          0
+        ]
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": {}
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": {}
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": {
+          "toString": null
+        }
+      },
+      "now": 120000
+    },
+    "expected": {
+      "error": "Cannot convert object to primitive value"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": {
+          "toString": null
+        }
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "error": "Cannot convert object to primitive value"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": [
+          "1970-01-01T00:01:00Z"
+        ]
+      },
+      "now": 120000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": [
+          "1970-01-01T00:01:00Z"
+        ]
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": null,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": 0,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": "",
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": 1,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": "false",
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": [],
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": {},
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": null,
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "Cannot read properties of null (reading 'match')"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": null,
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": false,
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": false,
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": 0,
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": 0,
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": 1,
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": 1,
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": [],
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": [],
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": {},
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": {},
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": {
+          "match": false
+        },
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "s.pattern.match is not a function"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": {
+          "match": false
+        },
+        "enabled": false,
+        "lastRun": null
+      },
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": null,
+      "now": 0
+    },
+    "expected": {
+      "error": "Cannot read properties of null (reading 'enabled')"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": false,
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": 1,
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {},
+      "now": 0
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "enabled": true
+      },
+      "now": 0
+    },
+    "expected": {
+      "error": "Cannot read properties of undefined (reading 'match')"
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 DAILY",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 DAILY",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 DAILY",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 DAILY",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 DAILY",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekday",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekday",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekday",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekday",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekday",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 WeekDay\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 WeekDay\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 WeekDay\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 WeekDay\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:30 WeekDay\n",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:3 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:3 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:3 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:3 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:3 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:030 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:030 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:030 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:030 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "9:030 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "009:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "009:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "009:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "009:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "009:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "24:00 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "24:00 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "24:00 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "24:00 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "24:00 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "25:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "25:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "25:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "25:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "25:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:60 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:60 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:60 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:60 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:60 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "99:99 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "99:99 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "99:99 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "99:99 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "99:99 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekly",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekly",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekly",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekly",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 weekly",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30\tdaily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30\tdaily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30\tdaily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30\tdaily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30\tdaily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:59.999"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:31:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-10T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily ",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-11T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "2026-10-08T00:00:00"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "2026-10-08T23:59:59"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "2026-10-07T23:59:59"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "2026-10-09T00:00:00"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": "invalid"
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": true
+      },
+      "now": "2026-10-08T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "invalid"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "invalid"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": ""
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": ""
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "\ud800"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "\ud800"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-13-01T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-13-01T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-32T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-32T09:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T24:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T24:30:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:60:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:60:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:60"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:60"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00+24:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00+24:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "-000000-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "-000000-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 8640000000000001
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 8640000000000001
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": -8640000000000001
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": -8640000000000001
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 8640000000000000
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": 8640000000000000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": -8640000000000000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": -8640000000000000
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-02-30T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-02-30T09:30:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T24:00:00"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T24:00:00"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 0m",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00.9999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "09:30 daily",
+        "enabled": true,
+        "lastRun": null
+      },
+      "now": "2026-10-08T09:30:00.9999"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "0"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "1"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "12"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "13"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "31"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "32"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "49"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": false
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "50"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "99"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "100"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "2026"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "2026-10"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "2026-10-08"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "matches",
+      "schedule": {
+        "id": "a",
+        "pattern": "every 1m",
+        "enabled": true,
+        "lastRun": "Thu, 01 Jan 1970 00:00:00 GMT"
+      },
+      "now": "2030-01-01T00:00:00Z"
+    },
+    "expected": {
+      "value": true
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": " every 1m ",
+      "prompt": " task ",
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 1m",
+        "prompt": "task",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 1m",
+          "prompt": "task",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": null,
+      "prompt": null,
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "null",
+        "prompt": "null",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "null",
+          "prompt": "null",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": true,
+      "prompt": false,
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "true",
+        "prompt": "false",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "true",
+          "prompt": "false",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": 1e+21,
+      "prompt": 0,
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "1e+21",
+        "prompt": "0",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "1e+21",
+          "prompt": "0",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": 1e-7,
+      "prompt": 100000000000000000000,
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "1e-7",
+        "prompt": "100000000000000000000",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "1e-7",
+          "prompt": "100000000000000000000",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": [],
+      "prompt": [
+        null,
+        1,
+        [
+          "a",
+          "\ud800"
+        ]
+      ],
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "",
+        "prompt": ",1,a,\ud800",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "",
+          "prompt": ",1,a,\ud800",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": {
+        "valueOf": false
+      },
+      "prompt": {},
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "[object Object]",
+        "prompt": "[object Object]",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "[object Object]",
+          "prompt": "[object Object]",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": {
+        "toString": null
+      },
+      "prompt": "x",
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "error": "Cannot convert object to primitive value"
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": {
+        "toString": null
+      },
+      "opts": {},
+      "now": 1791446400000
+    },
+    "expected": {
+      "error": "Cannot convert object to primitive value"
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "﻿every 0m ",
+      "prompt": "\ud800😀\udc00",
+      "opts": {
+        "project": "\ud800"
+      },
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 0m",
+        "prompt": "\ud800😀\udc00",
+        "project": "\ud800",
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 0m",
+          "prompt": "\ud800😀\udc00",
+          "project": "\ud800",
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "x",
+      "opts": null,
+      "now": 1791446400000
+    },
+    "expected": {
+      "error": "Cannot read properties of null (reading 'project')"
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "x",
+      "opts": true,
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 1m",
+        "prompt": "x",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 1m",
+          "prompt": "x",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "x",
+      "opts": {
+        "project": ""
+      },
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 1m",
+        "prompt": "x",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 1m",
+          "prompt": "x",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "x",
+      "opts": {
+        "project": [
+          "a",
+          null
+        ]
+      },
+      "now": 1791446400000
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 1m",
+        "prompt": "x",
+        "project": [
+          "a",
+          null
+        ],
+        "enabled": true,
+        "lastRun": null,
+        "created": "2026-10-08T08:00:00.000Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 1m",
+          "prompt": "x",
+          "project": [
+            "a",
+            null
+          ],
+          "enabled": true,
+          "lastRun": null,
+          "created": "2026-10-08T08:00:00.000Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "default opts",
+      "now": -1
+    },
+    "expected": {
+      "value": {
+        "id": "112233",
+        "pattern": "every 1m",
+        "prompt": "default opts",
+        "project": null,
+        "enabled": true,
+        "lastRun": null,
+        "created": "1969-12-31T23:59:59.999Z"
+      },
+      "rows": [
+        {
+          "id": "112233",
+          "pattern": "every 1m",
+          "prompt": "default opts",
+          "project": null,
+          "enabled": true,
+          "lastRun": null,
+          "created": "1969-12-31T23:59:59.999Z"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "add",
+      "pattern": "every 1m",
+      "prompt": "invalid now",
+      "now": 8640000000000001
+    },
+    "expected": {
+      "error": "Invalid time value"
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": "a",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": true,
+      "rows": [
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": "a",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "id": "a",
+        "enabled": false,
+        "pattern": "every 1m",
+        "prompt": "\ud800",
+        "future": {
+          "nested": "\udc00"
+        }
+      },
+      "rows": [
+        {
+          "id": "a",
+          "enabled": false,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": "b",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": true,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": "b",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "id": "b",
+        "enabled": true
+      },
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": true
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": "missing",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": false,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": "missing",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": "duplicate",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": true,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": "duplicate",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "id": "duplicate",
+        "enabled": true
+      },
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": true
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": null,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": true,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": null,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "id": null,
+        "enabled": true
+      },
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null,
+          "enabled": true
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": 7,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": true,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": 7,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": {
+        "id": 7,
+        "enabled": true
+      },
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7,
+          "enabled": true
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": "7",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": false,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": "7",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "remove",
+      "id": [
+        "a"
+      ],
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": false,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "toggle",
+      "id": [
+        "a"
+      ],
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": null,
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "action": "list",
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    },
+    "expected": {
+      "value": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "id": "a",
+          "enabled": true,
+          "pattern": "every 1m",
+          "prompt": "\ud800",
+          "future": {
+            "nested": "\udc00"
+          }
+        },
+        {
+          "id": "b",
+          "enabled": false
+        },
+        {
+          "id": "duplicate",
+          "enabled": 0
+        },
+        {
+          "id": "duplicate",
+          "enabled": "false"
+        },
+        {
+          "id": null
+        },
+        {},
+        {
+          "id": 7
+        },
+        {
+          "id": [
+            "a"
+          ]
+        }
+      ]
+    }
+  }
+]

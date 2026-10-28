@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { agentPermissionCommand } from '../../js/agent-permissions.js';
+import { validateRecoveryCommand } from '../../lib/durable-terminal.js';
 
 // Exercise the real restore entry point without starting the application or an AI.
 const server = readFileSync(new URL('../../server.js', import.meta.url), 'utf8');
@@ -36,7 +37,7 @@ test('a deferred recovery that wins first preserves the configured supervisor ID
   let spawns = 0;
   const runtime = runInNewContext(`${restoreSource}\n${flushSource}\n({ tryRestoreTerminal, flushDeferredTerminalRestores })`, {
     terminals, deferredTerminalRestores: [saved], DURABLE_TERMINALS: true, durableTerminalExists: () => false,
-    getBoard: () => ({ review: { autoRecover: true, termId: 'manager', status: 'running' } }),
+    getBoard: () => ({ supervisors: [{ autoRecover: true, termId: 'manager', status: 'running' }] }),
     homedir: () => '/tmp', IS_WIN: false, existsSync: () => true,
     randomBytes: () => ({ toString: () => 'duplicate' }),
     terminalSpawnSpec: () => ({ durableId: saved.durableId, resumed: false }),
@@ -78,7 +79,7 @@ test('an active supervisor restores without a browser even when automatic agent 
     let restores = 0;
     let checkpoints = 0;
     runInNewContext(startup, {
-      getBoard: () => ({ review: { termId: 'manager', status: 'running', autoRecover } }),
+      getBoard: () => ({ supervisors: [{ termId: 'manager', status: 'running', autoRecover }] }),
       _terminalsRestored: false, restoreTerminals: () => { restores++; },
       saveTerminalStateNow: () => { checkpoints++; }, logger: { error() {} },
     });
@@ -133,7 +134,8 @@ test('deferred stopped supervisors stay stopped and restored workers retain watc
   const runtime = runInNewContext(`${restoreSource}\n${flushSource}\n({ tryRestoreTerminal, flushDeferredTerminalRestores })`, {
     terminals, deferredTerminalRestores: [supervisor, worker], DURABLE_TERMINALS: true, durableTerminalExists: () => false,
     // The user may have stopped supervision or replaced its manager while restore was deferred.
-    getBoard: () => ({ review: { autoRecover: false, termId: '', status: 'stopped', watched: [{ termId: 'worker' }] } }),
+    getBoard: () => ({ supervisors: [{ autoRecover: false, termId: '', status: 'stopped', watched: [{ termId: 'worker' }] }] }),
+    validateRecoveryCommand,
     homedir: () => '/tmp', IS_WIN: false, existsSync: () => true,
     randomBytes: () => ({ toString: () => 'new' }),
     terminalSpawnSpec: (id, _cwd, _account, durableId) => ({ durableId, resumed: false }),

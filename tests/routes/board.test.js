@@ -25,6 +25,20 @@ function setup() {
 }
 
 describe('board routes', () => {
+  it('returns a read-only summary and rejects saving it as a full board', async () => {
+    const routes = setup();
+    const full = {}, summary = {}, rejected = {}, invalid = {};
+    routes['GET /api/board']({}, full);
+    routes['GET /api/board']({ query: { projection: 'overview' } }, summary);
+    assert.equal(summary.body.projection, 'overview');
+    assert.equal(full.body.projection, undefined);
+    await routes['PUT /api/board']({ body: { board: summary.body, revision: 0 } }, rejected);
+    assert.equal(rejected.status, 400);
+    routes['GET /api/board']({ query: { projection: 'overview', supervisorId: 'S-0001' } }, invalid);
+    assert.equal(invalid.status, 400);
+    const after = {}; routes['GET /api/board']({}, after);
+    assert.deepEqual(after.body, full.body);
+  });
   it('forwards the question recipient to storage', async () => {
     const result = {};
     await setup()['POST /api/board/tasks']({ body: { text: '진행 상황은?', kind: 'question', questionTo: 'supervisor' } }, result);

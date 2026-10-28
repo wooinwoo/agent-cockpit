@@ -57,7 +57,7 @@
 .agent-tile-head { display: flex; align-items: center; gap: 7px; padding: 9px 10px 4px; font-size: .76rem; }
 .agent-tile-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); }
 .agent-tile.busy .agent-tile-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.agent-tile.waiting .agent-tile-dot { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.agent-tile.waiting .agent-tile-dot, .agent-tile.idle .agent-tile-dot { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
 .agent-tile.done .agent-tile-dot { background: var(--blue); }
 .agent-tile-name { font-weight: 700; color: #f3f4f8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agent-tile-kind { padding: 1px 5px; border: 1px solid rgba(129,140,248,.2); border-radius: 4px; color: var(--accent-bright); font: .58rem var(--mono); }

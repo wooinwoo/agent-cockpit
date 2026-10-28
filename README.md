@@ -6,7 +6,7 @@ Claude Code·Codex·OpenCode로 여러 프로젝트를 작업할 때는 실행 �
 
 [시연 영상](docs/media/cockpit-demo.webm) · [설계 사례](#설계와-문제-해결) · [실행 방법](#실행) · [전체 기능·운영 가이드](docs/user-guide.md)
 
-[![Verify](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/wooinwoo/claude-code-cockpit/actions/workflows/ci.yml)
+[![Verify](https://github.com/wooinwoo/agent-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/wooinwoo/agent-cockpit/actions/workflows/ci.yml)
 
 ![Codex·Claude Code·OpenCode 터미널과 세션 상태를 함께 보는 Cockpit 화면](docs/media/cockpit-session-status.png)
 
@@ -70,8 +70,8 @@ flowchart LR
 Node.js 22, Git이 필요하다. Linux에서는 node-pty 네이티브 빌드 도구와 tmux를 준비하면 세션 유지 기능도 사용할 수 있다.
 
 ```bash
-git clone https://github.com/wooinwoo/claude-code-cockpit.git
-cd claude-code-cockpit
+git clone https://github.com/wooinwoo/agent-cockpit.git
+cd agent-cockpit
 npm ci
 npm start
 ```

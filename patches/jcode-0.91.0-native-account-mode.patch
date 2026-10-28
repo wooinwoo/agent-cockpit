@@ -1,0 +1,531 @@
+diff --git a/crates/jcode-base/src/auth/account_store.rs b/crates/jcode-base/src/auth/account_store.rs
+index 4832dda..a355b5e 100644
+--- a/crates/jcode-base/src/auth/account_store.rs
++++ b/crates/jcode-base/src/auth/account_store.rs
+@@ -2,6 +2,19 @@ use anyhow::Result;
+ use std::collections::HashMap;
+ use std::sync::{LazyLock, RwLock};
+ 
++pub fn account_only() -> bool {
++    std::env::var("JCODE_ACCOUNT_ONLY").as_deref() == Ok("1")
++}
++
++pub fn verify_isolated_identity(email: Option<&str>, workspace: Option<&str>) -> Result<()> {
++    let expected = std::env::var("JCODE_EXPECTED_EMAIL").map_err(|_|anyhow::anyhow!("An isolated account requires its expected email"))?;
++    verify_expected_email(&expected,email)?;
++    if let Ok(expected) = std::env::var("JCODE_EXPECTED_WORKSPACE") {
++        anyhow::ensure!(!expected.is_empty() && workspace == Some(expected.as_str()), "The isolated OpenAI workspace changed");
++    }
++    Ok(())
++}
++
+ /// Serialize a complete read/modify/write across login and daemon processes.
+ pub fn with_file_lock<T>(path: &std::path::Path, action: impl FnOnce() -> Result<T>) -> Result<T> {
+     let _guard = file_lock(path)?;
+diff --git a/crates/jcode-base/src/auth/claude.rs b/crates/jcode-base/src/auth/claude.rs
+index 7147bcf..f297211 100644
+--- a/crates/jcode-base/src/auth/claude.rs
++++ b/crates/jcode-base/src/auth/claude.rs
+@@ -628,6 +628,9 @@ pub fn is_max_subscription() -> bool {
+ /// Load credentials for the active Anthropic account.
+ /// Falls through Claude Code -> jcode accounts -> OpenCode, preferring non-expired tokens.
+ pub fn load_credentials() -> Result<ClaudeCredentials> {
++    if super::account_store::account_only() {
++        return load_jcode_credentials();
++    }
+     let now_ms = chrono::Utc::now().timestamp_millis();
+ 
+     let mut expired_candidates: Vec<(&str, ClaudeCredentials)> = Vec::new();
+@@ -722,6 +725,13 @@ pub fn load_credentials_for_account(label: &str) -> Result<ClaudeCredentials> {
+ /// Load credentials from the active jcode account (multi-account aware).
+ fn load_jcode_credentials() -> Result<ClaudeCredentials> {
+     let auth = load_auth_file()?;
++    if super::account_store::account_only() {
++        anyhow::ensure!(
++            auth.anthropic_accounts.len() == 1
++                && !auth.anthropic_accounts[0].access.trim().is_empty(),
++            "An isolated Claude profile requires exactly one authenticated native account"
++        );
++    }
+     if auth.anthropic_accounts.is_empty() {
+         anyhow::bail!("No anthropic accounts configured in jcode auth.json");
+     }
+@@ -737,6 +747,10 @@ fn load_jcode_credentials() -> Result<ClaudeCredentials> {
+         .or_else(|| auth.anthropic_accounts.first())
+         .context("No anthropic accounts in jcode auth.json")?;
+ 
++    if super::account_store::account_only() {
++        super::account_store::verify_isolated_identity(account.email.as_deref(),None)?;
++    }
++
+     Ok(ClaudeCredentials {
+         access_token: account.access.clone(),
+         refresh_token: account.refresh.clone(),
+diff --git a/crates/jcode-base/src/auth/codex.rs b/crates/jcode-base/src/auth/codex.rs
+index 7a913e0..1f0f909 100644
+--- a/crates/jcode-base/src/auth/codex.rs
++++ b/crates/jcode-base/src/auth/codex.rs
+@@ -370,15 +370,18 @@ pub fn replace_existing_tokens(
+                     .is_some_and(|e| e.trim().eq_ignore_ascii_case(email.trim())),
+                 "Stored OpenAI account identity changed"
+             );
++            let returned_id = tokens.id_token.as_deref().and_then(extract_account_id);
++            let initializing = expected_account_id.is_none()
++                && account.account_id.is_none()
++                && account.access_token.is_empty()
++                && account.refresh_token.is_empty()
++                && account.id_token.is_none();
+             anyhow::ensure!(
+-                expected_account_id.is_some_and(|id| !id.is_empty())
+-                    && account.account_id.as_deref() == expected_account_id
+-                    && tokens
+-                        .id_token
+-                        .as_deref()
+-                        .and_then(extract_account_id)
+-                        .as_deref()
+-                        == expected_account_id,
++                returned_id.as_deref().is_some_and(|id| !id.is_empty())
++                    && (initializing
++                        || (expected_account_id.is_some_and(|id| !id.is_empty())
++                            && account.account_id.as_deref() == expected_account_id
++                            && returned_id.as_deref() == expected_account_id)),
+                 "OpenAI workspace changed; existing account was preserved"
+             );
+         }
+@@ -403,6 +406,9 @@ pub fn replace_existing_tokens(
+         }
+         account.access_token = tokens.access_token.clone();
+         account.refresh_token = tokens.refresh_token.clone();
++        if expected_email.is_some() && expected_account_id.is_none() {
++            account.account_id = tokens.id_token.as_deref().and_then(extract_account_id);
++        }
+         if tokens.id_token.is_some() {
+             account.id_token = tokens.id_token.clone();
+         }
+@@ -412,6 +418,9 @@ pub fn replace_existing_tokens(
+ }
+ 
+ pub fn load_credentials() -> Result<CodexCredentials> {
++    if super::account_store::account_only() {
++        return load_jcode_credentials();
++    }
+     if let Ok(creds) = load_oauth_credentials_internal(false) {
+         return Ok(creds);
+     }
+@@ -432,6 +441,9 @@ pub fn load_oauth_credentials() -> Result<CodexCredentials> {
+ }
+ 
+ fn load_oauth_credentials_internal(return_expired: bool) -> Result<CodexCredentials> {
++    if super::account_store::account_only() {
++        return load_jcode_credentials();
++    }
+     let now_ms = chrono::Utc::now().timestamp_millis();
+     let mut expired_candidates: Vec<(&str, CodexCredentials)> = Vec::new();
+     let legacy_allowed = legacy_auth_allowed();
+@@ -484,6 +496,10 @@ fn load_oauth_credentials_internal(return_expired: bool) -> Result<CodexCredenti
+ }
+ 
+ pub fn load_api_key_credentials() -> Result<CodexCredentials> {
++    anyhow::ensure!(
++        !super::account_store::account_only(),
++        "API key fallback is disabled for an isolated native account"
++    );
+     if let Some(api_key) = load_env_api_key() {
+         return Ok(CodexCredentials {
+             access_token: api_key,
+@@ -533,6 +549,13 @@ pub fn upsert_account_from_tokens(
+ 
+ fn load_jcode_credentials() -> Result<CodexCredentials> {
+     let auth = load_auth_file()?;
++    if super::account_store::account_only() {
++        anyhow::ensure!(
++            auth.openai_accounts.len() == 1
++                && !auth.openai_accounts[0].access_token.trim().is_empty(),
++            "An isolated OpenAI profile requires exactly one authenticated native account"
++        );
++    }
+     if auth.openai_accounts.is_empty() {
+         anyhow::bail!("No OpenAI accounts configured in jcode auth file")
+     }
+@@ -548,6 +571,10 @@ fn load_jcode_credentials() -> Result<CodexCredentials> {
+         .or_else(|| auth.openai_accounts.first())
+         .context("No OpenAI accounts in jcode auth file")?;
+ 
++    if super::account_store::account_only() {
++        super::account_store::verify_isolated_identity(account.email.as_deref(),account.account_id.as_deref())?;
++    }
++
+     Ok(credentials_from_account(account))
+ }
+ 
+diff --git a/crates/jcode-base/src/auth/guarded_auth_tests.rs b/crates/jcode-base/src/auth/guarded_auth_tests.rs
+index 3ab7a28..2e53689 100644
+--- a/crates/jcode-base/src/auth/guarded_auth_tests.rs
++++ b/crates/jcode-base/src/auth/guarded_auth_tests.rs
+@@ -255,6 +255,96 @@ fn a_refresh_response_cannot_change_the_openai_workspace() {
+     );
+ }
+ 
++#[test]
++fn verified_initial_openai_login_pins_workspace_without_copying_old_tokens() {
++    let sandbox = AuthTestSandbox::new().unwrap();
++    codex::upsert_account_from_tokens("", "", "", None, Some(0)).unwrap();
++    codex::update_account_profile("openai-otter", Some("one@example.com".into())).unwrap();
++    let path = sandbox.root().join("openai-auth.json");
++    let before = std::fs::read(&path).unwrap();
++    let mut new = tokens("new", "new");
++    new.id_token = Some(id_token("other@example.com", "space-one"));
++    assert!(oauth::save_verified_initial_openai("openai-otter", "one@example.com", &new).is_err());
++    assert_eq!(std::fs::read(&path).unwrap(), before);
++    new.id_token = Some(id_token("one@example.com", "space-one"));
++    oauth::save_verified_initial_openai("openai-otter", "one@example.com", &new).unwrap();
++    let stored = codex::list_accounts().unwrap().remove(0);
++    assert_eq!(stored.account_id.as_deref(), Some("space-one"));
++    let before = std::fs::read(&path).unwrap();
++    new.id_token = Some(id_token("one@example.com", "space-two"));
++    assert!(oauth::save_verified_initial_openai("openai-otter", "one@example.com", &new).is_err());
++    assert_eq!(std::fs::read(&path).unwrap(), before);
++}
++
++#[test]
++fn isolated_account_mode_rejects_fallbacks_and_multiple_native_accounts() {
++    let _sandbox = AuthTestSandbox::new().unwrap();
++    crate::env::set_var("JCODE_ACCOUNT_ONLY", "1");
++    crate::env::set_var("JCODE_EXPECTED_EMAIL", "one@example.com");
++    crate::env::set_var("OPENAI_API_KEY", "synthetic-external-key");
++    crate::env::set_var("ANTHROPIC_API_KEY", "synthetic-external-key");
++    assert!(claude::load_credentials().is_err());
++    assert!(codex::load_credentials().is_err());
++    assert!(codex::load_api_key_credentials().is_err());
++    assert!(crate::provider::anthropic::load_anthropic_api_key().is_err());
++    claude::upsert_account(claude_account("", "one@example.com")).unwrap();
++    assert_eq!(
++        claude::load_credentials().unwrap().access_token,
++        "old-access"
++    );
++    codex::upsert_account_from_tokens(
++        "",
++        "native-access",
++        "native-refresh",
++        Some(id_token("one@example.com", "space-one")),
++        Some(1),
++    )
++    .unwrap();
++    assert_eq!(
++        codex::load_credentials().unwrap().access_token,
++        "native-access"
++    );
++    claude::upsert_account(claude_account("", "two@example.com")).unwrap();
++    codex::upsert_account_from_tokens(
++        "",
++        "other",
++        "other",
++        Some(id_token("other@example.com", "space-two")),
++        Some(1),
++    )
++    .unwrap();
++    assert!(claude::load_credentials().is_err());
++    assert!(codex::load_credentials().is_err());
++}
++
++#[tokio::test]
++async fn isolated_refresh_checks_identity_before_network_and_leaves_fresh_tokens_untouched() {
++    let sandbox = AuthTestSandbox::new().unwrap();
++    crate::env::set_var("JCODE_ACCOUNT_ONLY", "1");
++    crate::env::set_var("JCODE_EXPECTED_EMAIL", "one@example.com");
++    let mut account = claude_account("", "one@example.com");
++    account.expires = 9_999_999_999_999;
++    claude::upsert_account(account).unwrap();
++    let path = sandbox.root().join("auth.json");
++    let before = std::fs::read(&path).unwrap();
++    assert!(
++        !oauth::refresh_guarded_account("claude", "claude-otter", "one@example.com", false)
++            .await
++            .unwrap()
++    );
++    assert!(
++        oauth::refresh_guarded_account("claude", "claude-otter", "other@example.com", true)
++            .await
++            .is_err()
++    );
++    assert!(
++        oauth::refresh_guarded_account("claude", "missing", "one@example.com", true)
++            .await
++            .is_err()
++    );
++    assert_eq!(std::fs::read(&path).unwrap(), before);
++}
++
+ #[test]
+ fn concurrent_updates_to_different_accounts_do_not_lose_each_other() {
+     let _sandbox = AuthTestSandbox::new().unwrap();
+diff --git a/crates/jcode-base/src/auth/oauth.rs b/crates/jcode-base/src/auth/oauth.rs
+index bbf5328..25162aa 100644
+--- a/crates/jcode-base/src/auth/oauth.rs
++++ b/crates/jcode-base/src/auth/oauth.rs
+@@ -1057,13 +1057,98 @@ pub async fn reauthenticate_existing_openai(
+             == 1,
+         "Selected OpenAI account is ambiguous"
+     );
+-    let workspace = selected
+-        .account_id
+-        .as_deref()
+-        .filter(|id| !id.is_empty())
+-        .ok_or_else(|| anyhow::anyhow!("Selected OpenAI account has no verified workspace"))?;
++    let workspace = selected.account_id.as_deref().filter(|id| !id.is_empty());
++    anyhow::ensure!(
++        workspace.is_some()
++            || (selected.account_id.is_none()
++                && selected.access_token.is_empty()
++                && selected.refresh_token.is_empty()
++                && selected.id_token.is_none()),
++        "Selected OpenAI account has no verified workspace"
++    );
+     let tokens = login_openai(no_browser).await?;
+-    save_verified_existing_openai(label, expected_email, workspace, &tokens)
++    match workspace {
++        Some(workspace) => save_verified_existing_openai(label, expected_email, workspace, &tokens),
++        None => save_verified_initial_openai(label, expected_email, &tokens),
++    }
++}
++
++pub fn save_verified_initial_openai(
++    label: &str,
++    expected_email: &str,
++    tokens: &OAuthTokens,
++) -> Result<()> {
++    let actual = tokens
++        .id_token
++        .as_deref()
++        .and_then(super::codex::extract_email);
++    super::account_store::verify_expected_email(expected_email, actual.as_deref())?;
++    super::codex::replace_existing_tokens(label, Some(expected_email), None, None, tokens)?;
++    Ok(())
++}
++
++/// Refresh only the one account owned by an isolated Cockpit profile; never export tokens.
++pub async fn refresh_guarded_account(
++    provider: &str,
++    label: &str,
++    expected_email: &str,
++    force: bool,
++) -> Result<bool> {
++    anyhow::ensure!(
++        super::account_store::account_only(),
++        "Isolated native account mode is required"
++    );
++    match provider {
++        "claude" => {
++            let accounts = claude_auth::list_accounts()?;
++            anyhow::ensure!(
++                accounts.len() == 1,
++                "Exactly one native Claude account is required"
++            );
++            let account = &accounts[0];
++            super::account_store::verify_isolated_identity(account.email.as_deref(),None)?;
++            anyhow::ensure!(account.label == label, "Selected native account changed");
++            super::account_store::verify_expected_email(expected_email, account.email.as_deref())?;
++            anyhow::ensure!(
++                !account.access.is_empty() && !account.refresh.is_empty(),
++                "Native account login required"
++            );
++            if !force && account.expires > chrono::Utc::now().timestamp_millis() + 300_000 {
++                return Ok(false);
++            }
++            refresh_claude_tokens_for_account(&account.refresh, label).await?;
++        }
++        "openai" => {
++            let accounts = super::codex::list_accounts()?;
++            anyhow::ensure!(
++                accounts.len() == 1,
++                "Exactly one native OpenAI account is required"
++            );
++            let account = &accounts[0];
++            super::account_store::verify_isolated_identity(account.email.as_deref(),account.account_id.as_deref())?;
++            anyhow::ensure!(account.label == label, "Selected native account changed");
++            super::account_store::verify_expected_email(expected_email, account.email.as_deref())?;
++            anyhow::ensure!(
++                !account.access_token.is_empty()
++                    && !account.refresh_token.is_empty()
++                    && account
++                        .account_id
++                        .as_deref()
++                        .is_some_and(|id| !id.is_empty()),
++                "Native account login required"
++            );
++            if !force
++                && account.expires_at.is_some_and(|expires| {
++                    expires > chrono::Utc::now().timestamp_millis() + 300_000
++                })
++            {
++                return Ok(false);
++            }
++            refresh_openai_tokens_for_account(&account.refresh_token, label).await?;
++        }
++        _ => anyhow::bail!("Unsupported native account provider"),
++    }
++    Ok(true)
+ }
+ 
+ pub fn save_verified_existing_openai(
+diff --git a/crates/jcode-base/src/auth/test_sandbox.rs b/crates/jcode-base/src/auth/test_sandbox.rs
+index 8939337..a6093ef 100644
+--- a/crates/jcode-base/src/auth/test_sandbox.rs
++++ b/crates/jcode-base/src/auth/test_sandbox.rs
+@@ -101,6 +101,9 @@ fn reset_global_auth_state() {
+ 
+ fn tracked_env_vars() -> Vec<String> {
+     let mut keys = [
++        "JCODE_ACCOUNT_ONLY",
++        "JCODE_EXPECTED_EMAIL",
++        "JCODE_EXPECTED_WORKSPACE",
+         "JCODE_HOME",
+         "XDG_CONFIG_HOME",
+         "JCODE_OPENROUTER_API_BASE",
+diff --git a/crates/jcode-base/src/provider/anthropic.rs b/crates/jcode-base/src/provider/anthropic.rs
+index b672d6d..7e27879 100644
+--- a/crates/jcode-base/src/provider/anthropic.rs
++++ b/crates/jcode-base/src/provider/anthropic.rs
+@@ -78,6 +78,10 @@ pub fn apply_oauth_attribution_headers(
+ pub const AVAILABLE_MODELS: &[&str] = jcode_provider_core::ALL_CLAUDE_MODELS;
+ 
+ pub fn load_anthropic_api_key() -> Result<String> {
++    anyhow::ensure!(
++        !crate::auth::account_store::account_only(),
++        "API key fallback is disabled for an isolated native account"
++    );
+     if std::env::var("JCODE_ANTHROPIC_AUTH")
+         .ok()
+         .is_some_and(|value| value.eq_ignore_ascii_case("none"))
+diff --git a/crates/jcode-provider-anthropic-runtime/src/lib.rs b/crates/jcode-provider-anthropic-runtime/src/lib.rs
+index ca5e5a7..3b15c60 100644
+--- a/crates/jcode-provider-anthropic-runtime/src/lib.rs
++++ b/crates/jcode-provider-anthropic-runtime/src/lib.rs
+@@ -673,6 +673,7 @@ impl AnthropicProvider {
+     }
+ 
+     fn direct_api_key(&self) -> Result<String> {
++    anyhow::ensure!(!jcode_base::auth::account_store::account_only(), "API key fallback is disabled for an isolated native account");
+         match &self.profile_api_key {
+             Some(Ok(key)) => Ok(key.clone()),
+             Some(Err(err)) => anyhow::bail!(err.clone()),
+diff --git a/crates/jcode-terminal-launch/src/lib.rs b/crates/jcode-terminal-launch/src/lib.rs
+index 1505ae2..55b2b36 100644
+--- a/crates/jcode-terminal-launch/src/lib.rs
++++ b/crates/jcode-terminal-launch/src/lib.rs
+@@ -445,6 +445,7 @@ pub fn spawn_command_in_new_terminal_with(
+     cwd: &Path,
+     mut spawn_detached: impl FnMut(&mut Command) -> std::io::Result<()>,
+ ) -> Result<bool> {
++    anyhow::ensure!(std::env::var("JCODE_ACCOUNT_ONLY").ok().as_deref() != Some("1"), "Open a new session from Cockpit to preserve the selected account.");
+     let mut last_spawn_error: Option<std::io::Error> = None;
+ 
+     #[cfg(unix)]
+@@ -624,6 +625,7 @@ pub fn build_hook_spawn_command(
+     command: &TerminalCommand,
+     cwd: &Path,
+ ) -> Result<Command> {
++    anyhow::ensure!(std::env::var("JCODE_ACCOUNT_ONLY").ok().as_deref() != Some("1"), "Open a new session from Cockpit to preserve the selected account.");
+     let parts = parse_hook_command(hook)?;
+     let (program, prefix_args) = parts
+         .split_first()
+diff --git a/src/cli/args.rs b/src/cli/args.rs
+index 29b44a7..7203546 100644
+--- a/src/cli/args.rs
++++ b/src/cli/args.rs
+@@ -143,6 +143,18 @@ pub(crate) struct Args {
+ 
+ #[derive(Subcommand, Debug)]
+ pub(crate) enum Command {
++    /// Internal account ownership handshake and refresh without exposing credentials.
++    #[command(hide = true)]
++    CockpitAccount {
++        #[arg(long)]
++        account: Option<String>,
++        #[arg(long)]
++        expected_email: Option<String>,
++        #[arg(long)]
++        refresh: bool,
++        #[arg(long, requires = "refresh")]
++        force: bool,
++    },
+     /// Start the agent server (background daemon)
+     Serve {
+         /// Internal: mark this server as temporary so it can self-clean when its owner exits.
+diff --git a/src/cli/dispatch.rs b/src/cli/dispatch.rs
+index fe79aa5..86618ad 100644
+--- a/src/cli/dispatch.rs
++++ b/src/cli/dispatch.rs
+@@ -74,6 +74,7 @@ fn arm_debug_client_parent_death_signal() {}
+ pub(crate) async fn run_main(mut args: Args) -> Result<()> {
+     arm_debug_client_parent_death_signal();
+     if args.ssh.is_some() {
++        anyhow::ensure!(!auth::account_store::account_only(), "Cockpit account sessions cannot transfer credentials over SSH. Open a local Cockpit session.");
+         // A remote session ID and working directory belong to the remote host.
+         // Do not run local resume lookup, provider bootstrap, or self-dev setup.
+         return super::ssh::run(args).await;
+@@ -135,6 +136,52 @@ pub(crate) async fn run_main(mut args: Args) -> Result<()> {
+     }
+ 
+     match args.command {
++        Some(Command::CockpitAccount {
++            account,
++            expected_email,
++            refresh,
++            force,
++        }) => {
++            if !refresh {
++                println!(
++                    "{}",
++                    serde_json::json!({"version":1,"nativeAccountOnly":true,"guardedLogin":true,"guardedInitialization":true,"refreshOwner":"jcode","accountCostRecords":true})
++                );
++            } else {
++                let result = match (
++                    account.as_deref(),
++                    expected_email.as_deref(),
++                ) {
++                    (Some(account), Some(email)) => {
++                        auth::oauth::refresh_guarded_account(args.provider.as_arg_value(), account, email, force).await
++                    }
++                    _ => Err(anyhow::anyhow!("Native account identity is required")),
++                };
++                let value = match result {
++                    Ok(refreshed) => serde_json::json!({"ok":true,"refreshed":refreshed}),
++                    Err(error) => {
++                        let text = format!("{error:#}").to_ascii_lowercase();
++                        let code = if text.contains("invalid_grant")
++                            || text.contains("login required")
++                            || text.contains("rejected")
++                        {
++                            "login_required"
++                        } else if text.contains("invalid_scope") {
++                            "scope_required"
++                        } else if text.contains("timed out")
++                            || text.contains("timeout")
++                            || text.contains("connect")
++                        {
++                            "network_error"
++                        } else {
++                            "credential_unavailable"
++                        };
++                        serde_json::json!({"ok":false,"code":code})
++                    }
++                };
++                println!("{value}");
++            }
++        }
+         Some(Command::Serve {
+             temporary_server,
+             owner_pid,
+diff --git a/src/cli/proctitle.rs b/src/cli/proctitle.rs
+index cffcae0..28ef584 100644
+--- a/src/cli/proctitle.rs
++++ b/src/cli/proctitle.rs
+@@ -10,6 +10,7 @@ use crate::process_title::{compact_process_title, session_name, set_title};
+ 
+ pub(crate) fn initial_title(args: &Args) -> String {
+     match &args.command {
++        Some(Command::CockpitAccount { .. }) => "jcode cockpit-account".to_string(),
+         Some(Command::Serve { .. }) => "jcode:server".to_string(),
+         Some(Command::Acp) => "jcode acp".to_string(),
+         Some(Command::Server { .. }) => "jcode server".to_string(),

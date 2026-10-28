@@ -20,6 +20,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - platform: ubuntu-24.04
+            bundles: deb
+            artifact: 'src-tauri/target/release/bundle/deb/*.deb'
           - platform: windows-latest
             bundles: nsis
             artifact: 'src-tauri/target/release/bundle/nsis/*.exe'
@@ -39,13 +42,53 @@ jobs:
 
       - uses: swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri
+          workspaces: |
+            src-tauri
+            rust-server
+
+      - name: Install Linux desktop prerequisites
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf tmux xvfb x11-utils python3-gi gir1.2-gtk-3.0
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build Tauri app
+        if: runner.os == 'macOS'
         run: npm run tauri build -- --bundles ${{ matrix.bundles }} --verbose
+
+      - name: Test Windows WSL connection
+        if: runner.os == 'Windows'
+        run: cargo test --locked -j 2 --manifest-path src-tauri/Cargo.toml wsl_server::tests
+
+      - name: Test Windows WSL packaging
+        if: runner.os == 'Windows'
+        run: node --test tests/lib/wsl-installer.test.js
+
+      - name: Build Windows WSL installer
+        if: runner.os == 'Windows'
+        run: npm run build
+
+      - name: Test and build Linux native installer
+        if: runner.os == 'Linux'
+        run: |
+          cargo test --locked -j 2 --manifest-path src-tauri/Cargo.toml native_server::tests
+          npm run build
+
+      - name: Verify packaged Linux desktop
+        if: runner.os == 'Linux'
+        run: python3 scripts/verify-native-installer.py --xvfb /usr/bin/Xvfb --node "$(command -v node)"
+
+      - name: Upload Linux desktop verification
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cockpit-deb-verification
+          path: |
+            docs/_local/native-installer-verification.json
+            docs/_local/native-installer-desktop.png
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

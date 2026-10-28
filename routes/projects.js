@@ -1,4 +1,4 @@
-import { networkInterfaces } from 'node:os';
+import { getNetworkIPs } from '../lib/network-addresses.js';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { resolve, normalize, join } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -29,26 +29,6 @@ export function register(ctx) {
   const { addRoute, json, withProject, readBody, isLocalhost, getProjects, getProjectById, addProject, updateProject, deleteProject, poller, devServers, toWinPath, spawnForProject } = ctx;
 
   // --- Inline helpers ---
-
-  function getNetworkIPs() {
-    const result = [];
-    try {
-      const nets = networkInterfaces();
-      for (const name of Object.keys(nets)) {
-        for (const net of nets[name]) {
-          if (net.family !== 'IPv4' || net.internal) continue;
-          const oct1 = parseInt(net.address.split('.')[0]);
-          const oct2 = parseInt(net.address.split('.')[1]);
-          // Tailscale uses 100.64-127.x.x (CGNAT range)
-          const type = (oct1 === 100 && oct2 >= 64 && oct2 <= 127) ? 'tailscale' : 'lan';
-          result.push({ ip: net.address, type });
-        }
-      }
-    } catch { /* network info unavailable */ }
-    // Tailscale first (works remotely), then LAN
-    result.sort((a, b) => (a.type === 'tailscale' ? -1 : 1) - (b.type === 'tailscale' ? -1 : 1));
-    return result;
-  }
 
   function broadcastDevStatus() {
     const list = [];

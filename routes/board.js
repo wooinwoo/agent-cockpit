@@ -2,6 +2,8 @@ import { updateBoardReview as persistReview, reportBoardReview as persistReport,
 import { createBoardReviewer } from '../lib/board-review.js';
 import { AGENT_PERMISSION_MODES, unattendedCommandReady } from '../js/agent-permissions.js';
 import { createApprovalWatcher } from '../lib/approval-watcher.js';
+import { workerSettings } from '../js/worker-settings.js';
+import { boardSummary } from '../lib/board-summary.js';
 
 export function register(ctx) {
   const {
@@ -15,6 +17,7 @@ export function register(ctx) {
   if (ctx.resolveTerminalRef && ctx.terminalAgent) {
     const tick = createBoardReviewer({ getBoard, updateBoardReview,
       resolveTerminalRef: ctx.resolveTerminalRef, terminalAgent: ctx.terminalAgent, readTerminalScreen: ctx.readTerminalScreen,
+      sendAgentInput: ctx.sendAgentInput,
       recoverSupervisor: ctx.recoverBoardSupervisor, PORT: ctx.PORT });
     const timer = setInterval(() => {
       try { tick(); } catch (error) { console.warn('[board-review]', error.message); }
@@ -30,7 +33,9 @@ export function register(ctx) {
   };
 
   addRoute('GET', '/api/board', (req, res) => {
-    try { const board = getBoard(); json(res, req.query?.supervisorId ? supervisorBoard(board, req.query.supervisorId) : board); }
+    const projection = req.query?.projection;
+    if (projection !== undefined && (projection !== 'overview' || req.query?.supervisorId !== undefined)) return json(res, { error: 'Invalid board projection' }, 400);
+    try { const board = getBoard(); json(res, projection ? boardSummary(board) : req.query?.supervisorId ? supervisorBoard(board, req.query.supervisorId) : board); }
     catch (error) { handleError(res, error); }
   });
 
@@ -80,7 +85,8 @@ export function register(ctx) {
       if (!Array.isArray(referencePaths) || referencePaths.length > 30 || referencePaths.some(path => typeof path !== 'string' || !path.trim() || path.length > 2000 || /[\x00-\x1f\x7f]/.test(path))) {
         return json(res, { error: '참고 자료는 한 줄에 경로 하나씩, 최대 30개·각 2000자로 입력하세요.' }, 400);
       }
-      const runHours = found ? (body.runHours ?? current.runHours) : 0;
+      const keepWorkerDeadline = !found && current.workerDispatch === 'running';
+      const runHours = found ? (body.runHours ?? current.runHours) : keepWorkerDeadline ? current.runHours : 0;
       if (!Number.isInteger(runHours) || runHours < 0 || runHours > 24) return json(res, { error: '야간 운영 시간은 0~24시간으로 지정하세요.' }, 400);
       if (body.autoRecover !== undefined && typeof body.autoRecover !== 'boolean') return json(res, { error: '자동 복구 설정을 확인하세요.' }, 400);
       const autoRecover = Boolean(found && (body.autoRecover ?? current.autoRecover));
@@ -94,7 +100,7 @@ export function register(ctx) {
         try { recoveryTerminal = ctx.prepareBoardRecovery(found); }
         catch (error) { return json(res, { error: error.message }, 400); }
       }
-      if (runHours && (!autoRecover || !stallMinutes || !unattendedCommandReady(found.entry.command))) {
+      if (found && runHours && (!autoRecover || !stallMinutes || !unattendedCommandReady(found.entry.command))) {
         return json(res, { error: '야간 운영에는 자동 복구·보고 기한과 승인 없는 감독이 필요합니다. 아래에서 Codex 작업 폴더+네트워크 또는 전체 접근, Claude 권한 확인 생략을 선택하고 새 감독 세션을 여세요.' }, 400);
       }
       const objective = body.objective === undefined ? current.objective : body.objective;
@@ -112,14 +118,14 @@ export function register(ctx) {
               || typeof item.goal !== 'string' || !item.goal.trim() || item.goal.length > 2000) {
             return json(res, { error: '감시 대상은 실행 중인 서로 다른 AI여야 하며, 각각 완료 조건이 필요합니다. 감독 자신은 제외하세요.' }, 400);
           }
-          watched.push({ termId: worker.id, alias: worker.entry.alias || '', goal: item.goal.trim() });
+          watched.push({ ...current.watched.find(saved => saved.termId === worker.id), termId: worker.id, alias: worker.entry.alias || '', goal: item.goal.trim() });
         }
       }
       if (found && watched.some(worker => worker.termId === found.id)) return json(res, { error: '감독 세션 자신은 감시 대상이 될 수 없습니다.' }, 400);
       updateBoardReview({
         termId: found?.id || '', alias: found?.entry.alias || '', intervalMinutes: minutes, pendingSince: 0, nextDueAt: Date.now(),
         objective: objective.trim(), referencePaths: referencePaths.map(path => path.trim()), runHours,
-        runUntil: runHours ? Date.now() + runHours * 3_600_000 : 0,
+        runUntil: keepWorkerDeadline ? current.runUntil : runHours ? Date.now() + runHours * 3_600_000 : 0,
         watched, status: found ? 'running' : 'stopped', retryAt: 0, attempts: 0, lastError: '', lastReviewedAt: found ? 0 : current.lastReviewedAt,
         autoRecover, recoveryTerminal, recoveryAttempts: 0, recoveryAfter: 0, stallMinutes, cycleStartedAt: 0,
       }, undefined, supervisorId);
@@ -139,6 +145,50 @@ export function register(ctx) {
     } catch (error) { handleError(res, error); }
   });
 
+  addRoute('PATCH', '/api/board/worker-settings', async (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '세션 관리는 로컬에서만 가능합니다.' }, 403);
+    const body = await readBody(req);
+    try {
+      const supervisorId = body.supervisorId || 'S-0001';
+      const review = supervisorBoard(getBoard(), supervisorId).review;
+      const current = review.watched.find(worker => worker.termId === body.termId);
+      const expected = current ? workerSettings(current) : null;
+      if (JSON.stringify(expected) !== JSON.stringify(body.expected)) return json(res, { error: '다른 곳에서 목표나 우선순위를 변경했습니다. 입력은 유지했습니다. 최신 설정을 불러온 뒤 다시 저장하세요.' }, 409);
+      const settings = body.settings;
+      if (!settings || typeof settings.goal !== 'string' || !settings.goal.trim() || settings.goal.length > 2000
+          || typeof settings.objective !== 'string' || settings.objective.length > 2000
+          || ![1, 2, 3].includes(settings.priority) || typeof settings.paused !== 'boolean') {
+        return json(res, { error: '목표·완료 조건은 각각 2000자 이하, 우선순위와 일시정지를 확인하세요.' }, 400);
+      }
+      const terminal = ctx.resolveTerminalRef(body.termId);
+      if (!terminal || terminal.id !== body.termId || (!current && !ctx.terminalAgent(terminal.entry))
+          || terminal.id === review.termId || (!current && review.watched.length >= 12)) {
+        return json(res, { error: '실행 중인 작업 세션을 선택하세요. 감독 자신은 배정할 수 없고 작업자는 최대 12개입니다.' }, 400);
+      }
+      const updated = { ...current, ...workerSettings(settings), termId: terminal.id, alias: terminal.entry.alias || '',
+        goal: settings.goal.trim(), objective: settings.objective.trim() };
+      const watched = current ? review.watched.map(worker => worker.termId === terminal.id ? updated : worker) : [...review.watched, updated];
+      updateBoardReview({ watched, nextDueAt: Date.now(), retryAt: 0, pendingSince: 0, cycleStartedAt: 0 }, review, supervisorId);
+      json(res, getBoard());
+    } catch (error) { handleError(res, error); }
+  });
+
+  addRoute('PATCH', '/api/board/worker-dispatch', async (req, res) => {
+    if (!ctx.isLocalhost?.(req)) return json(res, { error: '작업자 자동 진행 설정은 로컬에서만 가능합니다.' }, 403);
+    const body = await readBody(req);
+    try {
+      const id = body.supervisorId || 'S-0001';
+      const review = supervisorBoard(getBoard(), id).review;
+      if (!['linked', 'running', 'paused'].includes(body.mode)) return json(res, { error: '자동 진행 모드를 확인하세요.' }, 400);
+      if (body.expected !== review.workerDispatch) return json(res, { error: '자동 진행 설정이 바뀌었습니다. 최신 상태를 확인하세요.' }, 409);
+      if (body.mode === 'running' && (!review.watched.length || (review.runUntil && review.runUntil <= Date.now()))) {
+        return json(res, { error: '배정된 작업자와 운영 종료 시각을 확인하세요.' }, 400);
+      }
+      updateBoardReview({ workerDispatch: body.mode }, review, id);
+      json(res, getBoard());
+    } catch (error) { handleError(res, error); }
+  });
+
   addRoute('POST', '/api/board/worker-resume', async (req, res) => {
     if (!ctx.isLocalhost?.(req)) return json(res, { error: '작업자 재개는 로컬에서만 가능합니다.' }, 403);
     const body = await readBody(req);
@@ -155,6 +205,7 @@ export function register(ctx) {
 
   addRoute('PUT', '/api/board', async (req, res) => {
     const body = await readBody(req);
+    if (Object.hasOwn(body.board || {}, 'projection') || Object.hasOwn(body.base || {}, 'projection')) return json(res, { error: 'A board summary cannot replace the full board' }, 400);
     try { json(res, replaceBoardIfRevision(body.board, body.revision, body.base)); }
     catch (error) { handleError(res, error); }
   });
@@ -173,7 +224,14 @@ export function register(ctx) {
 
   addRoute('POST', '/api/board/tasks', async (req, res) => {
     const body = await readBody(req);
-    try { json(res, addBoardTask(body.text, body.checklistId, body.kind, body.questionTo, body.supervisorId), 201); }
+    try {
+      if (body.termId !== undefined) {
+        if (typeof body.termId !== 'string' || !body.termId.trim() || body.termId.length > 200) return json(res, { error: '세션 고정 ID를 확인하세요.' }, 400);
+        const terminal = ctx.resolveTerminalRef?.(body.termId);
+        if (!terminal || terminal.id !== body.termId) return json(res, { error: '체크리스트를 등록할 세션의 고정 ID를 확인하세요.' }, 400);
+      }
+      json(res, addBoardTask(body.text, body.checklistId, body.kind, body.questionTo, body.supervisorId, body.termId), 201);
+    }
     catch (error) { handleError(res, error); }
   });
 

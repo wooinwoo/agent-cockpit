@@ -1,11 +1,40 @@
 // ─── 세션 제어 API — ai1 같은 별칭 또는 termId로 터미널 조회·주입 ───
 // 입력 주입·화면 읽기는 로컬(세션 CLI의 curl) 전용.
+import { validateRecoveryCommand } from '../lib/durable-terminal.js';
 
 export function register(ctx) {
   const { addRoute, json, readBody, rateLimit, isLocalhost, resolveTerminalRef, terminalSummaryList, readTerminalScreen } = ctx;
 
-  addRoute('GET', '/api/terminals', (_req, res) => {
-    json(res, { terminals: terminalSummaryList() });
+  addRoute('GET', '/api/terminals', (req, res) => {
+    json(res, { terminals: terminalSummaryList({ activity: req.query?.activity === '1' }) });
+  });
+
+  addRoute('PUT', '/api/terminals/:ref/launcher', async (req, res) => {
+    if (!isLocalhost?.(req)) return json(res, { error: '실행 명령 저장은 로컬에서만 가능합니다.' }, 403);
+    const body = await readBody(req);
+    const found = resolveTerminalRef(req.params.ref);
+    if (!found) return json(res, { error: 'Terminal not found' }, 404);
+    if (found.entry.conversationHeld) return json(res, { error: '사용자 대화 보호 중입니다.' }, 409);
+    let command;
+    try { command = validateRecoveryCommand(body.command); }
+    catch (error) { return json(res, { error: error.message }, 400); }
+    const previous = found.entry.command || '';
+    if (body.expected !== previous || ctx.terminalAgent?.(found.entry) !== command.split(' ')[0]) {
+      return json(res, { error: '현재 실행 중인 AI와 기존 실행 명령을 다시 확인하세요.' }, 409);
+    }
+    if (ctx.getBoard().supervisors.some(review => review.termId === found.id && review.autoRecover
+        && review.recoveryTerminal?.command !== command)) {
+      return json(res, { error: '자동 복구를 끈 뒤 실행 명령을 저장하고, 새 명령으로 복구 설정을 다시 연결하세요.' }, 409);
+    }
+    try {
+      // Register an already-running replacement; never send this command to the PTY.
+      found.entry.command = command;
+      ctx.saveTerminalStateNow(true);
+      json(res, { ok: true, termId: found.id, command });
+    } catch (error) {
+      found.entry.command = previous;
+      json(res, { error: `실행 명령 저장 실패: ${error.message}` }, 500);
+    }
   });
 
   addRoute('PUT', '/api/terminals/:ref/conversation', async (req, res) => {
@@ -46,7 +75,7 @@ export function register(ctx) {
   addRoute('GET', '/api/terminals/:ref/screen', (req, res) => {
     if (!isLocalhost?.(req)) return json(res, { error: 'Forbidden — 로컬에서만 읽을 수 있습니다.' }, 403);
     const lines = Number(req.query.lines) || 50;
-    const screen = readTerminalScreen(req.params.ref, lines);
+    const screen = readTerminalScreen(req.params.ref, lines, req.query.current === '1');
     if (!screen) return json(res, { error: 'Terminal not found' }, 404);
     json(res, screen);
   });
@@ -68,12 +97,23 @@ export function register(ctx) {
       code: 'CONVERSATION_HELD', termId: found.id,
     }, 409);
     try {
+      if (body.supervision !== undefined) {
+        const watch = body.supervision;
+        const review = ctx.getBoard().supervisors.find(item => item.id === watch?.id);
+        if (!review || review.termId !== found.id || !['running', 'waiting'].includes(review.status)
+            || !Number.isFinite(watch.until) || watch.until <= Date.now()
+            || (review.runUntil && review.runUntil <= Date.now()) || review.lastReviewedAt !== watch.reviewedAt
+            || review.pendingSince !== watch.pendingSince) {
+          return json(res, { error: '감독 점검 설정이나 보고가 변경되어 이전 재촉 요청을 취소했습니다.' }, 409);
+        }
+      }
       // 멀티라인은 브래킷 페이스트로 감싸 TUI가 붙여넣기로 처리하게 함 (줄바꿈마다 제출되는 것 방지)
       const payload = data.includes('\n') ? `\x1b[200~${data}\x1b[201~` : data;
-      found.entry.pty.write(body.enter === false ? payload : payload + '\r');
+      if (ctx.sendAgentInput) ctx.sendAgentInput(found.id, body.enter === false ? payload : payload + '\r', { controls: body.enter === false });
+      else found.entry.pty.write(body.enter === false ? payload : payload + '\r');
       json(res, { ok: true, termId: found.id, alias: found.entry.alias || '' });
     } catch (err) {
-      json(res, { error: err.message }, 500);
+      json(res, { error: err.message, code: err.code }, err.code === 'AGENT_NOT_READY' ? 409 : 500);
     }
   });
 }

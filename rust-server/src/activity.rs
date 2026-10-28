@@ -220,6 +220,8 @@ pub fn display_state(lines: &[String], current: bool, agent: &str) -> &'static s
     if screen_state(&lines[composer..], true, agent, false, false) != "idle" { return strict; }
     let nearby = &lines[composer.saturating_sub(8)..composer];
     if nearby.iter().any(|line| matches!(r"^\s*[•◦]\s*Working\s*\([^\n]*esc to interrupt|^\s*[✢✳✶✻✽*]\s+.+…",line)) { return "busy"; }
+    // Codex queues follow-ups only while a turn runs, and a long queue pushes the Working line above this window.
+    if agent == "codex" && nearby.iter().any(|line| matches!(r"(?i)edit last queued message", line)) { return "busy"; }
     if ["busy", "approval", "unknown"].contains(&strict) { "idle" } else { strict }
 }
 
@@ -310,6 +312,23 @@ mod tests {
         }
         for (lines, expected) in [
             (vec!["• Working (3s • esc to interrupt)", "›", "? for shortcuts"], "busy"),
+            (
+                vec![
+                    "• Working (19m 17s • esc to interrupt)",
+                    "  ↳ 첫 번째 대기 지시",
+                    "    이어지는 줄",
+                    "    …",
+                    "  ↳ 두 번째 대기 지시",
+                    "    이어지는 줄",
+                    "    이어지는 줄",
+                    "    …",
+                    "    shift+← edit last queued message",
+                    "› Ask Codex to do anything",
+                    "  GPT-6.1-Sol xhigh fast · ~/project",
+                ],
+                "busy",
+            ),
+            (vec!["  Worked for 4m 21s • 17:13", "› Ask Codex to do anything", "? for shortcuts"], "idle"),
             (vec!["Would you like to run this command?", "› 1. Yes", "2. No"], "approval"),
             (vec!["› draft text", "? for shortcuts"], "unknown"),
         ] {

@@ -58,7 +58,7 @@ let pendingCostReads = 0;
 try {
   await mkdir(output, { recursive: true });
   fixture = await startPortfolioServer({ durable: false, runtime: 'rust' });
-  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(path => path && existsSync(path));
+  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(path => path && existsSync(path));
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: sizes[0], serviceWorkers: 'block' });
   page.setDefaultTimeout(8000);

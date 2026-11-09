@@ -40,7 +40,7 @@ try {
     url = runtime.url;
     boardFile = `${directory}/.cockpit-board.json`;
   }
-  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(path => path && existsSync(path));
+  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(path => path && existsSync(path));
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
   page.on('pageerror', error => errors.push(error.message));

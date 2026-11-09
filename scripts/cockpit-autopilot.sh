@@ -10,7 +10,7 @@
 # Enable by adding to ~/.claude/settings.json:
 #   "hooks": { "PreToolUse": [ { "matcher": "Bash|Edit|Write|MultiEdit",
 #     "hooks": [ { "type": "command",
-#       "command": "bash ~/projects/personal/claude-code-cockpit/scripts/cockpit-autopilot.sh" } ] } ] }
+#       "command": "bash /path/to/agent-cockpit/scripts/cockpit-autopilot.sh" } ] } ] }
 set -uo pipefail
 
 PORT="${COCKPIT_PORT:-3847}"

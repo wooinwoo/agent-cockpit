@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Adapt Stitch schema annotations to the OpenAI function schema dialect."""
 import json
+import os
 import subprocess
 import sys
 
@@ -24,7 +25,7 @@ def normalize_message(message):
 
 
 if __name__ == '__main__':
-    child = subprocess.Popen(['/home/rst010/.local/bin/stitch-mcp'],
+    child = subprocess.Popen([os.path.expanduser('~/.local/bin/stitch-mcp')],
                              stdin=sys.stdin, stdout=subprocess.PIPE, stderr=sys.stderr,
                              text=True)
     try:

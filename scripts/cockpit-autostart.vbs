@@ -1,6 +1,6 @@
 ' Cockpit Dashboard — Windows login auto-start (WSL user service)
 '
-' Ubuntu의 rst010 사용자가 설치한 cockpit-prod.service를 시작합니다.
+' Ubuntu 기본 WSL 사용자가 설치한 cockpit-prod.service를 시작합니다.
 ' 저장소 경로와 서버 실행 방식은 서비스 파일에서 관리합니다.
 ' 먼저 해당 WSL 사용자의 systemd user manager에 서비스를 설치하세요.
 '
@@ -15,4 +15,4 @@ Option Explicit
 
 Dim shell
 Set shell = CreateObject("WScript.Shell")
-shell.Run "wsl.exe -d Ubuntu -u rst010 -- /usr/bin/systemctl --user start cockpit-prod.service", 0, False
+shell.Run "wsl.exe -d Ubuntu -- /usr/bin/systemctl --user start cockpit-prod.service", 0, False

@@ -135,7 +135,7 @@ async function request(path, method = 'GET', body) {
 
 async function readLegacyBoard() {
   const projects = await fetchJson('/api/projects', { timeoutMs: 2500 });
-  const cockpit = projects.find(project => project.id === 'cockpit' || /claude-code-cockpit[\\/]?$/.test(project.path || ''));
+  const cockpit = projects.find(project => project.id === 'cockpit' || /(?:claude-code|agent)-cockpit[\\/]?$/.test(project.path || ''));
   if (!cockpit?.path) return null;
   const file = await fetchJson(`/api/file?path=${encodeURIComponent(`${cockpit.path}/.cockpit-board.json`)}`, { timeoutMs: 2500 });
   return normalize(JSON.parse(file.content));

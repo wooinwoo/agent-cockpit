@@ -38,7 +38,7 @@ while True:
   let pending = '';
   terminal.onData(data => { pending += data; });
   browser = await chromium.launch({
-    executablePath: process.env.CHROME_BIN || '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome',
+    executablePath: process.env.CHROME_BIN || `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`,
     headless: true, args: ['--no-sandbox'],
   });
   const page = await browser.newPage();

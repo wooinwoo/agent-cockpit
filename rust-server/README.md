@@ -27,7 +27,7 @@ Linux GNU 빌드는 Tokio를 시작하기 전에 glibc 메모리 할당 영역�
 
 ```sh
 rust-server/target/debug/cockpit-server \
-  --root /absolute/path/to/claude-code-cockpit \
+  --root /absolute/path/to/agent-cockpit \
   --sandbox-dir /absolute/path/to/empty-preview-directory
 ```
 

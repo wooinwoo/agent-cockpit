@@ -63,7 +63,7 @@ async function backend() {
     if (!current.revision && !current.updatedAt && !current.note.content && current.tasks.length === 0) {
       try {
         const projects = await request('/api/projects');
-        const project = projects.find(item => item.id === 'cockpit' || /claude-code-cockpit[\\/]?$/.test(item.path || ''));
+        const project = projects.find(item => item.id === 'cockpit' || /(?:claude-code|agent)-cockpit[\\/]?$/.test(item.path || ''));
         if (project?.path) {
           const legacyFile = await request(`/api/file?path=${encodeURIComponent(`${project.path}/.cockpit-board.json`)}`);
           service.replaceBoardIfRevision(JSON.parse(legacyFile.content), 0);

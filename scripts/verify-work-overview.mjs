@@ -10,7 +10,7 @@ const screenshots = new URL('../docs/_local/work-overview/', import.meta.url).pa
 await mkdir(screenshots, { recursive: true });
 let browser;
 try {
-  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(path => path && existsSync(path));
+  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(path => path && existsSync(path));
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];

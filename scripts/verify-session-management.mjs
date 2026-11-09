@@ -11,7 +11,7 @@ const screenshots = new URL('../docs/_local/session-management/', import.meta.ur
 await mkdir(screenshots, { recursive: true });
 let browser, page;
 try {
-  const chrome = [process.env.CHROME_BIN, chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(path => path && existsSync(path));
+  const chrome = [process.env.CHROME_BIN, chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(path => path && existsSync(path));
   browser = await chromium.launch({ executablePath: chrome, headless: true, args: ['--no-sandbox'] });
   page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];

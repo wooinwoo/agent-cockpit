@@ -1,5 +1,5 @@
 import { chromium } from 'playwright-core';
-const browser = await chromium.launch({ executablePath: '/home/rst010/.local/bin/google-chrome-stable', headless: true, args: ['--no-sandbox'] });
+const browser = await chromium.launch({ executablePath: `${process.env.HOME}/.local/bin/google-chrome-stable`, headless: true, args: ['--no-sandbox'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto('http://localhost:3847/', { waitUntil: 'networkidle' });
 await page.waitForSelector('.xterm-wrap', { timeout: 15000 });

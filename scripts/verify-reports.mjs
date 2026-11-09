@@ -48,7 +48,7 @@ try {
   assert.equal((await api('/api/reports')).data.reports.length, 2);
   check('Registered reports survive a native server restart');
 
-  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(path => path && existsSync(path));
+  const executablePath = [process.env.CHROME_BIN, chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(path => path && existsSync(path));
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
   // A fresh private origin avoids cache reuse; Playwright's service-worker
   // blocker itself throws inside the deliberately opaque preview frames.

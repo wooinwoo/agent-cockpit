@@ -6,7 +6,7 @@ import { connect } from 'node:net';
 import { dirname, join, resolve } from 'node:path';
 import { once } from 'node:events';
 
-const binary = resolve(process.argv[2] || '/home/rst010/projects/personal/claude-code-cockpit/docs/_local/jcode-native-accounts/jcode');
+const binary = resolve(process.argv[2] || resolve(import.meta.dirname, '../docs/_local/jcode-native-accounts/jcode'));
 const temporary = await mkdtemp('/tmp/cockpit-native-engine-');
 const children = [];
 const pause = milliseconds => new Promise(resolvePause => setTimeout(resolvePause, milliseconds));

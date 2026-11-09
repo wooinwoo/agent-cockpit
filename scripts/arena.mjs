@@ -131,7 +131,7 @@ function handleDialogs(side) {
 }
 
 // CLI 사망 감지: TUI 가 죽으면 셸 프롬프트가 다시 나타남 (pty 짜부라짐이 TUI 를 죽이는 사례)
-const SHELL_PROMPT_RE = /rst010@[^\n]{0,140}\$\s*$/;
+const SHELL_PROMPT_RE = /[\w.-]+@[^\n]{0,140}\$\s*$/;
 const relaunches = {};
 function checkAliveAndRevive(side) {
   const id = sides[side];

@@ -35,7 +35,7 @@ try {
   const termId = await create();
   const other = await create();
   const endpoint = `/api/terminals/${termId}`;
-  browser = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome', headless: true, args: ['--no-sandbox'] });
+  browser = await chromium.launch({ executablePath: process.env.CHROME_BIN || `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

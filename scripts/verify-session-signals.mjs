@@ -8,7 +8,7 @@ import { startPortfolioServer } from '../tests/helpers/portfolio-server.js';
 const fixture = await startPortfolioServer({ durable: false });
 let browser;
 try {
-  const executablePath = [chromium.executablePath(), '/home/rst010/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome'].find(existsSync);
+  const executablePath = [chromium.executablePath(), `${process.env.HOME}/.cache/ms-playwright/chromium-1223/chrome-linux64/chrome`].find(existsSync);
   browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];

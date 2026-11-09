@@ -5,7 +5,7 @@
  */
 import { chromium } from 'playwright-core';
 
-const CHROME = process.env.CHROME_BIN || '/home/rst010/.local/bin/google-chrome-stable';
+const CHROME = process.env.CHROME_BIN || `${process.env.HOME}/.local/bin/google-chrome-stable`;
 const URL = process.env.COCKPIT_URL || 'http://localhost:3847/';
 
 const browser = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--no-sandbox'] });

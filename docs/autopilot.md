@@ -69,7 +69,7 @@ Add to `~/.claude/settings.json` (this is the activation step — off by default
         "matcher": "Bash|Edit|Write|MultiEdit",
         "hooks": [
           { "type": "command",
-            "command": "bash ~/projects/personal/claude-code-cockpit/scripts/cockpit-autopilot.sh" }
+            "command": "bash /path/to/agent-cockpit/scripts/cockpit-autopilot.sh" }
         ]
       }
     ]
@@ -93,7 +93,7 @@ uses the common events plus `Notification`, `PostToolUseFailure`, `StopFailure`,
 and `TeammateIdle`.
 
 ```json
-{"hooks":{"PermissionRequest":[{"hooks":[{"type":"command","command":"sh ~/projects/personal/claude-code-cockpit/scripts/cockpit-agent-hook.sh codex","timeout":3}]}]}}
+{"hooks":{"PermissionRequest":[{"hooks":[{"type":"command","command":"sh /path/to/agent-cockpit/scripts/cockpit-agent-hook.sh codex","timeout":3}]}]}}
 ```
 
 Merge the event entry into the existing hook file; do not replace other hooks. For

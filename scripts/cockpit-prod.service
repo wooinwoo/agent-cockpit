@@ -5,8 +5,8 @@ StartLimitBurst=3
 
 [Service]
 Type=simple
-WorkingDirectory=/home/rst010/projects/personal/claude-code-cockpit
-ExecStart=/home/rst010/projects/personal/claude-code-cockpit/scripts/start-cockpit.sh
+WorkingDirectory=%h/projects/personal/claude-code-cockpit
+ExecStart=%h/projects/personal/claude-code-cockpit/scripts/start-cockpit.sh
 Environment="PATH=%h/.local/bin:%h/.cargo/bin:%h/.nvm/versions/node/v24.15.0/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="SHELL=/bin/bash"
 KillMode=process

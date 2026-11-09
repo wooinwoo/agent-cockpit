@@ -4,7 +4,9 @@ import { createServer } from 'node:http';
 import { createConnection } from 'node:net';
 
 const PORT = 3847;
-const WSL_ARGS = ['-d', 'Ubuntu', '-u', 'rst010', '--', 'sh', '-lc'];
+// Runs as the distro's default WSL user unless COCKPIT_WSL_USER is set.
+const WSL_USER = process.env.COCKPIT_WSL_USER;
+const WSL_ARGS = ['-d', 'Ubuntu', ...(WSL_USER ? ['-u', WSL_USER] : []), '--', 'sh', '-lc'];
 const WSL_START_COMMAND = `curl -fsS http://127.0.0.1:${PORT}/api/health >/dev/null 2>&1 || /usr/bin/systemctl --user start cockpit-prod.service`;
 
 export function parseDiscovery(output) {
@@ -19,7 +21,7 @@ export function parseDiscovery(output) {
 function discoverWslCockpit() {
   try {
     return parseDiscovery(execFileSync('wsl.exe', [
-      '-d', 'Ubuntu', '-u', 'rst010', '--', 'sh', '-lc',
+      ...WSL_ARGS,
       'printf "COCKPIT_HOST=%s\\n" "$(hostname -I | awk \'{print $1}\')"; printf "COCKPIT_TOKEN="; cat "$HOME/.local/share/cockpit/.cockpit-token"; printf "\\n"',
     ], { encoding: 'utf8', timeout: 10000, windowsHide: true }));
   } catch {
